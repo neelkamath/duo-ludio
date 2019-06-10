@@ -1,0 +1,18 @@
+{
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neelkamath/duo-ludio.git"
+  },
+  "scripts": {
+    "dev": "parcel index.html",
+    "build": "parcel build index.html"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "parcel-bundler": "^1.12.3"
+  },
+  "dependencies": {
+    "@vaadin/vaadin": "^13.0.8",
+    "src": "^1.1.2"
+  }
+}
