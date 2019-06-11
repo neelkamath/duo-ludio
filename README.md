@@ -30,6 +30,10 @@ The `dist` directory will contain the built website.
 
 ## Documentation
 
+### Favicon
+
+Favicons are generated from [favicon.io](https://favicon.io/favicon-generator/). Styling is dictated by [Vaadin's Material Design specs](https://cdn.vaadin.com/vaadin-material-styles/1.2.0/demo/index.html). Since the web app uses the default Vaadin material theme, the font family is Roboto, the text color is `#6200ee`, and the background color is `#fff`.
+
 ### Storage
 
 `localStorage` is used to persist data. Each of the following headings are items present in `localStorage`.
@@ -103,6 +107,7 @@ document.querySelector('#delete-photo').addEventListener('click', () => {
 - [How to Create a Product Vision](https://www.joelonsoftware.com/2002/05/09/product-vision/)
 - [Website Boilerplate](https://github.com/neelkamath/website-boilerplate)
 - [Vaadin Imports](https://github.com/neelkamath/vaadin-imports)
+- [Favicon Generator](https://favicon.io/favicon-generator/)
 
 ## License
 
