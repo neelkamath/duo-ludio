@@ -2,8 +2,8 @@
 <html lang="en">
 
 <head>
-    <link href="src/style.css" rel="stylesheet">
-    <link href="src/favicon.jpeg" rel="icon">
+    <link href="style.css" rel="stylesheet">
+    <link href="favicon.jpeg" rel="icon">
     <meta charset="utf-8">
     <meta content="Neel Kamath" name="author">
     <meta content="This web app helps you concentrate by helping you find and play binaural beats. It is also available offline."
@@ -14,6 +14,23 @@
 </head>
 
 <body>
+<template id="confirm-dialog">
+    <style>
+        #buttons {
+            float: right;
+        }
+    </style>
+    <div><strong id="title"></strong></div>
+    <br>
+    <div id="body"></div>
+    <br>
+    <div id="buttons">
+        <vaadin-button id="cancel"></vaadin-button>
+        <vaadin-button id="confirm"></vaadin-button>
+    </div>
+    <br>
+</template>
+
 <vaadin-tabs>
     <vaadin-tab id="categories-tab">
         <iron-icon icon="vaadin:file-tree"></iron-icon>
@@ -28,8 +45,9 @@
         <span>Edit</span>
     </vaadin-tab>
 </vaadin-tabs>
+
 <span id="tab-content"></span>
-<script src="src/js/index.js"></script>
+<script src="js/index.js"></script>
 </body>
 
 </html>

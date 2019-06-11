@@ -30,6 +30,15 @@ The `dist` directory will contain the built website.
 
 `localStorage` has a key named `categories` which is a JSON `String`. The keys are the names of the categories, and the values are arrays.
 
+There is a web component named `confirm-dialog` having the following structure. It is meant to be used as the body of a `vaadin-dialog`. Each attribute is required. Each attribute's element has an ID of the same name. You can use the `ID`s to add event listeners for the cancel and confirm buttons.
+
+|Attribute|Explanation|Example|
+|---------|-----------|-------|
+|`title`|Title|Delete?|
+|`body`|Body|This will delete the category Meditation.|
+|`cancel`|Cancel button text|Cancel|
+|`confirm`|Confirm button text|Delete|
+
 ## Credits
 
 - [How to Create a Product Vision](https://www.joelonsoftware.com/2002/05/09/product-vision/)

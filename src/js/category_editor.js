@@ -1,3 +1,5 @@
+import './confirm_dialog';
+
 function fillHTML() {
     document.querySelector('#tab-content').innerHTML = `
         <vaadin-dialog aria-label="Error message" id="error-dialog"></vaadin-dialog>
@@ -72,37 +74,24 @@ function addCategory(category) {
     addCategoryHTML(category);
     document.querySelector(`#delete-category-${category}`).addEventListener('click', () => {
         let dialog = document.querySelector(`#delete-category-${category}-dialog`);
-        dialog.renderer = (root) => {
-            let titleDiv = document.createElement('div');
-            let strong = document.createElement('strong');
-            strong.textContent = 'Delete?';
-            titleDiv.appendChild(strong);
-            root.appendChild(titleDiv);
-
-            root.appendChild(document.createElement('br'));
-
-            let bodyDiv = document.createElement('div');
-            bodyDiv.textContent = `This will delete the category ${category}.`;
-            root.appendChild(bodyDiv);
-
-            root.appendChild(document.createElement('br'));
-
-            let cancelButton = document.createElement('vaadin-button');
-            cancelButton.textContent = 'cancel';
-            cancelButton.addEventListener('click', () => dialog.opened = false);
-            root.appendChild(cancelButton);
-
-            let confirmButton = document.createElement('vaadin-button');
-            confirmButton.textContent = 'Delete';
-            confirmButton.addEventListener('click', () => {
-                let categories = JSON.parse(localStorage.getItem('categories'));
-                delete categories[category];
-                document.querySelector(`#category-${category}`).remove();
-                localStorage.setItem('categories', JSON.stringify(categories));
-                dialog.opened = false;
-            });
-            root.appendChild(confirmButton);
-        };
+        dialog.renderer = (root) => root.innerHTML = `
+            <confirm-dialog 
+                id="${category}-confirm-dialog"
+                title="Delete?" 
+                cancel="Cancel" 
+                confirm="Delete" 
+                body="This will delete the category ${category}."
+            ></confirm-dialog>
+        `;
         dialog.opened = true;
+        let root = document.querySelector(`#${category}-confirm-dialog`).shadowRoot;
+        root.querySelector('#cancel').addEventListener('click', () => dialog.opened = false);
+        root.querySelector('#confirm').addEventListener('click', () => {
+            let categories = JSON.parse(localStorage.getItem('categories'));
+            delete categories[category];
+            document.querySelector(`#category-${category}`).remove();
+            localStorage.setItem('categories', JSON.stringify(categories));
+            dialog.opened = false;
+        });
     });
 }

@@ -1,5 +1,5 @@
-import * as editor from './category_editor.js';
-import './web_components.js';
+import * as editor from './category_editor';
+import './web_components';
 
 if (localStorage.getItem('categories') === null) localStorage.setItem('categories', JSON.stringify({}));
 
