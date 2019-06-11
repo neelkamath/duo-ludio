@@ -45,6 +45,10 @@ This is a JSON object serialized as a `String`. Each key is the name of a catego
 }
 ```
 
+### UI
+
+This project is based on Material design.
+
 ### Web Components
 
 This project uses the free material design version of [Vaadin Components](https://vaadin.com/components). Each of the following headings document custom web components.

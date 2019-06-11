@@ -56,18 +56,20 @@ function setUpAdder() {
 }
 
 function addCategoryHTML(category) {
-    document.querySelector('#categories-editor').innerHTML += `
+    let div = document.createElement('div');
+    div.innerHTML = `
         <span id="category-${category}">
             <vaadin-dialog id="delete-category-${category}-dialog" no-close-on-esc no-close-on-outside-click>
             </vaadin-dialog>
             <vaadin-item>
-                ${category}
                 <vaadin-button theme="icon" aria-label="Delete category" id="delete-category-${category}">
                     <iron-icon icon="vaadin:minus"></iron-icon>
                 </vaadin-button>
+                ${category}
             </vaadin-item>
         </span>
     `;
+    document.querySelector('#categories-editor').appendChild(div);
 }
 
 function createDialog(category) {

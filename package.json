@@ -12,7 +12,6 @@
     "parcel-bundler": "^1.12.3"
   },
   "dependencies": {
-    "@vaadin/vaadin": "^13.0.8",
-    "src": "^1.1.2"
+    "@vaadin/vaadin": "^13.0.8"
   }
 }

@@ -1,4 +1,4 @@
-import * as editor from './category_editor';
+import * as editor from './edit_tab/category_editor';
 import './vaadin';
 
 if (localStorage.getItem('categories') === null) localStorage.setItem('categories', JSON.stringify({}));
