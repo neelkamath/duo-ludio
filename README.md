@@ -32,7 +32,7 @@ The `dist` directory will contain the built website.
 
 ### Favicon
 
-Favicons are generated from [favicon.io](https://favicon.io/favicon-generator/). Styling is dictated by [Vaadin's Material Design specs](https://cdn.vaadin.com/vaadin-material-styles/1.2.0/demo/index.html). Since the web app uses the default Vaadin material theme, the font family is Roboto, the text color is `#6200ee`, and the background color is `#fff`.
+The favicon is generated from [favicon.io](https://favicon.io/favicon-generator/). Only the Apple touch icon is used, by renaming it to `favicon.png`, and storing it in the `src` directory. Styling is dictated by [Vaadin's Material Design specs](https://cdn.vaadin.com/vaadin-material-styles/1.2.0/demo/index.html). Since the web app uses the default Vaadin material theme, the font family is Roboto, the text color is `#6200ee`, and the background color is `#fff`.
 
 ### Storage
 
