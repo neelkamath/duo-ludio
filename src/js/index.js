@@ -1,4 +1,4 @@
-import * as editor from './edit_tab/category_editor';
+import * as editor from './edit_tab/edit';
 import * as tracks from './tracks_tab/tracks';
 import * as categories from './categories_tab/categories';
 import './vaadin';
