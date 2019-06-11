@@ -28,16 +28,69 @@ The `dist` directory will contain the built website.
 
 ## Documentation
 
-`localStorage` has a key named `categories` which is a JSON `String`. The keys are the names of the categories, and the values are arrays.
+### Storage
 
-There is a web component named `confirm-dialog` having the following structure. It is meant to be used as the body of a `vaadin-dialog`. Each attribute is required. Each attribute's element has an ID of the same name. You can use the `ID`s to add event listeners for the cancel and confirm buttons.
+`localStorage` is used to persist data. Each of the following headings are items present in `localStorage`.
 
-|Attribute|Explanation|Example|
-|---------|-----------|-------|
-|`title`|Title|Delete?|
-|`body`|Body|This will delete the category Meditation.|
-|`cancel`|Cancel button text|Cancel|
-|`confirm`|Confirm button text|Delete|
+#### `categories`
+
+This is a JSON object serialized as a `String`. Each key is the name of a category, and each value is an empty array.
+
+##### Example
+
+```json
+{
+  "meditation": [],
+  "programming": []
+}
+```
+
+### Web Components
+
+This project uses the free material design version of [Vaadin Components](https://vaadin.com/components). Each of the following headings document custom web components.
+
+#### `confirm-dialog`
+
+Since Vaadin's confirm dialog component isn't free, a custom web component was created to serve the same purpose. This component is meant to be used as the root HTML of a `vaadin-dialog` when rendered.
+
+##### Attributes
+
+|Attribute|Required|ID|Explanation|Example|
+|---|---|---|---|---|
+|`title`|Yes|`title`|Title|Delete?|
+|`body`|Yes|`body`|Body|This will delete the category Meditation.|
+|`cancel`|Yes|`cancel`|Cancel button text|Cancel|
+|`confirm`|Yes|`confirm`|Confirm button text|Delete|
+
+##### Example
+
+###### HTML
+
+```html
+<vaadin-dialog id="delete-photo-dialog" no-close-on-esc no-close-on-outside-click></vaadin-dialog>
+<vaadin-button id="delete-photo">Delete photo</vaadin-button>
+```
+
+###### JavaScript
+
+```js
+document.querySelector('#delete-photo').addEventListener('click', () => {
+    let dialog = document.querySelector('#delete-photo-dialog');
+    dialog.renderer = (root) => root.innerHTML = `
+        <confirm-dialog 
+            id="photo-confirm-dialog"
+            title="Delete?" 
+            body="This will permanently delete the photo."
+            cancel="Cancel" 
+            confirm="Delete" 
+        ></confirm-dialog>
+    `;
+    dialog.opened = true;
+    let root = document.querySelector('#photo-confirm-dialog').shadowRoot;
+    root.querySelector('#cancel').addEventListener('click', () => dialog.opened = false);
+    root.querySelector('#confirm').addEventListener('click', () => dialog.opened = false);
+});
+```
 
 ## Credits
 

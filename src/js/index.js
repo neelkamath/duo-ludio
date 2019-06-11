@@ -1,5 +1,5 @@
 import * as editor from './category_editor';
-import './web_components';
+import './vaadin';
 
 if (localStorage.getItem('categories') === null) localStorage.setItem('categories', JSON.stringify({}));
 
