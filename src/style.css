@@ -2,3 +2,8 @@ img, video {
     height: auto;
     max-width: 100%;
 }
+
+.tab-icon {
+    height: 24px; /* 24px is the fallback value of --iron-icon-height. */
+    width: 24px; /* 24px is the fallback value of --iron-icon-width. */
+}

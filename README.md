@@ -104,10 +104,10 @@ document.querySelector('#delete-photo').addEventListener('click', () => {
 
 ## Credits
 
-- [How to Create a Product Vision](https://www.joelonsoftware.com/2002/05/09/product-vision/)
+- Description: [How to Create a Product Vision by Joel Spolsky](https://www.joelonsoftware.com/2002/05/09/product-vision/)
 - [Website Boilerplate](https://github.com/neelkamath/website-boilerplate)
 - [Vaadin Imports](https://github.com/neelkamath/vaadin-imports)
-- [Favicon Generator](https://favicon.io/favicon-generator/)
+- Favicon: [favicon.io](https://favicon.io/favicon-generator/)
 
 ## License
 
