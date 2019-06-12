@@ -30,6 +30,10 @@ The `dist` directory will contain the built website.
 
 ## Documentation
 
+### JavaScript
+
+The underscore convention is used to denote private things in `class`es (e.g., `foo() {}` is public but `_bar() {}` is private).
+
 ### Favicon
 
 The favicon is generated from [favicon.io](https://favicon.io/favicon-generator/). Only the Apple touch icon is used, by renaming it to `favicon.png`, and storing it in the `src` directory. Styling is dictated by [Vaadin's Material Design specs](https://cdn.vaadin.com/vaadin-material-styles/1.2.0/demo/index.html). Since the web app uses the default Vaadin material theme, the font family is Roboto, the text color is `#6200ee`, and the background color is `#fff`.
@@ -50,6 +54,10 @@ This is a JSON object serialized as a `String`. Each key is the name of a catego
   "programming": []
 }
 ```
+
+### Binaural Beats
+
+The binaural beats used are from the [v1.0.0](https://github.com/neelkamath/binaural-beats-dataset/releases/tag/v1.0.0) release of the Binaural Beats Dataset.
 
 ### UI
 
@@ -108,6 +116,7 @@ document.querySelector('#delete-photo').addEventListener('click', () => {
 - [Website Boilerplate](https://github.com/neelkamath/website-boilerplate)
 - [Vaadin Imports](https://github.com/neelkamath/vaadin-imports)
 - Favicon: [favicon.io](https://favicon.io/favicon-generator/)
+- [Binaural Beats Dataset](https://github.com/neelkamath/binaural-beats-dataset)
 
 ## License
 

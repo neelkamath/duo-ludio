@@ -7,3 +7,7 @@ img, video {
     height: 24px; /* 24px is the fallback value of --iron-icon-height. */
     width: 24px; /* 24px is the fallback value of --iron-icon-width. */
 }
+
+#wave-details {
+    margin: 1em 0;
+}
