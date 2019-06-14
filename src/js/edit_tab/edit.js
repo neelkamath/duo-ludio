@@ -1,14 +1,3 @@
-import '../add_category';
-import './confirm_dialog';
-
-function fillHTML() {
-    document.querySelector('#tab-content').innerHTML = `
-        <vaadin-dialog aria-label="Error message" id="error-dialog"></vaadin-dialog>
-        <add-category id="new-category"></add-category>
-        <div id="categories-editor"></div>
-    `;
-}
-
 export function setUpEditTab() {
     document.querySelector('#edit-tab').addEventListener('click', () => {
         fillHTML();
@@ -18,15 +7,25 @@ export function setUpEditTab() {
     });
 }
 
+function fillHTML() {
+    document.querySelector('#tab-content').innerHTML = `
+        <vaadin-dialog aria-label="Invalid category name" id="error-dialog"></vaadin-dialog>
+        <add-category id="new-category"></add-category>
+        <div id="categories-editor"></div>
+    `;
+}
+
 function renderInvalidDialog(message) {
     let dialog = document.querySelector('#error-dialog');
-    dialog.renderer = (root) => root.textContent = message;
+    dialog.renderer = (root) => root.innerHTML = `<ok-dialog id="ok-dialog" message="${message}"></ok-dialog>`;
     dialog.opened = true;
+    let root = document.querySelector('#ok-dialog').shadowRoot;
+    root.querySelector('#ok').addEventListener('click', () => dialog.opened = false);
 }
 
 function hasInvalidName(name) {
     if (name.length === 0) {
-        renderInvalidDialog('Please enter a category name');
+        renderInvalidDialog('Please enter a category name.');
         return true;
     }
     if (name in JSON.parse(localStorage.getItem('categories'))) {

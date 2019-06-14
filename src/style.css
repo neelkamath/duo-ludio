@@ -5,7 +5,8 @@ img, video {
 
 .dialog-button {
     float: right;
-    margin: 1em 0;
+    margin-bottom: 1em;
+    margin-top: 1.5em;
 }
 
 .tab-icon {
