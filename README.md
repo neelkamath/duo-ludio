@@ -1,8 +1,8 @@
+<p align="center"><img alt="Favicon" src="src/favicon.png"></p>
+
 # Duo Ludio
 
 Check it out [here](https://duo-ludio.netlify.com/)!
-
-![Favicon](src/favicon.png)
 
 For a person who needs help concentrating, Duo Ludio is a web app that provides categorized binaural beats. Unlike other binaural beats players, this product is accessible anywhere since it has the option to be installed offline.
 
