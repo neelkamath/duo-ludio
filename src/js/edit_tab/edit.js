@@ -29,7 +29,7 @@ function hasInvalidName(name) {
         return true;
     }
     if (name in JSON.parse(localStorage.getItem('categories'))) {
-        renderInvalidDialog('That category already exists');
+        renderInvalidDialog('That category already exists.');
         return true;
     }
     return false;
@@ -56,42 +56,25 @@ function setUpAdder() {
 function addCategoryHTML(category) {
     let div = document.createElement('div');
     div.innerHTML = `
-        <span id="category-${category}">
-            <vaadin-dialog id="delete-category-${category}-dialog" no-close-on-esc no-close-on-outside-click>
-            </vaadin-dialog>
-            <vaadin-item>
-                <vaadin-button theme="icon" aria-label="Delete category" id="delete-category-${category}">
-                    <iron-icon icon="vaadin:minus"></iron-icon>
-                </vaadin-button>
-                ${category}
-            </vaadin-item>
-        </span>
+        <item-editor 
+            id="edit-${category}" 
+            item="${category}" 
+            dialog-title="Delete?" 
+            dialog-body="This will delete the category ${category}." 
+            dialog-confirm="Delete"
+        ></item-editor>
     `;
     document.querySelector('#categories-editor').appendChild(div);
 }
 
-function createDialog(category) {
-    let dialog = document.querySelector(`#delete-category-${category}-dialog`);
-    dialog.renderer = (root) => root.innerHTML = `
-        <confirm-dialog 
-            id="${category}-confirm-dialog"
-            title="Delete?" 
-            cancel="Cancel" 
-            confirm="Delete" 
-            body="This will delete the category ${category}."
-        ></confirm-dialog>
-    `;
-    dialog.opened = true;
-    return dialog;
-}
-
 function addCategory(category) {
     addCategoryHTML(category);
-    document.querySelector(`#delete-category-${category}`).addEventListener('click', () => {
-        let dialog = createDialog(category);
-        let root = document.querySelector(`#${category}-confirm-dialog`).shadowRoot;
-        root.querySelector('#cancel').addEventListener('click', () => dialog.opened = false);
-        root.querySelector('#confirm').addEventListener('click', () => {
+    let itemShadow = document.querySelector(`#edit-${category}`).shadowRoot;
+    itemShadow.querySelector('#delete').addEventListener('click', () => {
+        let dialog = itemShadow.querySelector('#dialog');
+        let shadow = document.querySelector('#confirm-dialog').shadowRoot;
+        shadow.querySelector('#cancel').addEventListener('click', () => dialog.opened = false);
+        shadow.querySelector('#confirm').addEventListener('click', () => {
             deleteCategory(category);
             dialog.opened = false;
         });
@@ -102,5 +85,5 @@ function deleteCategory(category) {
     let categories = JSON.parse(localStorage.getItem('categories'));
     delete categories[category];
     localStorage.setItem('categories', JSON.stringify(categories));
-    document.querySelector(`#category-${category}`).remove();
+    document.querySelector(`#edit-${category}`).remove();
 }

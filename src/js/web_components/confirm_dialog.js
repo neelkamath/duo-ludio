@@ -9,8 +9,12 @@ class ConfirmDialog extends HTMLElement {
 
         shadow.querySelector('#title').textContent = this.getAttribute('title');
         shadow.querySelector('#body').textContent = this.getAttribute('body');
-        shadow.querySelector('#cancel').textContent = this.getAttribute('cancel');
-        shadow.querySelector('#confirm').textContent = this.getAttribute('confirm');
+        let cancelText = 'Cancel';
+        if (this.hasAttribute('cancel')) cancelText = this.getAttribute('cancel');
+        shadow.querySelector('#cancel').textContent = cancelText;
+        let confirmText = 'Confirm';
+        if (this.hasAttribute('confirm')) confirmText = this.getAttribute('confirm');
+        shadow.querySelector('#confirm').textContent = confirmText;
     }
 }
 
