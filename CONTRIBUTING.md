@@ -1,0 +1,1 @@
+Remember to update the corresponding documentation in the [wiki](https://github.com/neelkamath/duo-ludio/wiki). For example, updating the site to a dark theme would require the Favicon page's specified background and text colors to be updated.
