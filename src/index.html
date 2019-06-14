@@ -14,7 +14,8 @@
 </head>
 
 <body>
-<template id="confirm-dialog">
+
+<template id="confirm-dialog-template">
     <style>
         #buttons {
             float: right;
@@ -31,6 +32,13 @@
     <br>
 </template>
 
+<template id="add-category-template">
+    <vaadin-text-field id="name" label="Category name" placeholder="Mindless HW"></vaadin-text-field>
+    <vaadin-button aria-label="Add category" id="add" theme="icon">
+        <iron-icon icon="vaadin:plus"></iron-icon>
+    </vaadin-button>
+</template>
+
 <vaadin-tabs>
     <vaadin-tab id="categories-tab">
         <iron-icon icon="vaadin:file-tree"></iron-icon>
@@ -45,9 +53,11 @@
         <span>Edit</span>
     </vaadin-tab>
 </vaadin-tabs>
+
 <span id="tab-content"></span>
 
 <script src="js/index.js"></script>
+
 </body>
 
 </html>

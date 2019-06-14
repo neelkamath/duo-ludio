@@ -1,12 +1,10 @@
+import '../add_category';
 import './confirm_dialog';
 
 function fillHTML() {
     document.querySelector('#tab-content').innerHTML = `
         <vaadin-dialog aria-label="Error message" id="error-dialog"></vaadin-dialog>
-        <vaadin-text-field label="Category name" placeholder="Mindless HW" id="new-category-name"></vaadin-text-field>
-        <vaadin-button theme="icon" aria-label="Add category" id="add-category">
-            <iron-icon icon="vaadin:plus"></iron-icon>
-        </vaadin-button>
+        <add-category id="new-category"></add-category>
         <div id="categories-editor"></div>
     `;
 }
@@ -45,8 +43,9 @@ function saveCategory(category) {
 }
 
 function setUpAdder() {
-    document.querySelector('#add-category').addEventListener('click', () => {
-        let nameField = document.querySelector('#new-category-name');
+    let root = document.querySelector('#new-category').shadowRoot;
+    root.querySelector('#add').addEventListener('click', () => {
+        let nameField = root.querySelector('#name');
         let name = nameField.value.trim();
         if (hasInvalidName(name)) return;
         saveCategory(name);

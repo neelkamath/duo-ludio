@@ -4,7 +4,7 @@ class ConfirmDialog extends HTMLElement {
 
         const shadow = this.attachShadow({mode: 'open'});
 
-        let templateContent = document.querySelector('#confirm-dialog').content;
+        let templateContent = document.querySelector('#confirm-dialog-template').content;
         shadow.appendChild(templateContent.cloneNode(true));
 
         shadow.querySelector('#title').textContent = this.getAttribute('title');
