@@ -1,6 +1,6 @@
-import * as editor from './edit_tab/edit';
-import * as tracks from './tracks_tab/tracks';
-import * as categories from './categories_tab/categories';
+import * as editor from './tabs/edit';
+import * as tracks from './tabs/tracks';
+import * as categories from './tabs/categories';
 import './web_components/vaadin';
 import './web_components/add_category';
 import './web_components/item_editor';

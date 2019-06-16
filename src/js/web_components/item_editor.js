@@ -4,6 +4,16 @@ class ItemEditor extends HTMLElement {
 
         this.attachShadow({mode: 'open'});
 
+        this.shadowRoot.appendChild(ItemEditor._getTemplateContent().cloneNode(true));
+
+        this.delete = this.shadowRoot.querySelector('#delete');
+
+        this.shadowRoot.querySelector('#item').textContent = this.getAttribute('item');
+        this._handleDelete();
+
+    }
+
+    static _getTemplateContent() {
         let template = document.createElement('template');
         template.innerHTML = `
             <vaadin-dialog id="dialog" no-close-on-esc no-close-on-outside-click></vaadin-dialog>
@@ -14,10 +24,11 @@ class ItemEditor extends HTMLElement {
                 <span id="item"></span>
             </vaadin-item>
         `;
-        this.shadowRoot.appendChild(template.content.cloneNode(true));
+        return template.content;
+    }
 
-        this.shadowRoot.querySelector('#item').textContent = this.getAttribute('item');
-        this.shadowRoot.querySelector('#delete').addEventListener('click', () => {
+    _handleDelete() {
+        this.delete.addEventListener('click', () => {
             let dialog = this.shadowRoot.querySelector('#dialog');
             let cancelText = 'Cancel';
             if (this.hasAttribute('dialog-cancel')) {
@@ -37,6 +48,13 @@ class ItemEditor extends HTMLElement {
                 ></confirm-dialog>
             `;
             dialog.opened = true;
+
+            let confirmDialog = document.querySelector('#confirm-dialog');
+            this.cancel = confirmDialog.cancel;
+            this.confirm = confirmDialog.confirm;
+
+            this.cancel.addEventListener('click', () => dialog.opened = false);
+            this.confirm.addEventListener('click', () => dialog.opened = false);
         });
     }
 }

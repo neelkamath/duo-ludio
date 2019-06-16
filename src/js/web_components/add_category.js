@@ -1,4 +1,4 @@
-class CategoryAdder extends HTMLElement {
+class ItemAdder extends HTMLElement {
     constructor() {
         super();
 
@@ -12,7 +12,10 @@ class CategoryAdder extends HTMLElement {
             </vaadin-button>
         `;
         this.shadowRoot.appendChild(template.content.cloneNode(true));
+
+        this.field = this.shadowRoot.querySelector('#name');
+        this.button = this.shadowRoot.querySelector('#add');
     }
 }
 
-customElements.define('add-category', CategoryAdder);
+customElements.define('add-item', ItemAdder);

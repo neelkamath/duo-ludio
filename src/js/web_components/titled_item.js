@@ -15,6 +15,8 @@ class TitledItem extends HTMLElement {
 
         this.shadowRoot.querySelector('#title').textContent = this.getAttribute('title');
         this.shadowRoot.querySelector('#body').innerHTML = this.getAttribute('body');
+
+        this.body = this.shadowRoot.querySelector('#body');
     }
 }
 

@@ -35,6 +35,8 @@ class WaveDetails extends HTMLElement {
         this.shadowRoot.querySelector('#benefits').innerHTML = `
             <titled-item id="benefits-item" title="Benefits" body=""></titled-item>
         `;
+
+        this.benefits = this.shadowRoot.querySelector('#benefits-item').body;
     }
 }
 

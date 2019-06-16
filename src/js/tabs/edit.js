@@ -10,7 +10,7 @@ export function setUpEditTab() {
 function fillHTML() {
     document.querySelector('#tab-content').innerHTML = `
         <vaadin-dialog aria-label="Invalid category name" id="error-dialog"></vaadin-dialog>
-        <add-category id="new-category"></add-category>
+        <add-item id="new-category"></add-item>
         <div id="categories-editor"></div>
     `;
 }
@@ -19,8 +19,7 @@ function renderInvalidDialog(message) {
     let dialog = document.querySelector('#error-dialog');
     dialog.renderer = (root) => root.innerHTML = `<ok-dialog id="ok-dialog" message="${message}"></ok-dialog>`;
     dialog.opened = true;
-    let root = document.querySelector('#ok-dialog').shadowRoot;
-    root.querySelector('#ok').addEventListener('click', () => dialog.opened = false);
+    document.querySelector('#ok-dialog').button.addEventListener('click', () => dialog.opened = false);
 }
 
 function hasInvalidName(name) {
@@ -42,13 +41,12 @@ function saveCategory(category) {
 }
 
 function setUpAdder() {
-    let root = document.querySelector('#new-category').shadowRoot;
-    root.querySelector('#add').addEventListener('click', () => {
-        let nameField = root.querySelector('#name');
-        let name = nameField.value.trim();
+    let adder = document.querySelector('#new-category');
+    adder.button.addEventListener('click', () => {
+        let name = adder.field.value.trim();
         if (hasInvalidName(name)) return;
         saveCategory(name);
-        nameField.value = '';
+        adder.field.value = '';
         addCategory(name);
     });
 }
@@ -69,15 +67,9 @@ function addCategoryHTML(category) {
 
 function addCategory(category) {
     addCategoryHTML(category);
-    let itemShadow = document.querySelector(`#edit-${category}`).shadowRoot;
-    itemShadow.querySelector('#delete').addEventListener('click', () => {
-        let dialog = itemShadow.querySelector('#dialog');
-        let shadow = document.querySelector('#confirm-dialog').shadowRoot;
-        shadow.querySelector('#cancel').addEventListener('click', () => dialog.opened = false);
-        shadow.querySelector('#confirm').addEventListener('click', () => {
-            deleteCategory(category);
-            dialog.opened = false;
-        });
+    let editor = document.querySelector(`#edit-${category}`);
+    editor.delete.addEventListener('click', () => {
+        editor.confirm.addEventListener('click', () => deleteCategory(category));
     });
 }
 

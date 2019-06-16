@@ -138,10 +138,8 @@ class TabSetUp {
         content.innerHTML = '';
         content.appendChild(this._createDetailsHTML());
         content.appendChild(this._createTrackTypesHTML());
-        let detailsShadow = document.querySelector('#details').shadowRoot;
-        let shadow = detailsShadow.querySelector('#benefits-item').shadowRoot;
         let benefits = this.data['benefits'].map((benefit) => `<li>${benefit}</li>`).join('');
-        shadow.querySelector('#body').innerHTML = `<ul>${benefits}</ul>`;
+        document.querySelector('#details').benefits.innerHTML = `<ul>${benefits}</ul>`;
     }
 
     _addAddButtonEventListeners() {

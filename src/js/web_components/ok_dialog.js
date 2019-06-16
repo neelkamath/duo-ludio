@@ -20,6 +20,8 @@ class OKDialog extends HTMLElement {
         this.shadowRoot.appendChild(template.content.cloneNode(true));
 
         this.shadowRoot.querySelector('#message').textContent = this.getAttribute('message');
+
+        this.button = this.shadowRoot.querySelector('#ok');
     }
 }
 
