@@ -2,14 +2,14 @@ class ItemEditor extends HTMLElement {
     constructor() {
         super();
 
-        const shadow = this.attachShadow({mode: 'open'});
+        this.attachShadow({mode: 'open'});
 
         let content = document.querySelector('#item-editor-template').content;
-        shadow.appendChild(content.cloneNode(true));
+        this.shadowRoot.appendChild(content.cloneNode(true));
 
-        shadow.querySelector('#item').textContent = this.getAttribute('item');
-        shadow.querySelector('#delete').addEventListener('click', () => {
-            let dialog = shadow.querySelector('#dialog');
+        this.shadowRoot.querySelector('#item').textContent = this.getAttribute('item');
+        this.shadowRoot.querySelector('#delete').addEventListener('click', () => {
+            let dialog = this.shadowRoot.querySelector('#dialog');
             let cancelText = 'Cancel';
             if (this.hasAttribute('dialog-cancel')) {
                 cancelText = this.getAttribute('dialog-cancel');

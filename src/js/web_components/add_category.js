@@ -1,9 +1,9 @@
 class CategoryAdder extends HTMLElement {
     constructor() {
         super();
-        const shadow = this.attachShadow({mode: 'open'});
+        this.attachShadow({mode: 'open'});
         let templateContent = document.querySelector('#add-category-template').content;
-        shadow.appendChild(templateContent.cloneNode(true));
+        this.shadowRoot.appendChild(templateContent.cloneNode(true));
     }
 }
 

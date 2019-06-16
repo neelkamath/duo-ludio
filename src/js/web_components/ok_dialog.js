@@ -1,10 +1,10 @@
 class OKDialog extends HTMLElement {
     constructor() {
         super();
-        const shadow = this.attachShadow({mode: 'open'});
+        this.attachShadow({mode: 'open'});
         let template = document.querySelector('#ok-dialog-template').content;
-        shadow.appendChild(template.cloneNode(true));
-        shadow.querySelector('#message').textContent = this.getAttribute('message');
+        this.shadowRoot.appendChild(template.cloneNode(true));
+        this.shadowRoot.querySelector('#message').textContent = this.getAttribute('message');
     }
 }
 

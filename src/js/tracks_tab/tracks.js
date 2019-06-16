@@ -1,34 +1,37 @@
 import * as binaurals from '../../binaural_beats/data';
+import * as utility from '../utility';
 
 export function setUpTracksTab() {
     document.querySelector('#tracks-tab').addEventListener('click', () => {
         fillHTML();
         for (let wave in binaurals) if (binaurals.hasOwnProperty(wave) && wave !== 'default') new TabSetUp(wave);
-        setTimeout(() => document.querySelector('#alpha-tab').click(), 10);
+
+        // Use setTimeout() so the DOM has time to load.
+        setTimeout(() => document.querySelector('#wave-tabs').firstElementChild.click(), 10);
     });
 }
 
 function fillHTML() {
     document.querySelector('#tab-content').innerHTML = `
-        <vaadin-tabs>
+        <vaadin-tabs id="wave-tabs">
             <vaadin-tab id="alpha-tab">
-                <img class="tab-icon" alt="Alpha" src="https://bit.ly/2wTc8tv">
+                <tab-icon alt="Alpha" src="https://bit.ly/2wTc8tv"></tab-icon>
                 Alpha
             </vaadin-tab>
             <vaadin-tab id="beta-tab">
-                <img class="tab-icon" alt="Beta" src="https://bit.ly/2F7YAyU">
+                <tab-icon alt="Beta" src="https://bit.ly/2F7YAyU"></tab-icon>
                 Beta
             </vaadin-tab>
             <vaadin-tab id="delta-tab">
-                <img class="tab-icon" alt="Delta" src="https://bit.ly/2WJ83az">
+                <tab-icon alt="Delta" src="https://bit.ly/2WJ83az"></tab-icon>
                 Delta
             </vaadin-tab>
             <vaadin-tab id="gamma-tab">
-                <img class="tab-icon" alt="Gamma" src="https://bit.ly/2WGfzOP">
+                <tab-icon alt="Gamma" src="https://bit.ly/2WGfzOP"></tab-icon>
                 Gamma
             </vaadin-tab>
             <vaadin-tab id="theta-tab">
-                <img class="tab-icon" alt="Theta" src="https://bit.ly/2WFjrPV">
+                <tab-icon alt="Theta" src="https://bit.ly/2WFjrPV"></tab-icon>
                 Theta
             </vaadin-tab>
         </vaadin-tabs>
@@ -102,19 +105,6 @@ class TabSetUp {
         `;
     }
 
-    _fillTabHTML() {
-        document.querySelector('#binaurals-content').innerHTML = `
-            ${this._createDetailsHTML()}
-            ${this._createTrackTypesHTML()}
-        `;
-    }
-
-    _addAddButtonEventListeners() {
-        for (let button of document.querySelectorAll('.track-button')) {
-            button.addEventListener('click', () => this._promptAdd(button.id));
-        }
-    }
-
     static _createFrequencyHTML(track, trackType) {
         let text = '';
         if (trackType === 'pure' || trackType === 'isochronic') {
@@ -129,14 +119,35 @@ class TabSetUp {
         if ('effects' in track) {
             return `
                 <div class="block">
-                    <vaadin-item>
-                        <div><strong>Effects</strong></div>
-                        <div><ul>${track['effects'].map((effect) => `<li>${effect}</li>`).join('')}</ul></div>
-                    </vaadin-item>
+                    <titled-item 
+                        title="Effects" 
+                        body="<ul>${track['effects'].map((effect) => `<li>${effect}</li>`).join('')}</ul>"
+                    ></titled-item>
                 </div>
             `;
         }
         return '';
+    }
+
+    static _titleCase(trackType) {
+        return trackType[0].toUpperCase() + trackType.slice(1);
+    }
+
+    _fillTabHTML() {
+        let content = document.querySelector('#binaurals-content');
+        content.innerHTML = '';
+        content.appendChild(this._createDetailsHTML());
+        content.appendChild(this._createTrackTypesHTML());
+        let detailsShadow = document.querySelector('#details').shadowRoot;
+        let shadow = detailsShadow.querySelector('#benefits-item').shadowRoot;
+        let benefits = this.data['benefits'].map((benefit) => `<li>${benefit}</li>`).join('');
+        shadow.querySelector('#body').innerHTML = `<ul>${benefits}</ul>`;
+    }
+
+    _addAddButtonEventListeners() {
+        for (let button of document.querySelectorAll('.track-button')) {
+            button.addEventListener('click', () => this._promptAdd(button.id));
+        }
     }
 
     _promptAdd(track) {
@@ -146,32 +157,22 @@ class TabSetUp {
         TabSetUp._addDialogEventListeners(dialog, track);
     }
 
-    static _titleCase(trackType) {
-        return trackType[0].toUpperCase() + trackType.slice(1);
-    }
-
     _createDetailsHTML() {
-        return `
-            <vaadin-details id="wave-details">
-                <div slot="summary"><h1>Details</h1></div>
-                <vaadin-item>
-                    <div><strong>Frequency Range</strong></div>
-                    <div>${this.data['minFrequency']} Hz - ${this.data['maxFrequency']} Hz</div>
-                </vaadin-item>
-                <vaadin-item>
-                    <div><strong>Explanation</strong></div>
-                    <div>${this.data['explanation']}</div>
-                </vaadin-item>
-                <vaadin-item>
-                    <div><strong>Benefits</strong></div>
-                    <ul>${this.data['benefits'].map((benefit) => `<li>${benefit}</li>`).join('')}</ul>
-                </vaadin-item>
-            </vaadin-details>
+        let details = document.createElement('span');
+        details.innerHTML = `
+            <wave-details
+                id="details"
+                min-frequency="${this.data['minFrequency']}"
+                max-frequency="${this.data['maxFrequency']}"
+                explanation="${utility.escapeHTML(this.data['explanation'])}"
+            ></wave-details>
         `;
+        return details;
     }
 
     _createTrackTypesHTML() {
-        return `
+        let span = document.createElement('span');
+        span.innerHTML = `
             <vaadin-dialog id="add-track-dialog"></vaadin-dialog>
             <vaadin-accordion>
                 ${this._createTracksHTML('pure')}
@@ -179,6 +180,7 @@ class TabSetUp {
                 ${this._createTracksHTML('solfeggio')}
             </vaadin-accordion>
         `;
+        return span;
     }
 
     _createTracksHTML(trackType) {

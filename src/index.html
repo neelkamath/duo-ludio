@@ -78,15 +78,29 @@
     </style>
 </template>
 
-<script src="js/index.js"></script>
+<template id="titled-item-template">
+    <vaadin-item>
+        <div><strong id="title"></strong></div>
+        <div id="body"></div>
+    </vaadin-item>
+</template>
 
-<item-editor
-        dialog-body="This will delete the category ${category}."
-        dialog-confirm="Delete"
-        dialog-title="Delete?"
-        id="edit-${category}"
-        item="${category}"
-></item-editor>
+<template id="wave-details-template">
+    <vaadin-details id="details">
+        <div slot="summary"><h1>Details</h1></div>
+        <span id="frequency-range"></span>
+        <span id="explanation"></span>
+        <span id="benefits"></span>
+    </vaadin-details>
+
+    <style>
+        #details {
+            margin: 1em 0;
+        }
+    </style>
+</template>
+
+<script src="js/index.js"></script>
 
 </body>
 
