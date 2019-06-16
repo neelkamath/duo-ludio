@@ -4,8 +4,25 @@ class ConfirmDialog extends HTMLElement {
 
         this.attachShadow({mode: 'open'});
 
-        let templateContent = document.querySelector('#confirm-dialog-template').content;
-        this.shadowRoot.appendChild(templateContent.cloneNode(true));
+        let template = document.createElement('template');
+        template.innerHTML = `
+            <div><strong id="title"></strong></div>
+            <br>
+            <div id="body"></div>
+            <div id="buttons">
+                <vaadin-button id="cancel"></vaadin-button>
+                <vaadin-button id="confirm"></vaadin-button>
+            </div>
+            
+            <style>
+                #buttons {
+                    float: right;
+                    margin-bottom: 1em;
+                    margin-top: 1.5em;
+                }
+            </style>
+        `;
+        this.shadowRoot.appendChild(template.content.cloneNode(true));
 
         this.shadowRoot.querySelector('#title').textContent = this.getAttribute('title');
         this.shadowRoot.querySelector('#body').textContent = this.getAttribute('body');

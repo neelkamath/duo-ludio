@@ -14,7 +14,6 @@
 </head>
 
 <body>
-
 <vaadin-tabs>
     <vaadin-tab id="categories-tab">
         <iron-icon icon="vaadin:file-tree"></iron-icon>
@@ -29,79 +28,8 @@
         <span>Edit</span>
     </vaadin-tab>
 </vaadin-tabs>
-
 <span id="tab-content"></span>
-
-<template id="add-category-template">
-    <vaadin-text-field id="name" label="Category name" placeholder="Mindless HW"></vaadin-text-field>
-    <vaadin-button aria-label="Add category" id="add" theme="icon">
-        <iron-icon icon="vaadin:plus"></iron-icon>
-    </vaadin-button>
-</template>
-
-<template id="confirm-dialog-template">
-    <div><strong id="title"></strong></div>
-    <br>
-    <div id="body"></div>
-    <div id="buttons">
-        <vaadin-button id="cancel"></vaadin-button>
-        <vaadin-button id="confirm"></vaadin-button>
-    </div>
-    <style>
-        #buttons {
-            float: right;
-            margin-bottom: 1em;
-            margin-top: 1.5em;
-        }
-    </style>
-</template>
-
-<template id="item-editor-template">
-    <vaadin-dialog id="dialog" no-close-on-esc no-close-on-outside-click></vaadin-dialog>
-    <vaadin-item>
-        <vaadin-button aria-label="Delete item" id="delete" theme="icon">
-            <iron-icon icon="vaadin:minus"></iron-icon>
-        </vaadin-button>
-        <span id="item"></span>
-    </vaadin-item>
-</template>
-
-<template id="ok-dialog-template">
-    <div id="message"></div>
-    <vaadin-button id="ok">OK</vaadin-button>
-    <style>
-        #ok {
-            float: right;
-            margin-bottom: 1em;
-            margin-top: 1.5em;
-        }
-    </style>
-</template>
-
-<template id="titled-item-template">
-    <vaadin-item>
-        <div><strong id="title"></strong></div>
-        <div id="body"></div>
-    </vaadin-item>
-</template>
-
-<template id="wave-details-template">
-    <vaadin-details id="details">
-        <div slot="summary"><h1>Details</h1></div>
-        <span id="frequency-range"></span>
-        <span id="explanation"></span>
-        <span id="benefits"></span>
-    </vaadin-details>
-
-    <style>
-        #details {
-            margin: 1em 0;
-        }
-    </style>
-</template>
-
 <script src="js/index.js"></script>
-
 </body>
 
 </html>

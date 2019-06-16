@@ -6,8 +6,22 @@ class WaveDetails extends HTMLElement {
 
         this.attachShadow({mode: 'open'});
 
-        let templateContent = document.querySelector('#wave-details-template').content;
-        this.shadowRoot.appendChild(templateContent.cloneNode(true));
+        let template = document.createElement('template');
+        template.innerHTML = `
+            <vaadin-details id="details">
+                <div slot="summary"><h1>Details</h1></div>
+                <span id="frequency-range"></span>
+                <span id="explanation"></span>
+                <span id="benefits"></span>
+            </vaadin-details>
+            
+            <style>
+                #details {
+                    margin: 1em 0;
+                }
+            </style>
+        `;
+        this.shadowRoot.appendChild(template.content.cloneNode(true));
 
         let min = this.getAttribute('min-frequency');
         let max = this.getAttribute('max-frequency');

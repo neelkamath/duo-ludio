@@ -2,6 +2,8 @@ class TabIcon extends HTMLElement {
     constructor() {
         super();
 
+        this.attachShadow({mode: 'open'});
+
         let template = document.createElement('template');
         template.innerHTML = `
             <img 
@@ -10,8 +12,6 @@ class TabIcon extends HTMLElement {
                 style="height: 24px; width: 24px;"
             >
         `;
-
-        this.attachShadow({mode: 'open'});
         this.shadowRoot.appendChild(template.content.cloneNode(true));
     }
 

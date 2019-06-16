@@ -4,8 +4,17 @@ class ItemEditor extends HTMLElement {
 
         this.attachShadow({mode: 'open'});
 
-        let content = document.querySelector('#item-editor-template').content;
-        this.shadowRoot.appendChild(content.cloneNode(true));
+        let template = document.createElement('template');
+        template.innerHTML = `
+            <vaadin-dialog id="dialog" no-close-on-esc no-close-on-outside-click></vaadin-dialog>
+            <vaadin-item>
+                <vaadin-button aria-label="Delete item" id="delete" theme="icon">
+                    <iron-icon icon="vaadin:minus"></iron-icon>
+                </vaadin-button>
+                <span id="item"></span>
+            </vaadin-item>
+        `;
+        this.shadowRoot.appendChild(template.content.cloneNode(true));
 
         this.shadowRoot.querySelector('#item').textContent = this.getAttribute('item');
         this.shadowRoot.querySelector('#delete').addEventListener('click', () => {
