@@ -14,7 +14,7 @@ class ConfirmDialog extends HTMLElement {
     }
 
     get _ariaLabel() {
-        let label = 'Confirm dialog';
+        let label = 'Confirm';
         if (this.hasAttribute('aria-label')) label = this.getAttribute('aria-label');
         return `aria-label=${label}`;
     }

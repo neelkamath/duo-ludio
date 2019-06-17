@@ -6,7 +6,7 @@ export function setUpTracksTab() {
         fillHTML();
         for (let wave in binaurals) if (binaurals.hasOwnProperty(wave) && wave !== 'default') new TabSetUp(wave);
 
-        // Use setTimeout() so the DOM has time to load.
+        // Use setTimeout() so that the DOM has time to load.
         setTimeout(() => document.querySelector('#wave-tabs').firstElementChild.click(), 10);
     });
 }
@@ -52,19 +52,7 @@ class TabSetUp {
         return `
             <h3>Add to category</h3>
             <div>${TabSetUp._createDialogCategoriesHTML(track)}</div>
-            <dialog-button id="add-track-ok-button">OK</dialog-button>
         `;
-    }
-
-    static _addDialogEventListeners(dialog, track) {
-        TabSetUp._addDialogOKButtonEventListener(dialog);
-        TabSetUp._addDialogCheckboxEventListeners(track);
-    }
-
-    static _addDialogOKButtonEventListener(dialog) {
-        document
-            .querySelector('#add-track-ok-button')
-            .addEventListener('click', () => dialog.opened = false);
     }
 
     static _addDialogCheckboxEventListeners(track) {
@@ -139,21 +127,18 @@ class TabSetUp {
         content.innerHTML = '';
         content.appendChild(this._createDetailsHTML());
         content.appendChild(this._createTrackTypesHTML());
-        let benefits = this.data['benefits'].map((benefit) => `<li>${benefit}</li>`).join('');
-        document.querySelector('#details').benefits.innerHTML = `<ul>${benefits}</ul>`;
+    }
+
+    static _promptAdd(track) {
+        let dialog = document.querySelector('#add-track-dialog');
+        dialog.render(TabSetUp._createDialogHTML(track));
+        TabSetUp._addDialogCheckboxEventListeners(track);
     }
 
     _addAddButtonEventListeners() {
         for (let button of document.querySelectorAll('.track-button')) {
-            button.addEventListener('click', () => this._promptAdd(button.id));
+            button.addEventListener('click', () => TabSetUp._promptAdd(button.id));
         }
-    }
-
-    _promptAdd(track) {
-        let dialog = document.querySelector('#add-track-dialog');
-        dialog.renderer = (root) => root.innerHTML = TabSetUp._createDialogHTML(track);
-        dialog.opened = true;
-        TabSetUp._addDialogEventListeners(dialog, track);
     }
 
     _createDetailsHTML() {
@@ -164,7 +149,9 @@ class TabSetUp {
                 min-frequency="${this.data['minFrequency']}"
                 max-frequency="${this.data['maxFrequency']}"
                 explanation="${utility.escapeHTML(this.data['explanation'])}"
-            ></wave-details>
+            >
+                <ul>${this.data['benefits'].map((benefit) => `<li>${benefit}</li>`).join('')}</ul>
+            </wave-details>
         `;
         return details;
     }
@@ -172,7 +159,7 @@ class TabSetUp {
     _createTrackTypesHTML() {
         let span = document.createElement('span');
         span.innerHTML = `
-            <vaadin-dialog id="add-track-dialog"></vaadin-dialog>
+            <ok-dialog aria-label="Add track" id="add-track-dialog"></ok-dialog>
             <vaadin-accordion>
                 ${this._createTracksHTML('pure')}
                 ${this._createTracksHTML('isochronic')}

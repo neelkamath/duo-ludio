@@ -3,7 +3,7 @@ class WaveDetails extends HTMLElement {
         super();
         this.attachShadow({mode: 'open'});
         this.shadowRoot.appendChild(this._templateContent.cloneNode(true));
-        this.benefits = this.shadowRoot.querySelector('#benefits-item').body;
+        this.benefits = this.shadowRoot.querySelector('#benefits-item');
     }
 
     get _templateContent() {
@@ -18,7 +18,7 @@ class WaveDetails extends HTMLElement {
                     title="Explanation" 
                     body="${this.getAttribute('explanation')}"
                 ></titled-item>
-                <titled-item id="benefits-item" title="Benefits" body=""></titled-item>
+                <titled-item id="benefits-item" title="Benefits" body="${this.innerHTML}"></titled-item>
             </vaadin-details>
             
             <style>
