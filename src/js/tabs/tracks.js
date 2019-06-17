@@ -1,34 +1,37 @@
 import * as binaurals from '../../binaural_beats/data';
+import * as utility from '../utility';
 
 export function setUpTracksTab() {
     document.querySelector('#tracks-tab').addEventListener('click', () => {
         fillHTML();
         for (let wave in binaurals) if (binaurals.hasOwnProperty(wave) && wave !== 'default') new TabSetUp(wave);
-        setTimeout(() => document.querySelector('#alpha-tab').click(), 10);
+
+        // Use setTimeout() so that the DOM has time to load.
+        setTimeout(() => document.querySelector('#wave-tabs').firstElementChild.click(), 10);
     });
 }
 
 function fillHTML() {
     document.querySelector('#tab-content').innerHTML = `
-        <vaadin-tabs>
+        <vaadin-tabs id="wave-tabs">
             <vaadin-tab id="alpha-tab">
-                <img class="tab-icon" alt="Alpha" src="https://bit.ly/2wTc8tv">
+                <tab-icon alt="Alpha" src="https://bit.ly/2wTc8tv"></tab-icon>
                 Alpha
             </vaadin-tab>
             <vaadin-tab id="beta-tab">
-                <img class="tab-icon" alt="Beta" src="https://bit.ly/2F7YAyU">
+                <tab-icon alt="Beta" src="https://bit.ly/2F7YAyU"></tab-icon>
                 Beta
             </vaadin-tab>
             <vaadin-tab id="delta-tab">
-                <img class="tab-icon" alt="Delta" src="https://bit.ly/2WJ83az">
+                <tab-icon alt="Delta" src="https://bit.ly/2WJ83az"></tab-icon>
                 Delta
             </vaadin-tab>
             <vaadin-tab id="gamma-tab">
-                <img class="tab-icon" alt="Gamma" src="https://bit.ly/2WGfzOP">
+                <tab-icon alt="Gamma" src="https://bit.ly/2WGfzOP"></tab-icon>
                 Gamma
             </vaadin-tab>
             <vaadin-tab id="theta-tab">
-                <img class="tab-icon" alt="Theta" src="https://bit.ly/2WFjrPV">
+                <tab-icon alt="Theta" src="https://bit.ly/2WFjrPV"></tab-icon>
                 Theta
             </vaadin-tab>
         </vaadin-tabs>
@@ -49,19 +52,7 @@ class TabSetUp {
         return `
             <h3>Add to category</h3>
             <div>${TabSetUp._createDialogCategoriesHTML(track)}</div>
-            <vaadin-button id="add-track-ok-button" class="dialog-button">OK</vaadin-button>
         `;
-    }
-
-    static _addDialogEventListeners(dialog, track) {
-        TabSetUp._addDialogOKButtonEventListener(dialog);
-        TabSetUp._addDialogCheckboxEventListeners(track);
-    }
-
-    static _addDialogOKButtonEventListener(dialog) {
-        document
-            .querySelector('#add-track-ok-button')
-            .addEventListener('click', () => dialog.opened = false);
     }
 
     static _addDialogCheckboxEventListeners(track) {
@@ -88,6 +79,7 @@ class TabSetUp {
                 <vaadin-checkbox ${checked} class="category-checkbox" id="${category}">${category}</vaadin-checkbox>
             `;
         }
+        if (html === '') html = 'No categories';
         return `<vaadin-vertical-layout theme="spacing-xs">${html}</vaadin-vertical-layout>`;
     }
 
@@ -100,19 +92,6 @@ class TabSetUp {
                 </vaadin-button>
             </div>
         `;
-    }
-
-    _fillTabHTML() {
-        document.querySelector('#binaurals-content').innerHTML = `
-            ${this._createDetailsHTML()}
-            ${this._createTrackTypesHTML()}
-        `;
-    }
-
-    _addAddButtonEventListeners() {
-        for (let button of document.querySelectorAll('.track-button')) {
-            button.addEventListener('click', () => this._promptAdd(button.id));
-        }
     }
 
     static _createFrequencyHTML(track, trackType) {
@@ -129,56 +108,65 @@ class TabSetUp {
         if ('effects' in track) {
             return `
                 <div class="block">
-                    <vaadin-item>
-                        <div><strong>Effects</strong></div>
-                        <div><ul>${track['effects'].map((effect) => `<li>${effect}</li>`).join('')}</ul></div>
-                    </vaadin-item>
+                    <titled-item 
+                        title="Effects" 
+                        body="<ul>${track['effects'].map((effect) => `<li>${effect}</li>`).join('')}</ul>"
+                    ></titled-item>
                 </div>
             `;
         }
         return '';
     }
 
-    _promptAdd(track) {
-        let dialog = document.querySelector('#add-track-dialog');
-        dialog.renderer = (root) => root.innerHTML = TabSetUp._createDialogHTML(track);
-        dialog.opened = true;
-        TabSetUp._addDialogEventListeners(dialog, track);
-    }
-
     static _titleCase(trackType) {
         return trackType[0].toUpperCase() + trackType.slice(1);
     }
 
+    _fillTabHTML() {
+        let content = document.querySelector('#binaurals-content');
+        content.innerHTML = '';
+        content.appendChild(this._createDetailsHTML());
+        content.appendChild(this._createTrackTypesHTML());
+    }
+
+    static _promptAdd(track) {
+        let dialog = document.querySelector('#add-track-dialog');
+        dialog.render(TabSetUp._createDialogHTML(track));
+        TabSetUp._addDialogCheckboxEventListeners(track);
+    }
+
+    _addAddButtonEventListeners() {
+        for (let button of document.querySelectorAll('.track-button')) {
+            button.addEventListener('click', () => TabSetUp._promptAdd(button.id));
+        }
+    }
+
     _createDetailsHTML() {
-        return `
-            <vaadin-details id="wave-details">
-                <div slot="summary"><h1>Details</h1></div>
-                <vaadin-item>
-                    <div><strong>Frequency Range</strong></div>
-                    <div>${this.data['minFrequency']} Hz - ${this.data['maxFrequency']} Hz</div>
-                </vaadin-item>
-                <vaadin-item>
-                    <div><strong>Explanation</strong></div>
-                    <div>${this.data['explanation']}</div>
-                </vaadin-item>
-                <vaadin-item>
-                    <div><strong>Benefits</strong></div>
-                    <ul>${this.data['benefits'].map((benefit) => `<li>${benefit}</li>`).join('')}</ul>
-                </vaadin-item>
-            </vaadin-details>
+        let details = document.createElement('span');
+        details.innerHTML = `
+            <wave-details
+                id="details"
+                min="${this.data['minFrequency']}"
+                max="${this.data['maxFrequency']}"
+                explanation="${utility.escapeHTML(this.data['explanation'])}"
+            >
+                <ul>${this.data['benefits'].map((benefit) => `<li>${benefit}</li>`).join('')}</ul>
+            </wave-details>
         `;
+        return details;
     }
 
     _createTrackTypesHTML() {
-        return `
-            <vaadin-dialog id="add-track-dialog"></vaadin-dialog>
+        let span = document.createElement('span');
+        span.innerHTML = `
+            <ok-dialog aria-label="Add track" id="add-track-dialog"></ok-dialog>
             <vaadin-accordion>
                 ${this._createTracksHTML('pure')}
                 ${this._createTracksHTML('isochronic')}
                 ${this._createTracksHTML('solfeggio')}
             </vaadin-accordion>
         `;
+        return span;
     }
 
     _createTracksHTML(trackType) {
