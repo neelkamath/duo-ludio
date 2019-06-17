@@ -10,7 +10,14 @@ class ItemEditor extends HTMLElement {
     get _templateContent() {
         let template = document.createElement('template');
         template.innerHTML = `
-            <vaadin-dialog id="dialog" no-close-on-esc no-close-on-outside-click></vaadin-dialog>
+            <confirm-dialog 
+                id="dialog"
+                ${this._ariaLabel}
+                title="${this.getAttribute('dialog-title')}"
+                cancel="${this._cancelText}" 
+                confirm="${this._confirmText}"
+                body="${this.getAttribute('dialog-body')}"
+            ></confirm-dialog>
             <vaadin-item>
                 <vaadin-button aria-label="Delete item" id="delete" theme="icon">
                     <iron-icon icon="vaadin:minus"></iron-icon>
@@ -21,16 +28,10 @@ class ItemEditor extends HTMLElement {
         return template.content;
     }
 
-    get _renderer() {
-        return `
-            <confirm-dialog 
-                id="confirm-dialog"
-                title="${this.getAttribute('dialog-title')}" 
-                cancel="${this._cancelText}" 
-                confirm="${this._confirmText}" 
-                body="${this.getAttribute('dialog-body')}"
-            ></confirm-dialog>
-        `;
+    get _ariaLabel() {
+        let label = 'Edit item';
+        if (this.hasAttribute('aria-label')) label = this.getAttribute('aria-label');
+        return `aria-label="${label}"`;
     }
 
     get _cancelText() {
@@ -52,12 +53,8 @@ class ItemEditor extends HTMLElement {
     _handleDelete() {
         this.delete.addEventListener('click', () => {
             let dialog = this.shadowRoot.querySelector('#dialog');
-            dialog.renderer = (root) => root.innerHTML = this._renderer;
-            dialog.opened = true;
-            let confirmDialog = document.querySelector('#confirm-dialog');
-            this.cancel = confirmDialog.cancel;
-            this.confirm = confirmDialog.confirm;
-            this.cancel.addEventListener('click', () => dialog.opened = false);
+            dialog.render();
+            this.confirm = dialog.confirm;
             this.confirm.addEventListener('click', () => dialog.opened = false);
         });
     }

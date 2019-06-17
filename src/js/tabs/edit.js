@@ -9,26 +9,20 @@ export function setUpEditTab() {
 
 function fillHTML() {
     document.querySelector('#tab-content').innerHTML = `
-        <vaadin-dialog aria-label="Invalid category name" id="error-dialog"></vaadin-dialog>
+        <ok-dialog aria-label="Invalid category name" id="error-dialog"></ok-dialog>
         <add-item id="new-category"></add-item>
         <div id="categories-editor"></div>
     `;
 }
 
-function renderInvalidDialog(message) {
-    let dialog = document.querySelector('#error-dialog');
-    dialog.renderer = (root) => root.innerHTML = `<ok-dialog id="ok-dialog" message="${message}"></ok-dialog>`;
-    dialog.opened = true;
-    document.querySelector('#ok-dialog').button.addEventListener('click', () => dialog.opened = false);
-}
-
 function hasInvalidName(name) {
+    let dialog = document.querySelector('#error-dialog');
     if (name.length === 0) {
-        renderInvalidDialog('Please enter a category name.');
+        dialog.render('Please enter a category name.');
         return true;
     }
     if (name in JSON.parse(localStorage.getItem('categories'))) {
-        renderInvalidDialog('That category already exists.');
+        dialog.render('That category already exists.');
         return true;
     }
     return false;
@@ -56,6 +50,7 @@ function addCategoryHTML(category) {
     div.innerHTML = `
         <item-editor 
             id="edit-${category}" 
+            aria-label="Edit category ${category}"
             item="${category}" 
             dialog-title="Delete?" 
             dialog-body="This will delete the category ${category}." 
