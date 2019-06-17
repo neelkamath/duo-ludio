@@ -52,7 +52,7 @@ class TabSetUp {
         return `
             <h3>Add to category</h3>
             <div>${TabSetUp._createDialogCategoriesHTML(track)}</div>
-            <vaadin-button id="add-track-ok-button" class="dialog-button">OK</vaadin-button>
+            <dialog-button id="add-track-ok-button">OK</dialog-button>
         `;
     }
 
@@ -91,6 +91,7 @@ class TabSetUp {
                 <vaadin-checkbox ${checked} class="category-checkbox" id="${category}">${category}</vaadin-checkbox>
             `;
         }
+        if (html === '') html = 'No categories';
         return `<vaadin-vertical-layout theme="spacing-xs">${html}</vaadin-vertical-layout>`;
     }
 

@@ -1,22 +1,20 @@
 class TitledItem extends HTMLElement {
     constructor() {
         super();
-
         this.attachShadow({mode: 'open'});
+        this.shadowRoot.appendChild(this._templateContent.cloneNode(true));
+        this.body = this.shadowRoot.querySelector('#body');
+    }
 
+    get _templateContent() {
         let template = document.createElement('template');
         template.innerHTML = `
             <vaadin-item>
-                <div><strong id="title"></strong></div>
-                <div id="body"></div>
+                <div><strong>${this.getAttribute('title')}</strong></div>
+                <div id="body">${this.getAttribute('body')}</div>
             </vaadin-item>
         `;
-        this.shadowRoot.appendChild(template.content.cloneNode(true));
-
-        this.shadowRoot.querySelector('#title').textContent = this.getAttribute('title');
-        this.shadowRoot.querySelector('#body').innerHTML = this.getAttribute('body');
-
-        this.body = this.shadowRoot.querySelector('#body');
+        return template.content;
     }
 }
 

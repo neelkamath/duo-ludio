@@ -1,27 +1,18 @@
 class OKDialog extends HTMLElement {
     constructor() {
         super();
-
         this.attachShadow({mode: 'open'});
+        this.shadowRoot.appendChild(this._templateContent.cloneNode(true));
+        this.button = this.shadowRoot.querySelector('#ok');
+    }
 
+    get _templateContent() {
         let template = document.createElement('template');
         template.innerHTML = `
-            <div id="message"></div>
-            <vaadin-button id="ok">OK</vaadin-button>
-            
-            <style>
-                #ok {
-                    float: right;
-                    margin-bottom: 1em;
-                    margin-top: 1.5em;
-                }
-            </style>
+            <div>${this.getAttribute('message')}</div>
+            <dialog-button id="ok">OK</dialog-button>
         `;
-        this.shadowRoot.appendChild(template.content.cloneNode(true));
-
-        this.shadowRoot.querySelector('#message').textContent = this.getAttribute('message');
-
-        this.button = this.shadowRoot.querySelector('#ok');
+        return template.content;
     }
 }
 
