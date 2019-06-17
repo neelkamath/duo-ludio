@@ -11,7 +11,7 @@ class TitledItem extends HTMLElement {
         template.innerHTML = `
             <vaadin-item>
                 <div><strong>${this.getAttribute('title')}</strong></div>
-                <div id="body">${this.getAttribute('body')}</div>
+                <div id="body">${this.innerHTML}</div>
             </vaadin-item>
         `;
         return template.content;

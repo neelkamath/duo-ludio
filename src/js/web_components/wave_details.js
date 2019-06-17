@@ -7,18 +7,15 @@ class WaveDetails extends HTMLElement {
     }
 
     get _templateContent() {
-        let min = this.getAttribute('min-frequency');
-        let max = this.getAttribute('max-frequency');
         let template = document.createElement('template');
         template.innerHTML = `
             <vaadin-details id="details">
                 <div slot="summary"><h1>Details</h1></div>
-                <titled-item title="Frequency Range" body="${min} Hz - ${max} Hz"></titled-item>
-                <titled-item 
-                    title="Explanation" 
-                    body="${this.getAttribute('explanation')}"
-                ></titled-item>
-                <titled-item id="benefits-item" title="Benefits" body="${this.innerHTML}"></titled-item>
+                <titled-item title="Frequency Range">
+                    ${this.getAttribute('min')} Hz - ${this.getAttribute('max')} Hz
+                </titled-item>
+                <titled-item title="Explanation">${this.getAttribute('explanation')}</titled-item>
+                <titled-item id="benefits-item" title="Benefits">${this.innerHTML}</titled-item>
             </vaadin-details>
             
             <style>

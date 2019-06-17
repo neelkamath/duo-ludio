@@ -7,7 +7,7 @@ class OKDialog extends HTMLElement {
 
     get _templateContent() {
         let template = document.createElement('template');
-        template.innerHTML = `<vaadin-dialog id="dialog" ${this._ariaLabel}"></vaadin-dialog>`;
+        template.innerHTML = `<vaadin-dialog id="dialog" ${this._ariaLabel}></vaadin-dialog>`;
         return template.content;
     }
 

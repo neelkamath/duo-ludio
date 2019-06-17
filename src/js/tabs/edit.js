@@ -51,11 +51,12 @@ function addCategoryHTML(category) {
         <item-editor 
             id="edit-${category}" 
             aria-label="Edit category ${category}"
-            item="${category}" 
             dialog-title="Delete?" 
             dialog-body="This will delete the category ${category}." 
             dialog-confirm="Delete"
-        ></item-editor>
+        >
+            ${category}
+        </item-editor>
     `;
     document.querySelector('#categories-editor').appendChild(div);
 }

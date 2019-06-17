@@ -14,15 +14,16 @@ class ItemEditor extends HTMLElement {
                 id="dialog"
                 ${this._ariaLabel}
                 title="${this.getAttribute('dialog-title')}"
-                cancel="${this._cancelText}" 
-                confirm="${this._confirmText}"
-                body="${this.getAttribute('dialog-body')}"
-            ></confirm-dialog>
+                cancel="${this._cancelHTML}" 
+                confirm="${this._confirmHTML}"
+            >
+                ${this.getAttribute('dialog-body')}
+            </confirm-dialog>
             <vaadin-item>
                 <vaadin-button aria-label="Delete item" id="delete" theme="icon">
                     <iron-icon icon="vaadin:minus"></iron-icon>
                 </vaadin-button>
-                <span>${this.getAttribute('item')}</span>
+                ${this.innerHTML}
             </vaadin-item>
         `;
         return template.content;
@@ -34,7 +35,7 @@ class ItemEditor extends HTMLElement {
         return `aria-label="${label}"`;
     }
 
-    get _cancelText() {
+    get _cancelHTML() {
         let cancelText = 'Cancel';
         if (this.hasAttribute('dialog-cancel')) {
             cancelText = this.getAttribute('dialog-cancel');
@@ -42,7 +43,7 @@ class ItemEditor extends HTMLElement {
         return cancelText;
     }
 
-    get _confirmText() {
+    get _confirmHTML() {
         let confirmText = 'Confirm';
         if (this.hasAttribute('dialog-confirm')) {
             confirmText = this.getAttribute('dialog-confirm');

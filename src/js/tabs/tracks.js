@@ -146,8 +146,8 @@ class TabSetUp {
         details.innerHTML = `
             <wave-details
                 id="details"
-                min-frequency="${this.data['minFrequency']}"
-                max-frequency="${this.data['maxFrequency']}"
+                min="${this.data['minFrequency']}"
+                max="${this.data['maxFrequency']}"
                 explanation="${utility.escapeHTML(this.data['explanation'])}"
             >
                 <ul>${this.data['benefits'].map((benefit) => `<li>${benefit}</li>`).join('')}</ul>
