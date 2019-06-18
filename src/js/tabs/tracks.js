@@ -108,10 +108,9 @@ class TabSetUp {
         if ('effects' in track) {
             return `
                 <div class="block">
-                    <titled-item 
-                        title="Effects" 
-                        body="<ul>${track['effects'].map((effect) => `<li>${effect}</li>`).join('')}</ul>"
-                    ></titled-item>
+                    <titled-item title="Effects">
+                        <ul>${track['effects'].map((effect) => `<li>${effect}</li>`).join('')}</ul>
+                    </titled-item>
                 </div>
             `;
         }

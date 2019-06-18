@@ -2,6 +2,9 @@ class ItemEditor extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
+    }
+
+    connectedCallback() {
         this.shadowRoot.appendChild(this._templateContent.cloneNode(true));
         this.delete = this.shadowRoot.querySelector('#delete');
         this._handleDelete();

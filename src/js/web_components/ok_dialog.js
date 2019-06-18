@@ -2,6 +2,9 @@ class OKDialog extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
+    }
+
+    connectedCallback() {
         this.shadowRoot.appendChild(this._templateContent.cloneNode(true));
     }
 

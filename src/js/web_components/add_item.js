@@ -2,6 +2,9 @@ class ItemAdder extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
+    }
+
+    connectedCallback() {
         this.shadowRoot.appendChild(ItemAdder._templateContent.cloneNode(true));
         this.field = this.shadowRoot.querySelector('#name');
         this.button = this.shadowRoot.querySelector('#add');

@@ -2,8 +2,6 @@ class WaveDetails extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
-        this.shadowRoot.appendChild(this._templateContent.cloneNode(true));
-        this.benefits = this.shadowRoot.querySelector('#benefits-item');
     }
 
     get _templateContent() {
@@ -15,7 +13,7 @@ class WaveDetails extends HTMLElement {
                     ${this.getAttribute('min')} Hz - ${this.getAttribute('max')} Hz
                 </titled-item>
                 <titled-item title="Explanation">${this.getAttribute('explanation')}</titled-item>
-                <titled-item id="benefits-item" title="Benefits">${this.innerHTML}</titled-item>
+                <titled-item title="Benefits">${this.innerHTML}</titled-item>
             </vaadin-details>
             
             <style>
@@ -25,6 +23,10 @@ class WaveDetails extends HTMLElement {
             </style>
         `;
         return template.content;
+    }
+
+    connectedCallback() {
+        this.shadowRoot.appendChild(this._templateContent.cloneNode(true));
     }
 }
 
