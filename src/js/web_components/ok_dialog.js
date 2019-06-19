@@ -1,3 +1,5 @@
+import * as utility from '../utility';
+
 class OKDialog extends HTMLElement {
     constructor() {
         super();
@@ -22,17 +24,23 @@ class OKDialog extends HTMLElement {
         return label;
     }
 
-    render(message) {
-        let dialog = this.shadowRoot.querySelector('#dialog');
-        dialog.renderer = (root) => root.innerHTML = `
+    static _getDialogContent(message) {
+        return `
             <span id="content">
                 <div>${message}</div>
                 <dialog-button id="button">OK</dialog-button>
             </span>
         `;
+    }
+
+    render(message) {
+        let dialog = this.shadowRoot.querySelector('#dialog');
+        dialog.renderer = (root) => root.innerHTML = OKDialog._getDialogContent(message);
         dialog.opened = true;
-        let content = document.querySelector('#content');
-        content.querySelector('#button').addEventListener('click', () => dialog.opened = false);
+        let button = document.querySelector('#content').querySelector('#button');
+        button.addEventListener('click', () => {
+            utility.runAfterButtonAnimation(() => dialog.opened = false);
+        });
     }
 }
 

@@ -1,3 +1,5 @@
+import * as utility from '../utility';
+
 class ConfirmDialog extends HTMLElement {
     constructor() {
         super();
@@ -34,9 +36,8 @@ class ConfirmDialog extends HTMLElement {
         return confirmText;
     }
 
-    render() {
-        let dialog = this.shadowRoot.querySelector('#dialog');
-        dialog.renderer = (root) => root.innerHTML = `
+    get _dialogContent() {
+        return `
             <span id="content">
                 <div><strong>${this.getAttribute('title')}</strong></div>
                 <br>
@@ -45,11 +46,24 @@ class ConfirmDialog extends HTMLElement {
                 <dialog-button id="cancel">${this._cancelHTML}</dialog-button>
             </span>
         `;
+    }
+
+    render() {
+        let dialog = this.shadowRoot.querySelector('#dialog');
+        dialog.renderer = (root) => root.innerHTML = this._dialogContent;
         dialog.opened = true;
+        this._addEventListeners(dialog);
+    }
+
+    _addEventListeners(dialog) {
         let content = document.querySelector('#content');
-        content.querySelector('#cancel').addEventListener('click', () => dialog.opened = false);
+        content.querySelector('#cancel').addEventListener('click', () => {
+            utility.runAfterButtonAnimation(() => dialog.opened = false);
+        });
         this.confirm = content.querySelector('#confirm');
-        this.confirm.addEventListener('click', () => dialog.opened = false);
+        this.confirm.addEventListener('click', () => {
+            utility.runAfterButtonAnimation(() => dialog.opened = false);
+        });
     }
 }
 

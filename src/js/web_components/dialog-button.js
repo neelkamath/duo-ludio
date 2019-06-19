@@ -7,7 +7,7 @@ class DialogButton extends HTMLElement {
     get _templateContent() {
         let template = document.createElement('template');
         template.innerHTML = `
-            <vaadin-button>${this.innerHTML}</vaadin-button>
+            <vaadin-button id="button">${this.innerHTML}</vaadin-button>
             
             <style>
                 #button {

@@ -6,3 +6,11 @@ export function escapeHTML(text) {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
 }
+
+export function titleCase(string) {
+    return string[0].toUpperCase() + string.slice(1);
+}
+
+export function runAfterButtonAnimation(func) {
+    setTimeout(func, 600);
+}

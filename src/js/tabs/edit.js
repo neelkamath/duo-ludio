@@ -1,21 +1,23 @@
-export function setUpEditTab() {
+import * as utility from '../utility';
+
+export function setUpTab() {
     document.querySelector('#edit-tab').addEventListener('click', () => {
-        fillHTML();
+        document.querySelector('#tab-content').innerHTML = getContent();
         setUpAdder();
         let categories = JSON.parse(localStorage.getItem('categories'));
         for (let category in categories) if (categories.hasOwnProperty(category)) addCategory(category);
     });
 }
 
-function fillHTML() {
-    document.querySelector('#tab-content').innerHTML = `
+function getContent() {
+    return `
         <ok-dialog aria-label="Invalid category name" id="error-dialog"></ok-dialog>
         <add-item id="new-category"></add-item>
         <div id="categories-editor"></div>
     `;
 }
 
-function hasInvalidName(name) {
+function renderedDialog(name) {
     let dialog = document.querySelector('#error-dialog');
     if (name.length === 0) {
         dialog.render('Please enter a category name.');
@@ -38,16 +40,15 @@ function setUpAdder() {
     let adder = document.querySelector('#new-category');
     adder.button.addEventListener('click', () => {
         let name = adder.field.value.trim();
-        if (hasInvalidName(name)) return;
-        saveCategory(name);
         adder.field.value = '';
+        if (renderedDialog(name)) return;
+        saveCategory(name);
         addCategory(name);
     });
 }
 
-function addCategoryHTML(category) {
-    let div = document.createElement('div');
-    div.innerHTML = `
+function getCategory(category) {
+    return `
         <item-editor 
             id="edit-${category}" 
             aria-label="Edit category ${category}"
@@ -58,14 +59,15 @@ function addCategoryHTML(category) {
             ${category}
         </item-editor>
     `;
-    document.querySelector('#categories-editor').appendChild(div);
 }
 
 function addCategory(category) {
-    addCategoryHTML(category);
+    document.querySelector('#categories-editor').innerHTML += getCategory(category);
     let editor = document.querySelector(`#edit-${category}`);
     editor.delete.addEventListener('click', () => {
-        editor.confirm.addEventListener('click', () => deleteCategory(category));
+        editor.confirm.addEventListener('click', () => {
+            utility.runAfterButtonAnimation(() => deleteCategory(category));
+        });
     });
 }
 

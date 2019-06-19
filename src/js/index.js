@@ -14,7 +14,7 @@ import './web_components/wave_details';
 if (localStorage.getItem('categories') === null) localStorage.setItem('categories', JSON.stringify({}));
 
 addEventListener('load', () => {
-    categories.setUpCategoriesTab();
-    editor.setUpEditTab();
-    tracks.setUpTracksTab();
+    categories.setUpTab();
+    editor.setUpTab();
+    tracks.setUpTab();
 });
