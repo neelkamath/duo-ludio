@@ -35,8 +35,8 @@ class TabSetUp {
         document.querySelector(`#${wave}-tab`).addEventListener('click', () => {
             let content = document.querySelector('#binaurals-content');
             content.innerHTML = this._createDetails() + this._createTrackTypes();
-            for (let button of document.querySelectorAll('.track-button')) {
-                button.addEventListener('click', () => new CategoryAdder(button.id));
+            for (let track of document.querySelectorAll('track-data')) {
+                track.button.addEventListener('click', () => new CategoryAdder(track.id));
             }
         });
     }
@@ -65,66 +65,30 @@ class TabSetUp {
         `;
     }
 
+    static getTrackData(track, trackType) {
+        return `
+            <track-data 
+                track-type="${trackType}" 
+                ${trackType === 'pure' ? `hz="${track['frequency']}"` : ''}
+                ${trackType === 'solfeggio' ? `binaural-hz="${track['binauralBeatFrequency']}"` : ''}
+                ${trackType === 'solfeggio' ? `solfeggio-hz="${track['solfeggioFrequency']}"` : ''}
+                id="${track['name']}"
+            >
+                <ul>${track['effects'].map((effect) => `<li>${effect}</li>`).join('')}</ul>
+            </track-data>
+        `;
+    }
+
     createTracks(trackType) {
         if (!this.data.hasOwnProperty(trackType)) return '';
         let tracks = '';
-        for (let track of this.data[trackType]) tracks += new TrackData(track).getData(trackType);
+        for (let track of this.data[trackType]) tracks += TabSetUp.getTrackData(track, trackType);
         return `
             <vaadin-accordion-panel>
                 <div slot="summary"><h1>${utility.titleCase(trackType)}</h1></div>
                 ${tracks}
             </vaadin-accordion-panel>
         `;
-    }
-}
-
-class TrackData {
-    constructor(track) {
-        this.track = track;
-    }
-
-    get _trackEffects() {
-        if ('effects' in this.track) {
-            return `
-                <div class="block">
-                    <titled-item title="Effects">
-                        <ul>${this.track['effects'].map((effect) => `<li>${effect}</li>`).join('')}</ul>
-                    </titled-item>
-                </div>
-            `;
-        }
-        return '';
-    }
-
-    get _addButton() {
-        return `
-            <div class="block">
-                <vaadin-button class="track-button" id="${this.track['name']}">
-                    <iron-icon icon="vaadin:plus" slot="prefix"></iron-icon> 
-                    Add to category
-                </vaadin-button>
-            </div>
-        `;
-    }
-
-    getData(trackType) {
-        return `
-            <vaadin-vertical-layout>
-                ${this._createFrequency(trackType)}
-                ${this._trackEffects}
-                ${this._addButton}
-            </vaadin-vertical-layout>
-        `;
-    }
-
-    _createFrequency(trackType) {
-        let text = '';
-        if (trackType === 'pure' || trackType === 'isochronic') {
-            text = `${this.track['frequency']} Hz`;
-        } else if (trackType === 'solfeggio') {
-            text = `${this.track['binauralBeatFrequency']} Hz (${this.track['solfeggioFrequency']} Hz Solfeggio)`;
-        }
-        return `<div class="block"><h2>Frequency: ${text}</h2></div>`;
     }
 }
 

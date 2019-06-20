@@ -9,6 +9,7 @@ import './web_components/dialog-button';
 import './web_components/ok_dialog';
 import './web_components/tab_icon';
 import './web_components/titled_item';
+import './web_components/track_data';
 import './web_components/wave_details';
 
 if (localStorage.getItem('categories') === null) localStorage.setItem('categories', JSON.stringify({}));
