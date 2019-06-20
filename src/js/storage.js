@@ -8,7 +8,7 @@ export function getCategories() {
 
 export function createCategory(category) {
     let categories = getCategories();
-    categories[category] = [];
+    categories[category] = {id: `T${new Date().getTime()}`, tracks: []};
     setCategories(categories);
 }
 
@@ -18,6 +18,6 @@ export function deleteCategory(category) {
     setCategories(categories);
 }
 
-function setCategories(categories) {
+export function setCategories(categories) {
     localStorage.setItem('categories', JSON.stringify(categories));
 }

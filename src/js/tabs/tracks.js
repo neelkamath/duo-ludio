@@ -1,4 +1,5 @@
 import * as binaurals from '../../binaural_beats/data';
+import * as storage from '../storage';
 import * as utility from '../utility';
 import * as waves from "./waves";
 
@@ -104,11 +105,11 @@ class CategoryAdder {
     }
 
     _createCategories() {
-        let categories = JSON.parse(localStorage.getItem('categories'));
-        let html = Object.entries(categories).reduce((html, [category, tracks]) => {
-            let checked = tracks.includes(this.track) ? 'checked' : '';
+        let categories = storage.getCategories();
+        let html = Object.entries(categories).reduce((html, [key, value]) => {
+            let checked = value['tracks'].includes(this.track) ? 'checked' : '';
             return html + `
-                <vaadin-checkbox ${checked} class="category-checkbox" id="${category}">${category}</vaadin-checkbox>
+                <vaadin-checkbox ${checked} class="category-checkbox" id="${value['id']}">${key}</vaadin-checkbox>
             `;
         }, '');
         if (html === '') html = 'No categories';
@@ -118,14 +119,15 @@ class CategoryAdder {
     _addCheckboxListeners() {
         for (let checkbox of document.querySelectorAll('.category-checkbox')) {
             checkbox.addEventListener('click', () => {
-                let categories = JSON.parse(localStorage.getItem('categories'));
-                let category = categories[checkbox.id];
+                let categories = storage.getCategories();
+                let value = Object.values(categories).filter((value) => value['id'] === checkbox.id)[0];
+                let tracks = value['tracks'];
                 if (checkbox.checked) {
-                    category.push(this.track);
+                    tracks.push(this.track);
                 } else {
-                    category.splice(category.indexOf(this.track), 1);
+                    tracks.splice(tracks.indexOf(this.track), 1);
                 }
-                localStorage.setItem('categories', JSON.stringify(categories));
+                storage.setCategories(categories);
             });
         }
     }

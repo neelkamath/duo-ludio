@@ -4,7 +4,7 @@ export function setUpTab() {
     document.querySelector('#edit-tab').addEventListener('click', () => {
         document.querySelector('#tab-content').innerHTML = getContent();
         setUpAdder();
-        Object.keys(storage.getCategories()).forEach((category) => addCategory(category));
+        Object.entries(storage.getCategories()).forEach(([key, value]) => addCategory(key, value['id']));
     });
 }
 
@@ -40,14 +40,14 @@ function setUpAdder() {
     });
 }
 
-function createCategory(category) {
+function createCategory(category, id) {
     let span = document.createElement('span');
     span.innerHTML = `
         <item-editor 
-            id="edit-${category}" 
+            id="${id}"
             aria-label="Edit category ${category}"
-            dialog-title="Delete?" 
-            dialog-body="This will delete the category ${category}." 
+            dialog-title="Delete?"
+            dialog-body="This will delete the category ${category}."
             dialog-confirm="Delete"
         >
             ${category}
@@ -56,13 +56,13 @@ function createCategory(category) {
     return span;
 }
 
-function addCategory(category) {
-    document.querySelector('#categories-editor').appendChild(createCategory(category));
-    let editor = document.querySelector(`#edit-${category}`);
+function addCategory(category, id) {
+    document.querySelector('#categories-editor').appendChild(createCategory(category, id));
+    let editor = document.querySelector(`#${id}`);
     editor.delete.addEventListener('click', () => {
         editor.confirm.addEventListener('click', () => {
             storage.deleteCategory(category);
-            document.querySelector(`#edit-${category}`).remove();
+            editor.remove();
         });
     });
 }
