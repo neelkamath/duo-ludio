@@ -17,8 +17,8 @@ class ItemEditor extends HTMLElement {
                 id="dialog"
                 ${this._ariaLabel}
                 title="${this.getAttribute('dialog-title')}"
-                cancel="${this._cancelHTML}" 
-                confirm="${this._confirmHTML}"
+                cancel="${this._cancel}" 
+                confirm="${this._confirm}"
             >
                 ${this.getAttribute('dialog-body')}
             </confirm-dialog>
@@ -38,7 +38,7 @@ class ItemEditor extends HTMLElement {
         return `aria-label="${label}"`;
     }
 
-    get _cancelHTML() {
+    get _cancel() {
         let cancelText = 'Cancel';
         if (this.hasAttribute('dialog-cancel')) {
             cancelText = this.getAttribute('dialog-cancel');
@@ -46,7 +46,7 @@ class ItemEditor extends HTMLElement {
         return cancelText;
     }
 
-    get _confirmHTML() {
+    get _confirm() {
         let confirmText = 'Confirm';
         if (this.hasAttribute('dialog-confirm')) {
             confirmText = this.getAttribute('dialog-confirm');

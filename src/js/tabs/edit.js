@@ -1,11 +1,9 @@
-import * as utility from '../utility';
-
 export function setUpTab() {
     document.querySelector('#edit-tab').addEventListener('click', () => {
         document.querySelector('#tab-content').innerHTML = getContent();
         setUpAdder();
         let categories = JSON.parse(localStorage.getItem('categories'));
-        for (let category in categories) if (categories.hasOwnProperty(category)) addCategory(category);
+        Object.keys(categories).forEach((category) => addCategory(category));
     });
 }
 
@@ -17,7 +15,7 @@ function getContent() {
     `;
 }
 
-function renderedDialog(name) {
+function dialogDisplayed(name) {
     let dialog = document.querySelector('#error-dialog');
     if (name.length === 0) {
         dialog.render('Please enter a category name.');
@@ -41,14 +39,15 @@ function setUpAdder() {
     adder.button.addEventListener('click', () => {
         let name = adder.field.value.trim();
         adder.field.value = '';
-        if (renderedDialog(name)) return;
+        if (dialogDisplayed(name)) return;
         saveCategory(name);
         addCategory(name);
     });
 }
 
-function getCategory(category) {
-    return `
+function createCategory(category) {
+    let span = document.createElement('span');
+    span.innerHTML = `
         <item-editor 
             id="edit-${category}" 
             aria-label="Edit category ${category}"
@@ -59,15 +58,14 @@ function getCategory(category) {
             ${category}
         </item-editor>
     `;
+    return span;
 }
 
 function addCategory(category) {
-    document.querySelector('#categories-editor').innerHTML += getCategory(category);
+    document.querySelector('#categories-editor').appendChild(createCategory(category));
     let editor = document.querySelector(`#edit-${category}`);
     editor.delete.addEventListener('click', () => {
-        editor.confirm.addEventListener('click', () => {
-            utility.runAfterButtonAnimation(() => deleteCategory(category));
-        });
+        editor.confirm.addEventListener('click', () => deleteCategory(category));
     });
 }
 

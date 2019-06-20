@@ -21,7 +21,7 @@ class TrackData extends HTMLElement {
                 <div class="block">
                     ${this.children.length > 0 ? `<titled-item title="Effects">${this.innerHTML}</titled-item>` : ''}
                 </div>
-                <div class="block">${this._addButton}</div>
+                <div class="block">${TrackData._addButton}</div>
             </vaadin-vertical-layout>
         `;
         return template.content;

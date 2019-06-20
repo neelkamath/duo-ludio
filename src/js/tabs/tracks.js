@@ -5,28 +5,28 @@ import * as waves from "./waves";
 export function setUpTab() {
     document.querySelector('#tracks-tab').addEventListener('click', () => {
         document.querySelector('#tab-content').innerHTML = `
-            <vaadin-tabs id="wave-tabs">${getTabs()}</vaadin-tabs>
+            <vaadin-tabs id="wave-tabs">
+                ${Object.entries(waves).filter(([wave]) => wave !== 'default').reduce(reducer, '')}
+            </vaadin-tabs>
             <div id="binaurals-content"></div>
         `;
         for (let wave in binaurals) if (binaurals.hasOwnProperty(wave) && wave !== 'default') new TabSetUp(wave);
-
-        // Use setTimeout() so that the DOM has time to load.
-        setTimeout(() => document.querySelector('#wave-tabs').firstElementChild.click(), 10);
+        clickFirstTab();
     });
 }
 
-function getTabs() {
-    let html = '';
-    for (let [wave, image] of Object.entries(waves)) {
-        if (wave === 'default') continue;
-        html += `
-            <vaadin-tab id="${wave}-tab">
-                <tab-icon alt="${utility.titleCase(wave)}" src="${image}"></tab-icon>
-                ${utility.titleCase(wave)}
-            </vaadin-tab>
-        `;
-    }
-    return html;
+function clickFirstTab() {
+    // Use setTimeout() so that the DOM has time to load.
+    setTimeout(() => document.querySelector('#wave-tabs').firstElementChild.click(), 10);
+}
+
+function reducer(accumulator, [wave, image]) {
+    return accumulator + `
+        <vaadin-tab id="${wave}-tab">
+            <tab-icon alt="${utility.titleCase(wave)}" src="${image}"></tab-icon>
+            ${utility.titleCase(wave)}
+        </vaadin-tab>
+    `;
 }
 
 class TabSetUp {
@@ -66,27 +66,27 @@ class TabSetUp {
     }
 
     static getTrackData(track, trackType) {
+        let effects = '';
+        if ('effects' in track) effects = `<ul>${track['effects'].map((effect) => `<li>${effect}</li>`).join('')}</ul>`;
         return `
             <track-data 
                 track-type="${trackType}" 
-                ${trackType === 'pure' ? `hz="${track['frequency']}"` : ''}
+                ${['pure', 'isochronic'].includes(trackType) ? `hz="${track['frequency']}"` : ''}
                 ${trackType === 'solfeggio' ? `binaural-hz="${track['binauralBeatFrequency']}"` : ''}
                 ${trackType === 'solfeggio' ? `solfeggio-hz="${track['solfeggioFrequency']}"` : ''}
                 id="${track['name']}"
             >
-                <ul>${track['effects'].map((effect) => `<li>${effect}</li>`).join('')}</ul>
+                ${effects}
             </track-data>
         `;
     }
 
     createTracks(trackType) {
         if (!this.data.hasOwnProperty(trackType)) return '';
-        let tracks = '';
-        for (let track of this.data[trackType]) tracks += TabSetUp.getTrackData(track, trackType);
         return `
             <vaadin-accordion-panel>
                 <div slot="summary"><h1>${utility.titleCase(trackType)}</h1></div>
-                ${tracks}
+                ${this.data[trackType].reduce((tracks, track) => tracks + TabSetUp.getTrackData(track, trackType), '')}
             </vaadin-accordion-panel>
         `;
     }
@@ -105,13 +105,12 @@ class CategoryAdder {
 
     _createCategories() {
         let categories = JSON.parse(localStorage.getItem('categories'));
-        let html = '';
-        for (let [category, tracks] of Object.entries(categories)) {
+        let html = Object.entries(categories).reduce((html, [category, tracks]) => {
             let checked = tracks.includes(this.track) ? 'checked' : '';
-            html += `
+            return html + `
                 <vaadin-checkbox ${checked} class="category-checkbox" id="${category}">${category}</vaadin-checkbox>
             `;
-        }
+        }, '');
         if (html === '') html = 'No categories';
         return `<vaadin-vertical-layout theme="spacing-xs">${html}</vaadin-vertical-layout>`;
     }

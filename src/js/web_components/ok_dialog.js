@@ -1,5 +1,3 @@
-import * as utility from '../utility';
-
 class OKDialog extends HTMLElement {
     constructor() {
         super();
@@ -38,9 +36,7 @@ class OKDialog extends HTMLElement {
         dialog.renderer = (root) => root.innerHTML = OKDialog._getDialogContent(message);
         dialog.opened = true;
         let button = document.querySelector('#content').querySelector('#button');
-        button.addEventListener('click', () => {
-            utility.runAfterButtonAnimation(() => dialog.opened = false);
-        });
+        button.addEventListener('click', () => dialog.opened = false);
     }
 }
 
