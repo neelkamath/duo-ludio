@@ -2,8 +2,10 @@ class TitledItem extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
+    }
+
+    connectedCallback() {
         this.shadowRoot.appendChild(this._templateContent.cloneNode(true));
-        this.body = this.shadowRoot.querySelector('#body');
     }
 
     get _templateContent() {

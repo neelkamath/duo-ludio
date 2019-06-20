@@ -2,6 +2,9 @@ class ConfirmDialog extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
+    }
+
+    connectedCallback() {
         this.shadowRoot.appendChild(this._templateContent.cloneNode(true));
     }
 
@@ -19,30 +22,38 @@ class ConfirmDialog extends HTMLElement {
         return `aria-label=${label}`;
     }
 
-    get _cancelHTML() {
+    get _cancel() {
         let cancelText = 'Cancel';
         if (this.hasAttribute('cancel')) cancelText = this.getAttribute('cancel');
         return cancelText;
     }
 
-    get _confirmHTML() {
+    get _confirm() {
         let confirmText = 'Confirm';
         if (this.hasAttribute('confirm')) confirmText = this.getAttribute('confirm');
         return confirmText;
     }
 
-    render() {
-        let dialog = this.shadowRoot.querySelector('#dialog');
-        dialog.renderer = (root) => root.innerHTML = `
+    get _dialogContent() {
+        return `
             <span id="content">
                 <div><strong>${this.getAttribute('title')}</strong></div>
                 <br>
                 <div>${this.innerHTML}</div>
-                <dialog-button id="confirm">${this._confirmHTML}</dialog-button>
-                <dialog-button id="cancel">${this._cancelHTML}</dialog-button>
+                <dialog-button id="confirm">${this._confirm}</dialog-button>
+                <dialog-button id="cancel">${this._cancel}</dialog-button>
             </span>
         `;
+    }
+
+    render() {
+        let dialog = this.shadowRoot.querySelector('#dialog');
+        dialog.renderer = (root) => root.innerHTML = this._dialogContent;
         dialog.opened = true;
+        this._addEventListeners(dialog);
+    }
+
+    _addEventListeners(dialog) {
         let content = document.querySelector('#content');
         content.querySelector('#cancel').addEventListener('click', () => dialog.opened = false);
         this.confirm = content.querySelector('#confirm');

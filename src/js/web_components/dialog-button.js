@@ -2,14 +2,12 @@ class DialogButton extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
-        this.shadowRoot.appendChild(this._templateContent.cloneNode(true));
-        this.button = this.shadowRoot.querySelector('#button');
     }
 
     get _templateContent() {
         let template = document.createElement('template');
         template.innerHTML = `
-            <vaadin-button id="button">${this.textContent}</vaadin-button>
+            <vaadin-button id="button">${this.innerHTML}</vaadin-button>
             
             <style>
                 #button {
@@ -19,6 +17,10 @@ class DialogButton extends HTMLElement {
             </style>
         `;
         return template.content;
+    }
+
+    connectedCallback() {
+        this.shadowRoot.appendChild(this._templateContent.cloneNode(true));
     }
 }
 
