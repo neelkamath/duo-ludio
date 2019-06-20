@@ -1,9 +1,10 @@
+import * as storage from "../storage";
+
 export function setUpTab() {
     document.querySelector('#edit-tab').addEventListener('click', () => {
         document.querySelector('#tab-content').innerHTML = getContent();
         setUpAdder();
-        let categories = JSON.parse(localStorage.getItem('categories'));
-        Object.keys(categories).forEach((category) => addCategory(category));
+        Object.keys(storage.getCategories()).forEach((category) => addCategory(category));
     });
 }
 
@@ -21,17 +22,11 @@ function dialogDisplayed(name) {
         dialog.render('Please enter a category name.');
         return true;
     }
-    if (name in JSON.parse(localStorage.getItem('categories'))) {
+    if (name in storage.getCategories()) {
         dialog.render('That category already exists.');
         return true;
     }
     return false;
-}
-
-function saveCategory(category) {
-    let categories = JSON.parse(localStorage.getItem('categories'));
-    categories[category] = [];
-    localStorage.setItem('categories', JSON.stringify(categories));
 }
 
 function setUpAdder() {
@@ -40,7 +35,7 @@ function setUpAdder() {
         let name = adder.field.value.trim();
         adder.field.value = '';
         if (dialogDisplayed(name)) return;
-        saveCategory(name);
+        storage.createCategory(name);
         addCategory(name);
     });
 }
@@ -65,13 +60,9 @@ function addCategory(category) {
     document.querySelector('#categories-editor').appendChild(createCategory(category));
     let editor = document.querySelector(`#edit-${category}`);
     editor.delete.addEventListener('click', () => {
-        editor.confirm.addEventListener('click', () => deleteCategory(category));
+        editor.confirm.addEventListener('click', () => {
+            storage.deleteCategory(category);
+            document.querySelector(`#edit-${category}`).remove();
+        });
     });
-}
-
-function deleteCategory(category) {
-    let categories = JSON.parse(localStorage.getItem('categories'));
-    delete categories[category];
-    localStorage.setItem('categories', JSON.stringify(categories));
-    document.querySelector(`#edit-${category}`).remove();
 }
