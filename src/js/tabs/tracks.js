@@ -23,9 +23,10 @@ function clickFirstTab() {
 
 function reducer(accumulator, [wave, image]) {
     return accumulator + `
-        <vaadin-tab id="${wave}-tab">
-            <tab-icon alt="${utility.titleCase(wave)}" src="${image}"></tab-icon>
-            ${utility.titleCase(wave)}
+        <vaadin-tab id="${utility.escapeHTML(wave)}-tab">
+            <tab-icon alt="${utility.escapeHTML(utility.titleCase(wave))}" src="${utility.escapeHTML(image)}">
+            </tab-icon>
+            ${utility.escapeHTML(utility.titleCase(wave))}
         </vaadin-tab>
     `;
 }
@@ -33,7 +34,8 @@ function reducer(accumulator, [wave, image]) {
 class TabSetUp {
     constructor(wave) {
         this.data = binaurals[wave];
-        document.querySelector(`#${wave}-tab`).addEventListener('click', () => {
+        let tab = document.querySelector(`#${utility.escapeHTML(wave)}-tab`);
+        tab.addEventListener('click', () => {
             let content = document.querySelector('#binaurals-content');
             content.innerHTML = this._createDetails() + this._createTrackTypes();
             for (let track of document.querySelectorAll('track-data')) {
@@ -42,16 +44,27 @@ class TabSetUp {
         });
     }
 
-    _createDetails() {
+    static getTrackData(track, trackType) {
+        let effects = '';
+        if ('effects' in track) {
+            effects = `<ul>${track['effects'].map((effect) => `<li>${utility.escapeHTML(effect)}</li>`).join('')}</ul>`;
+        }
+        let frequencies = '';
+        if (trackType === 'solfeggio') {
+            frequencies = `
+                binaural-hz=${utility.escapeHTML(track['binauralBeatFrequency'])}
+                solfeggio-hz=${utility.escapeHTML(track['solfeggioFrequency'])}
+            `;
+        }
         return `
-            <wave-details
-                id="details"
-                min="${this.data['minFrequency']}"
-                max="${this.data['maxFrequency']}"
-                explanation="${utility.escapeHTML(this.data['explanation'])}"
+            <track-data 
+                track-type="${utility.escapeHTML(trackType)}" 
+                ${['pure', 'isochronic'].includes(trackType) ? `hz="${utility.escapeHTML(track['frequency'])}"` : ''}
+                ${frequencies}
+                id="${utility.escapeHTML(track['name'])}"
             >
-                <ul>${this.data['benefits'].map((benefit) => `<li>${benefit}</li>`).join('')}</ul>
-            </wave-details>
+                ${effects}
+            </track-data>
         `;
     }
 
@@ -66,19 +79,16 @@ class TabSetUp {
         `;
     }
 
-    static getTrackData(track, trackType) {
-        let effects = '';
-        if ('effects' in track) effects = `<ul>${track['effects'].map((effect) => `<li>${effect}</li>`).join('')}</ul>`;
+    _createDetails() {
         return `
-            <track-data 
-                track-type="${trackType}" 
-                ${['pure', 'isochronic'].includes(trackType) ? `hz="${track['frequency']}"` : ''}
-                ${trackType === 'solfeggio' ? `binaural-hz="${track['binauralBeatFrequency']}"` : ''}
-                ${trackType === 'solfeggio' ? `solfeggio-hz="${track['solfeggioFrequency']}"` : ''}
-                id="${track['name']}"
+            <wave-details
+                id="details"
+                min="${this.data['minFrequency']}"
+                max="${this.data['maxFrequency']}"
+                explanation="${utility.escapeHTML(this.data['explanation'])}"
             >
-                ${effects}
-            </track-data>
+                <ul>${this.data['benefits'].map((benefit) => `<li>${utility.escapeHTML(benefit)}</li>`).join('')}</ul>
+            </wave-details>
         `;
     }
 
@@ -86,7 +96,7 @@ class TabSetUp {
         if (!this.data.hasOwnProperty(trackType)) return '';
         return `
             <vaadin-accordion-panel>
-                <div slot="summary"><h1>${utility.titleCase(trackType)}</h1></div>
+                <div slot="summary"><h1>${utility.escapeHTML(utility.titleCase(trackType))}</h1></div>
                 ${this.data[trackType].reduce((tracks, track) => tracks + TabSetUp.getTrackData(track, trackType), '')}
             </vaadin-accordion-panel>
         `;
@@ -107,9 +117,14 @@ class CategoryAdder {
     _createCategories() {
         let categories = storage.getCategories();
         let html = Object.entries(categories).reduce((html, [key, value]) => {
-            let checked = value['tracks'].includes(this.track) ? 'checked' : '';
             return html + `
-                <vaadin-checkbox ${checked} class="category-checkbox" id="${value['id']}">${key}</vaadin-checkbox>
+                <vaadin-checkbox 
+                    ${value['tracks'].includes(this.track) ? 'checked' : ''} 
+                    class="category-checkbox" 
+                    id="${utility.escapeHTML(value['id'])}"
+                >
+                    ${utility.escapeHTML(key)}
+                </vaadin-checkbox>
             `;
         }, '');
         if (html === '') html = 'No categories';

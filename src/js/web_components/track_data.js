@@ -1,3 +1,5 @@
+import * as utility from '../utility';
+
 class TrackData extends HTMLElement {
     constructor() {
         super();
@@ -18,13 +20,18 @@ class TrackData extends HTMLElement {
         template.innerHTML = `
             <vaadin-vertical-layout>
                 <div class="block">${this._frequency}</div>
-                <div class="block">
-                    ${this.children.length > 0 ? `<titled-item title="Effects">${this.innerHTML}</titled-item>` : ''}
-                </div>
+                ${this._effects}
                 <div class="block">${TrackData._addButton}</div>
             </vaadin-vertical-layout>
         `;
         return template.content;
+    }
+
+    get _effects() {
+        if (this.children.length === 0) return '';
+        return `
+            <div class="block"><titled-item title="Effects">${this.innerHTML}</titled-item></div>
+        `;
     }
 
     get _frequency() {
@@ -37,7 +44,7 @@ class TrackData extends HTMLElement {
             let solfeggio = this.getAttribute('solfeggio-hz');
             text = `${binaural} Hz (${solfeggio} Hz Solfeggio)`;
         }
-        return `<h2>Frequency: ${text}</h2>`;
+        return `<h2>Frequency: ${utility.escapeHTML(text)}</h2>`;
     }
 
     connectedCallback() {

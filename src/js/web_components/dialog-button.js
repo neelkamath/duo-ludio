@@ -4,11 +4,10 @@ class DialogButton extends HTMLElement {
         this.attachShadow({mode: 'open'});
     }
 
-    get _templateContent() {
+    connectedCallback() {
         let template = document.createElement('template');
         template.innerHTML = `
             <vaadin-button id="button">${this.innerHTML}</vaadin-button>
-            
             <style>
                 #button {
                     float: right;
@@ -16,11 +15,7 @@ class DialogButton extends HTMLElement {
                 }
             </style>
         `;
-        return template.content;
-    }
-
-    connectedCallback() {
-        this.shadowRoot.appendChild(this._templateContent.cloneNode(true));
+        this.shadowRoot.appendChild(template.content.cloneNode(true));
     }
 }
 

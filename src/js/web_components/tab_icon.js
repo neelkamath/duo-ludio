@@ -1,3 +1,5 @@
+import * as utility from '../utility';
+
 class TabIcon extends HTMLElement {
     constructor() {
         super();
@@ -5,19 +7,15 @@ class TabIcon extends HTMLElement {
     }
 
     connectedCallback() {
-        this.shadowRoot.appendChild(this._templateContent.cloneNode(true));
-    }
-
-    get _templateContent() {
         let template = document.createElement('template');
         template.innerHTML = `
             <img 
-                alt="${this.getAttribute('alt')}" 
-                src="${this.getAttribute('src')}"
+                alt="${utility.getAttribute(this, 'alt')}" 
+                src="${utility.getAttribute(this, 'src')}"
                 style="height: 24px; width: 24px;"
             >
         `;
-        return template.content;
+        this.shadowRoot.appendChild(template.content.cloneNode(true));
     }
 }
 

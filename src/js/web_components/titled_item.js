@@ -1,3 +1,5 @@
+import * as utility from '../utility';
+
 class TitledItem extends HTMLElement {
     constructor() {
         super();
@@ -5,18 +7,14 @@ class TitledItem extends HTMLElement {
     }
 
     connectedCallback() {
-        this.shadowRoot.appendChild(this._templateContent.cloneNode(true));
-    }
-
-    get _templateContent() {
         let template = document.createElement('template');
         template.innerHTML = `
             <vaadin-item>
-                <div><strong>${this.getAttribute('title')}</strong></div>
+                <div><strong>${utility.getAttribute(this, 'title')}</strong></div>
                 <div id="body">${this.innerHTML}</div>
             </vaadin-item>
         `;
-        return template.content;
+        this.shadowRoot.appendChild(template.content.cloneNode(true));
     }
 }
 

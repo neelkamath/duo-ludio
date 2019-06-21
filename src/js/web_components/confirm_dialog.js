@@ -1,49 +1,38 @@
+import * as utility from '../utility';
+
 class ConfirmDialog extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
     }
 
-    connectedCallback() {
-        this.shadowRoot.appendChild(this._templateContent.cloneNode(true));
-    }
-
-    get _templateContent() {
-        let template = document.createElement('template');
-        template.innerHTML = `
-            <vaadin-dialog no-close-on-esc no-close-on-outside-click id="dialog" ${this._ariaLabel}></vaadin-dialog>
-        `;
-        return template.content;
-    }
-
-    get _ariaLabel() {
-        let label = 'Confirm';
-        if (this.hasAttribute('aria-label')) label = this.getAttribute('aria-label');
-        return `aria-label=${label}`;
-    }
-
-    get _cancel() {
-        let cancelText = 'Cancel';
-        if (this.hasAttribute('cancel')) cancelText = this.getAttribute('cancel');
-        return cancelText;
-    }
-
-    get _confirm() {
-        let confirmText = 'Confirm';
-        if (this.hasAttribute('confirm')) confirmText = this.getAttribute('confirm');
-        return confirmText;
-    }
-
     get _dialogContent() {
         return `
             <span id="content">
-                <div><strong>${this.getAttribute('title')}</strong></div>
+                <div><strong>${utility.getAttribute(this, 'title')}</strong></div>
                 <br>
                 <div>${this.innerHTML}</div>
-                <dialog-button id="confirm">${this._confirm}</dialog-button>
-                <dialog-button id="cancel">${this._cancel}</dialog-button>
+                <dialog-button id="confirm">
+                    ${utility.getAttribute(this, 'confirm', 'Confirm')}
+                </dialog-button>
+                <dialog-button id="cancel">
+                    ${utility.getAttribute(this, 'cancel', 'Cancel')}
+                </dialog-button>
             </span>
         `;
+    }
+
+    connectedCallback() {
+        let template = document.createElement('template');
+        template.innerHTML = `
+            <vaadin-dialog 
+                no-close-on-esc 
+                no-close-on-outside-click 
+                id="dialog" 
+                aria-label="${utility.getAttribute(this, 'aria-label', 'Confirm')}"
+            ></vaadin-dialog>
+        `;
+        this.shadowRoot.appendChild(template.content.cloneNode(true));
     }
 
     render() {

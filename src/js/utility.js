@@ -10,3 +10,7 @@ export function escapeHTML(text) {
 export function titleCase(string) {
     return string[0].toUpperCase() + string.slice(1);
 }
+
+export function getAttribute(context, attribute, defaultAttribute = '') {
+    return context.hasAttribute(attribute) ? escapeHTML(context.getAttribute(attribute)) : defaultAttribute;
+}
