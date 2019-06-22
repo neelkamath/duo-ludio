@@ -1,7 +1,8 @@
 import * as binaurals from '../../binaural_beats/data';
+import * as categoryAdder from './category_adder';
 import * as storage from '../storage';
 import * as utility from '../utility';
-import * as waves from "./waves";
+import * as waves from './waves';
 
 export function setUpTab() {
     document.querySelector('#tracks-tab').addEventListener('click', () => {
@@ -18,7 +19,7 @@ export function setUpTab() {
 
 function clickFirstTab() {
     // Use setTimeout() so that the DOM has time to load.
-    setTimeout(() => document.querySelector('#wave-tabs').firstElementChild.click(), 10);
+    setTimeout(() => document.querySelector('#wave-tabs').firstElementChild.click(), 100);
 }
 
 function reducer(accumulator, [wave, image]) {
@@ -51,15 +52,12 @@ class TabSetUp {
         }
         let frequencies = '';
         if (trackType === 'solfeggio') {
-            frequencies = `
-                binaural-hz=${utility.escapeHTML(track['binauralBeatFrequency'])}
-                solfeggio-hz=${utility.escapeHTML(track['solfeggioFrequency'])}
-            `;
+            frequencies = `binaural-hz=${track['binauralBeatFrequency']} solfeggio-hz=${track['solfeggioFrequency']}`;
         }
         return `
             <track-data 
                 track-type="${utility.escapeHTML(trackType)}" 
-                ${['pure', 'isochronic'].includes(trackType) ? `hz="${utility.escapeHTML(track['frequency'])}"` : ''}
+                ${['pure', 'isochronic'].includes(trackType) ? `hz="${track['frequency']}"` : ''}
                 ${frequencies}
                 id="${utility.escapeHTML(track['name'])}"
             >
@@ -70,7 +68,7 @@ class TabSetUp {
 
     _createTrackTypes() {
         return `
-            <ok-dialog aria-label="Add track" id="add-track-dialog"></ok-dialog>
+            <dismiss-dialog aria-label="Add track" id="add-track-dialog"></dismiss-dialog>
             <vaadin-accordion>
                 ${this.createTracks('pure')}
                 ${this.createTracks('isochronic')}
@@ -108,9 +106,17 @@ class CategoryAdder {
         this.track = track;
         let dialog = document.querySelector('#add-track-dialog');
         dialog.render(`
-            <h3>Add to category</h3>
-            <div>${this._createCategories(track)}</div>
+            <div><strong>Add to category</strong></div>
+            <validated-adder aria-label="Invalid category name" id="new-category"></validated-adder>
+            <br><br>
+            <span id="categories"></span>
         `);
+        this._setCategories();
+        categoryAdder.setUpAdder('new-category', () => this._setCategories());
+    }
+
+    _setCategories() {
+        document.querySelector('#categories').innerHTML = this._createCategories();
         this._addCheckboxListeners();
     }
 

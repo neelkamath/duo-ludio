@@ -22,7 +22,7 @@ class ItemEditor extends HTMLElement {
                 <vaadin-button aria-label="Delete item" id="delete" theme="icon">
                     <iron-icon icon="vaadin:minus"></iron-icon>
                 </vaadin-button>
-                <ok-dialog id="ok-dialog"></ok-dialog>
+                <dismiss-dialog id="dismiss-dialog"></dismiss-dialog>
                 <vaadin-text-field id="field" label="Rename" value="${utility.escapeHTML(this._item)}">
                 </vaadin-text-field>
             </vaadin-item>
@@ -57,10 +57,10 @@ class ItemEditor extends HTMLElement {
     _handleRename() {
         let field = this.shadowRoot.querySelector('#field');
         field.addEventListener('change', () => {
-            let message = this.isInvalid(field.value);
-            if (message !== null) {
+            let html = this.isInvalid(field.value);
+            if (html !== null) {
                 field.value = this._item;
-                this.renderOKDialog(message);
+                this.renderDismissDialog(html);
             } else {
                 this.setItem(this._item, field.value);
                 this._item = field.value;
@@ -68,8 +68,8 @@ class ItemEditor extends HTMLElement {
         });
     }
 
-    renderOKDialog(message) {
-        setTimeout(() => this.shadowRoot.querySelector('#ok-dialog').render(message), 50);
+    renderDismissDialog(html) {
+        setTimeout(() => this.shadowRoot.querySelector('#dismiss-dialog').render(html), 50);
     }
 }
 
