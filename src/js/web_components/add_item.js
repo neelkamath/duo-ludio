@@ -5,20 +5,23 @@ class ItemAdder extends HTMLElement {
     }
 
     connectedCallback() {
-        this.shadowRoot.appendChild(ItemAdder._templateContent.cloneNode(true));
-        this.field = this.shadowRoot.querySelector('#name');
-        this.button = this.shadowRoot.querySelector('#add');
+        let field = document.createElement('vaadin-text-field');
+        field.label = 'Item name';
+        field.placeholder = 'Mindless HW';
+        this.shadowRoot.appendChild(field);
+        this.shadowRoot.appendChild(this._getButton(field));
     }
 
-    static get _templateContent() {
-        let template = document.createElement('template');
-        template.innerHTML = `
-            <vaadin-text-field id="name" label="Category name" placeholder="Mindless HW"></vaadin-text-field>
-            <vaadin-button aria-label="Add category" id="add" theme="icon">
-                <iron-icon icon="vaadin:plus"></iron-icon>
-            </vaadin-button>
-        `;
-        return template.content;
+    _getButton(field) {
+        let button = document.createElement('vaadin-button');
+        button.ariaLabel = 'Add item';
+        button.theme = 'icon';
+        button.innerHTML = '<iron-icon icon="vaadin:plus"></iron-icon>';
+        button.addEventListener('click', () => {
+            this.dispatchEvent(new CustomEvent('add', {detail: field.value}));
+            field.value = '';
+        });
+        return button;
     }
 }
 

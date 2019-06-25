@@ -24,7 +24,7 @@ Developer documentation is available on the [wiki](https://github.com/neelkamath
 ### Development
 
 1. `npm run dev`
-1. Open `index.html` in your browser.
+1. Open `src/index.html` in your browser.
 
 ### Production
 

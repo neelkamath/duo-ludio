@@ -8,16 +8,41 @@ export function getCategories() {
 
 export function createCategory(category) {
     let categories = getCategories();
-    categories[category] = {id: `T${new Date().getTime()}`, tracks: []};
+    categories[category] = {'tracks': []};
     setCategories(categories);
+}
+
+export function categoryHasTrack(category, track) {
+    return getCategoryTracks(category).includes(track);
+}
+
+export function addCategoryTrack(category, track) {
+    let categories = getCategories();
+    categories[category]['tracks'].push(track);
+    setCategories(categories);
+}
+
+export function removeCategoryTrack(category, track) {
+    let categories = getCategories();
+    let tracks = categories[category]['tracks'];
+    tracks.splice(tracks.indexOf(track), 1);
+    setCategories(categories);
+}
+
+export function getCategoryTracks(category) {
+    return getCategories()[category]['tracks'];
 }
 
 export function getCategoryNames() {
     return Object.keys(getCategories());
 }
 
-export function getCategoryId(category) {
-    return getCategories()[category]['id'];
+export function hasNoCategories() {
+    return getCategoryNames().length === 0;
+}
+
+export function hasCategory(category) {
+    return getCategoryNames().includes(category);
 }
 
 export function deleteCategory(category) {

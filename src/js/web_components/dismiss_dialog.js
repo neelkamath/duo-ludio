@@ -1,23 +1,20 @@
-import * as utility from '../utility';
-
 class DismissDialog extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
+        this._dialog = document.createElement('vaadin-dialog');
     }
 
     connectedCallback() {
-        let template = document.createElement('template');
-        template.innerHTML = `
-            <vaadin-dialog id="dialog" ${utility.getAttribute(this, 'aria-label')}></vaadin-dialog>
-        `;
-        this.shadowRoot.appendChild(template.content.cloneNode(true));
+        if (this.hasAttribute('aria-label')) {
+            this._dialog.ariaLabel = this.getAttribute('aria-label');
+        }
+        this.shadowRoot.appendChild(this._dialog);
     }
 
-    render(html) {
-        let dialog = this.shadowRoot.querySelector('#dialog');
-        dialog.renderer = (root) => root.innerHTML = html;
-        dialog.opened = true;
+    render(child) {
+        this._dialog.renderer = (root) => root.appendChild(child);
+        setTimeout(() => this._dialog.opened = true, 100);
     }
 }
 

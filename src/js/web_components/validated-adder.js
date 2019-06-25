@@ -1,39 +1,32 @@
-import * as utility from '../utility';
-
 class ValidatedAdder extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
+        this._dialog = document.createElement('dismiss-dialog');
     }
 
-    get _ariaLabel() {
-        if (!this.hasAttribute('aria-label')) return '';
-        return `aria-label="${utility.escapeHTML(this.getAttribute('aria-label'))}"`;
+    get _itemNode() {
+        let item = document.createElement('add-item');
+        item.addEventListener('add', ({detail}) => {
+            let name = detail.trim();
+            let message = this.getInvalidMessage(name);
+            if (message === null) {
+                this.dispatchEvent(new CustomEvent('add', {detail: name}));
+                return;
+            }
+            let span = document.createElement('span');
+            span.innerHTML = message;
+            this._dialog.render(span);
+        });
+        return item;
     }
 
     connectedCallback() {
-        let template = document.createElement('template');
-        template.innerHTML = `
-            <dismiss-dialog id="dialog" ${this._ariaLabel}></dismiss-dialog>
-            <add-item id="adder"></add-item>
-        `;
-        this.shadowRoot.appendChild(template.content.cloneNode(true));
-        this._handleAdder();
-    }
-
-    _handleAdder() {
-        let adder = this.shadowRoot.querySelector('#adder');
-        adder.button.addEventListener('click', () => {
-            let name = adder.field.value.trim();
-            adder.field.value = '';
-            let dialog = this.shadowRoot.querySelector('#dialog');
-            let message = this.getInvalidMessage(name);
-            if (message !== null) {
-                dialog.render(message);
-                return;
-            }
-            this.handleAdd(name);
-        });
+        if (this.hasAttribute('aria-label')) {
+            this._dialog.ariaLabel = this.getAttribute('aria-label');
+        }
+        this.shadowRoot.appendChild(this._dialog);
+        this.shadowRoot.appendChild(this._itemNode);
     }
 }
 

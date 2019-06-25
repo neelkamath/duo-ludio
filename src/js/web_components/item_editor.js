@@ -1,33 +1,64 @@
-import * as utility from '../utility';
-
 class ItemEditor extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
+        this._confirmDialog = document.createElement('confirm-dialog');
+        this._dismissDialog = document.createElement('dismiss-dialog');
     }
 
-    get _templateContent() {
-        let template = document.createElement('template');
-        template.innerHTML = `
-            <confirm-dialog 
-                id="confirm-dialog"
-                aria-label="${utility.getAttribute(this, 'aria-label', 'Edit item')}"
-                title="${utility.getAttribute(this, 'dialog-title')}"
-                cancel="${utility.getAttribute(this, 'dialog-cancel', 'Cancel')}" 
-                confirm="${utility.getAttribute(this, 'dialog-confirm', 'Confirm')}"
-            >
-                ${utility.getAttribute(this, 'dialog-body')}
-            </confirm-dialog>
-            <vaadin-item>
-                <vaadin-button aria-label="Delete item" id="delete" theme="icon">
-                    <iron-icon icon="vaadin:minus"></iron-icon>
-                </vaadin-button>
-                <dismiss-dialog id="dismiss-dialog"></dismiss-dialog>
-                <vaadin-text-field id="field" label="Rename" value="${utility.escapeHTML(this._item)}">
-                </vaadin-text-field>
-            </vaadin-item>
-        `;
-        return template.content;
+    get _fieldNode() {
+        let field = document.createElement('vaadin-text-field');
+        field.id = 'field';
+        field.label = 'Rename';
+        field.value = this._item;
+        field.addEventListener('change', () => this._handleRename(field));
+        return field;
+    }
+
+    get _buttonNode() {
+        let button = document.createElement('vaadin-button');
+        button.ariaLabel = 'Delete item';
+        button.theme = 'icon';
+        button.innerHTML = '<iron-icon icon="vaadin:minus"></iron-icon>';
+        button.addEventListener('click', () => {
+            this._confirmDialog.render();
+            this._confirmDialog.addEventListener('confirm', () => {
+                this.remove();
+                this.dispatchEvent(new Event('delete'));
+            });
+        });
+        return button;
+    }
+
+    _setUpConfirmDialog() {
+        let label = 'Edit item';
+        if (this.hasAttribute('aria-label')) label = this.getAttribute('aria-label');
+        this._confirmDialog.ariaLabel = label;
+        this._confirmDialog.title = this.getAttribute('dialog-title');
+        let cancel = 'Cancel';
+        if (this.hasAttribute('dialog-cancel')) cancel = this.getAttribute('dialog-cancel');
+        this._confirmDialog.cancel = cancel;
+        let confirm = 'Confirm';
+        if (this.hasAttribute('dialog-confirm')) {
+            confirm = this.getAttribute('dialog-confirm');
+        }
+        this._confirmDialog.confirm = confirm;
+        this._confirmDialog.textContent = this.getAttribute('dialog-body');
+        return this._confirmDialog;
+    }
+
+    _handleRename(field) {
+        let html = this.getInvalidMessage(field.value);
+        if (html !== null) {
+            field.value = this._item;
+            let span = document.createElement('span');
+            span.innerHTML = html;
+            this._dismissDialog.render(span);
+        } else {
+            let detail = {oldName: this._item, newName: field.value};
+            this.dispatchEvent(new CustomEvent('set', {detail}));
+            this._item = field.value;
+        }
     }
 
     get _item() {
@@ -39,37 +70,13 @@ class ItemEditor extends HTMLElement {
     }
 
     connectedCallback() {
-        this.shadowRoot.appendChild(this._templateContent.cloneNode(true));
-        this.delete = this.shadowRoot.querySelector('#delete');
-        this._handleDelete();
-        this._handleRename();
-    }
-
-    _handleDelete() {
-        this.delete.addEventListener('click', () => {
-            let dialog = this.shadowRoot.querySelector('#confirm-dialog');
-            dialog.render();
-            this.confirm = dialog.confirm;
-            this.confirm.addEventListener('click', () => dialog.opened = false);
-        });
-    }
-
-    _handleRename() {
-        let field = this.shadowRoot.querySelector('#field');
-        field.addEventListener('change', () => {
-            let html = this.isInvalid(field.value);
-            if (html !== null) {
-                field.value = this._item;
-                this.renderDismissDialog(html);
-            } else {
-                this.setItem(this._item, field.value);
-                this._item = field.value;
-            }
-        });
-    }
-
-    renderDismissDialog(html) {
-        setTimeout(() => this.shadowRoot.querySelector('#dismiss-dialog').render(html), 50);
+        this._setUpConfirmDialog();
+        let div = document.createElement('div');
+        div.appendChild(this._confirmDialog);
+        div.appendChild(this._dismissDialog);
+        div.appendChild(this._fieldNode);
+        div.appendChild(this._buttonNode);
+        this.shadowRoot.appendChild(div);
     }
 }
 

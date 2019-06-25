@@ -1,52 +1,59 @@
-import * as utility from '../utility';
-
 class ConfirmDialog extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
+        this._dialog = document.createElement('vaadin-dialog');
     }
 
-    get _dialogContent() {
-        return `
-            <span id="content">
-                <div><strong>${utility.getAttribute(this, 'title')}</strong></div>
-                <br>
-                <div>${this.innerHTML}</div>
-                <dialog-button id="confirm">
-                    ${utility.getAttribute(this, 'confirm', 'Confirm')}
-                </dialog-button>
-                <dialog-button id="cancel">
-                    ${utility.getAttribute(this, 'cancel', 'Cancel')}
-                </dialog-button>
-            </span>
-        `;
+    get _titleNode() {
+        let div = document.createElement('div');
+        let strong = document.createElement('strong');
+        strong.textContent = this.getAttribute('title');
+        div.appendChild(strong);
+        return div;
+    }
+
+    get _confirmNode() {
+        let button = document.createElement('dialog-button');
+        let content = 'Confirm';
+        if (this.hasAttribute('confirm')) content = this.getAttribute('confirm');
+        button.textContent = content;
+        button.addEventListener('click', () => {
+            this._dialog.opened = false;
+            this.dispatchEvent(new Event('confirm'));
+        });
+        return button;
+    }
+
+    get _cancelNode() {
+        let button = document.createElement('dialog-button');
+        let cancel = 'Cancel';
+        if (this.hasAttribute('cancel')) cancel = this.getAttribute('cancel');
+        button.textContent = cancel;
+        button.addEventListener('click', () => this._dialog.opened = false);
+        return button;
     }
 
     connectedCallback() {
-        let template = document.createElement('template');
-        template.innerHTML = `
-            <vaadin-dialog 
-                no-close-on-esc 
-                no-close-on-outside-click 
-                id="dialog" 
-                aria-label="${utility.getAttribute(this, 'aria-label', 'Confirm')}"
-            ></vaadin-dialog>
-        `;
-        this.shadowRoot.appendChild(template.content.cloneNode(true));
+        this._dialog.noCloseOnEsc = true;
+        this._dialog.noCloseOnOutsideClick = true;
+        let label = 'Confirm';
+        if (this.hasAttribute('aria-label')) label = this.getAttribute('aria-label');
+        this._dialog.ariaLabel = label;
+        this.shadowRoot.appendChild(this._dialog);
     }
 
     render() {
-        let dialog = this.shadowRoot.querySelector('#dialog');
-        dialog.renderer = (root) => root.innerHTML = this._dialogContent;
-        dialog.opened = true;
-        this._addEventListeners(dialog);
-    }
-
-    _addEventListeners(dialog) {
-        let content = document.querySelector('#content');
-        content.querySelector('#cancel').addEventListener('click', () => dialog.opened = false);
-        this.confirm = content.querySelector('#confirm');
-        this.confirm.addEventListener('click', () => dialog.opened = false);
+        this._dialog.renderer = (root) => {
+            root.appendChild(this._titleNode);
+            root.appendChild(document.createElement('br'));
+            let div = document.createElement('div');
+            div.innerHTML = this.innerHTML;
+            root.appendChild(div);
+            root.appendChild(this._confirmNode);
+            root.appendChild(this._cancelNode);
+        };
+        this._dialog.opened = true;
     }
 }
 

@@ -1,17 +1,22 @@
-import * as storage from '../storage';
+import * as message from './message';
+import * as storage from "../storage";
 
-export function getInvalidMessage(name) {
-    if (name === '') return 'Please enter a category name.';
-    if (storage.getCategoryNames().includes(name)) return 'That category already exists.';
-    return null
+class CategoryAdder extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({mode: 'open'});
+    }
+
+    connectedCallback() {
+        let adder = document.createElement('validated-adder');
+        adder.setAttribute('aria-label', 'Invalid category name');
+        adder.getInvalidMessage = message.getInvalidMessage;
+        adder.addEventListener('add', ({detail}) => {
+            storage.createCategory(detail);
+            this.dispatchEvent(new CustomEvent('add', {detail}));
+        });
+        this.shadowRoot.appendChild(adder);
+    }
 }
 
-export function setUpAdder(adderId, func = () => {
-}) {
-    let adder = document.querySelector(`#${adderId}`);
-    adder.getInvalidMessage = getInvalidMessage;
-    adder.handleAdd = (name) => {
-        storage.createCategory(name);
-        func(name);
-    };
-}
+customElements.define('category-adder', CategoryAdder);

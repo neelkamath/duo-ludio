@@ -17,7 +17,23 @@ import './web_components/wave_details';
 storage.initialize();
 
 addEventListener('load', () => {
-    categories.setUpTab();
-    editor.setUpTab();
-    tracks.setUpTab();
+    let tabContent = document.querySelector('#tab-content');
+    for (let name of ['categories', 'tracks', 'edit']) {
+        let tab = document.querySelector(`#${name}-tab`);
+        tab.addEventListener('click', () => {
+            tabContent.innerHTML = '';
+            let child;
+            switch (name) {
+                case 'categories':
+                    child = categories.getContent();
+                    break;
+                case 'tracks':
+                    child = tracks.getContent();
+                    break;
+                case 'edit':
+                    child = editor.getContent();
+            }
+            tabContent.appendChild(child);
+        });
+    }
 });

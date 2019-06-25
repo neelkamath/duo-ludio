@@ -1,5 +1,3 @@
-import * as utility from '../utility';
-
 class TitledItem extends HTMLElement {
     constructor() {
         super();
@@ -7,14 +5,16 @@ class TitledItem extends HTMLElement {
     }
 
     connectedCallback() {
-        let template = document.createElement('template');
-        template.innerHTML = `
-            <vaadin-item>
-                <div><strong>${utility.getAttribute(this, 'title')}</strong></div>
-                <div id="body">${this.innerHTML}</div>
-            </vaadin-item>
-        `;
-        this.shadowRoot.appendChild(template.content.cloneNode(true));
+        let item = document.createElement('vaadin-item');
+        let titleDiv = document.createElement('div');
+        let strong = document.createElement('strong');
+        strong.textContent = this.getAttribute('title');
+        titleDiv.appendChild(strong);
+        item.appendChild(titleDiv);
+        let bodyDiv = document.createElement('div');
+        bodyDiv.innerHTML = this.innerHTML;
+        item.appendChild(bodyDiv);
+        this.shadowRoot.appendChild(item);
     }
 }
 

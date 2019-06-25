@@ -1,155 +1,159 @@
 import * as binaurals from '../../binaural_beats/data';
-import * as categoryAdder from './category_adder';
 import * as storage from '../storage';
-import * as utility from '../utility';
 import * as waves from './waves';
 
-export function setUpTab() {
-    document.querySelector('#tracks-tab').addEventListener('click', () => {
-        document.querySelector('#tab-content').innerHTML = `
-            <vaadin-tabs id="wave-tabs">
-                ${Object.entries(waves).filter(([wave]) => wave !== 'default').reduce(reducer, '')}
-            </vaadin-tabs>
-            <div id="binaurals-content"></div>
-        `;
-        for (let wave in binaurals) if (binaurals.hasOwnProperty(wave) && wave !== 'default') new TabSetUp(wave);
-        clickFirstTab();
-    });
+export function getContent() {
+    let span = document.createElement('span');
+    let binauralsContent = document.createElement('div');
+    let tabs = getTabs(binauralsContent);
+    tabs[0].click();
+    let vaadinTabs = document.createElement('vaadin-tabs');
+    for (let tab of tabs) vaadinTabs.appendChild(tab);
+    span.appendChild(vaadinTabs);
+    span.appendChild(binauralsContent);
+    return span;
 }
 
-function clickFirstTab() {
-    // Use setTimeout() so that the DOM has time to load.
-    setTimeout(() => document.querySelector('#wave-tabs').firstElementChild.click(), 100);
-}
-
-function reducer(accumulator, [wave, image]) {
-    return accumulator + `
-        <vaadin-tab id="${utility.escapeHTML(wave)}-tab">
-            <tab-icon alt="${utility.escapeHTML(utility.titleCase(wave))}" src="${utility.escapeHTML(image)}">
-            </tab-icon>
-            ${utility.escapeHTML(utility.titleCase(wave))}
-        </vaadin-tab>
-    `;
-}
-
-class TabSetUp {
-    constructor(wave) {
-        this.data = binaurals[wave];
-        let tab = document.querySelector(`#${utility.escapeHTML(wave)}-tab`);
+function getTabs(binauralsContent) {
+    return Object.entries(waves).filter(([wave]) => wave !== 'default').reduce((tabs, [wave, image]) => {
+        let tab = getTab(wave, image);
         tab.addEventListener('click', () => {
-            let content = document.querySelector('#binaurals-content');
-            content.innerHTML = this._createDetails() + this._createTrackTypes();
-            for (let track of document.querySelectorAll('track-data')) {
-                track.button.addEventListener('click', () => new CategoryAdder(track.id));
-            }
+            binauralsContent.innerHTML = '';
+            let data = binaurals[wave];
+            binauralsContent.appendChild(getDetails(data));
+            binauralsContent.appendChild(getTrackTypes(data));
         });
-    }
+        tabs.push(tab);
+        return tabs;
+    }, []);
+}
 
-    static getTrackData(track, trackType) {
-        let effects = '';
-        if ('effects' in track) {
-            effects = `<ul>${track['effects'].map((effect) => `<li>${utility.escapeHTML(effect)}</li>`).join('')}</ul>`;
-        }
-        let frequencies = '';
-        if (trackType === 'solfeggio') {
-            frequencies = `binaural-hz=${track['binauralBeatFrequency']} solfeggio-hz=${track['solfeggioFrequency']}`;
-        }
-        return `
-            <track-data 
-                track-type="${utility.escapeHTML(trackType)}" 
-                ${['pure', 'isochronic'].includes(trackType) ? `hz="${track['frequency']}"` : ''}
-                ${frequencies}
-                id="${utility.escapeHTML(track['name'])}"
-            >
-                ${effects}
-            </track-data>
-        `;
-    }
+function getTab(wave, image) {
+    let title = wave[0].toUpperCase() + wave.slice(1);
+    let tab = document.createElement('vaadin-tab');
+    let icon = document.createElement('tab-icon');
+    icon.setAttribute('alt', title);
+    icon.setAttribute('src', image);
+    tab.appendChild(icon);
+    let span = document.createElement('span');
+    span.textContent = title;
+    tab.appendChild(span);
+    return tab;
+}
 
-    _createTrackTypes() {
-        return `
-            <dismiss-dialog aria-label="Add track" id="add-track-dialog"></dismiss-dialog>
-            <vaadin-accordion>
-                ${this.createTracks('pure')}
-                ${this.createTracks('isochronic')}
-                ${this.createTracks('solfeggio')}
-            </vaadin-accordion>
-        `;
-    }
+function getDetails(data) {
+    let details = document.createElement('wave-details');
+    details.setAttribute('min', data['minFrequency']);
+    details.setAttribute('max', data['maxFrequency']);
+    details.setAttribute('explanation', data['explanation']);
+    let benefits = data['benefits'].reduce((benefits, benefit) => {
+        let li = document.createElement('li');
+        li.innerHTML = benefit;
+        benefits.appendChild(li);
+        return benefits;
+    }, document.createElement('ul'));
+    details.appendChild(benefits);
+    return details;
+}
 
-    _createDetails() {
-        return `
-            <wave-details
-                id="details"
-                min="${this.data['minFrequency']}"
-                max="${this.data['maxFrequency']}"
-                explanation="${utility.escapeHTML(this.data['explanation'])}"
-            >
-                <ul>${this.data['benefits'].map((benefit) => `<li>${utility.escapeHTML(benefit)}</li>`).join('')}</ul>
-            </wave-details>
-        `;
+function getTrackTypes(data) {
+    let span = document.createElement('span');
+    let dialog = document.createElement('dismiss-dialog');
+    dialog.setAttribute('aria-label', 'Add track');
+    span.appendChild(dialog);
+    let accordion = document.createElement('vaadin-accordion');
+    for (let type of ['pure', 'isochronic', 'solfeggio']) {
+        if (data.hasOwnProperty(type)) accordion.appendChild(getTracks(data, type, dialog));
     }
+    span.appendChild(accordion);
+    return span;
+}
 
-    createTracks(trackType) {
-        if (!this.data.hasOwnProperty(trackType)) return '';
-        return `
-            <vaadin-accordion-panel>
-                <div slot="summary"><h1>${utility.escapeHTML(utility.titleCase(trackType))}</h1></div>
-                ${this.data[trackType].reduce((tracks, track) => tracks + TabSetUp.getTrackData(track, trackType), '')}
-            </vaadin-accordion-panel>
-        `;
+function getTracks(data, type, dialog) {
+    let panel = document.createElement('vaadin-accordion-panel');
+    let div = document.createElement('div');
+    div.slot = 'summary';
+    let h1 = document.createElement('h1');
+    h1.textContent = type[0].toUpperCase() + type.slice(1);
+    div.appendChild(h1);
+    panel.appendChild(div);
+    let reduceTracks = (tracks, track) => {
+        tracks.appendChild(getTrack(track, type, dialog));
+        return tracks;
+    };
+    panel.appendChild(data[type].reduce(reduceTracks, document.createElement('span')));
+    return panel;
+}
+
+function getTrack(track, type, dialog) {
+    let data = document.createElement('track-data');
+    data.setAttribute('track-type', type);
+    if (['pure', 'isochronic'].includes(type)) {
+        data.setAttribute('hz', track['frequency']);
+    } else if (type === 'solfeggio') {
+        data.setAttribute('binaural-hz', track['binauralBeatFrequency']);
+        data.setAttribute('solfeggio-hz', track['solfeggioFrequency']);
     }
+    if ('effects' in track) {
+        let effects = track['effects'].reduce((effects, effect) => {
+            let li = document.createElement('li');
+            li.innerHTML = effect;
+            effects.appendChild(li);
+            return effects;
+        }, document.createElement('ul'));
+        data.appendChild(effects);
+    }
+    data.addEventListener('add', () => new CategoryAdder(track['name'], dialog));
+    return data;
 }
 
 class CategoryAdder {
-    constructor(track) {
-        this.track = track;
-        let dialog = document.querySelector('#add-track-dialog');
-        dialog.render(`
-            <div><strong>Add to category</strong></div>
-            <validated-adder aria-label="Invalid category name" id="new-category"></validated-adder>
-            <br><br>
-            <span id="categories"></span>
-        `);
-        this._setCategories();
-        categoryAdder.setUpAdder('new-category', () => this._setCategories());
+    constructor(track, dialog) {
+        this._track = track;
+        dialog.render(this._renderer);
     }
 
-    _setCategories() {
-        document.querySelector('#categories').innerHTML = this._createCategories();
-        this._addCheckboxListeners();
+    get _renderer() {
+        let span = document.createElement('span');
+        let div = document.createElement('div');
+        div.innerHTML = '<strong>Add to category</strong>';
+        span.appendChild(div);
+        let layout = this._layoutNode;
+        span.appendChild(this._getAdder(layout));
+        span.appendChild(document.createElement('br'));
+        span.appendChild(document.createElement('br'));
+        span.appendChild(layout);
+        return span;
     }
 
-    _createCategories() {
-        let categories = storage.getCategories();
-        let html = Object.entries(categories).reduce((html, [key, value]) => {
-            return html + `
-                <vaadin-checkbox 
-                    ${value['tracks'].includes(this.track) ? 'checked' : ''} 
-                    class="category-checkbox" 
-                    id="${utility.escapeHTML(value['id'])}"
-                >
-                    ${utility.escapeHTML(key)}
-                </vaadin-checkbox>
-            `;
-        }, '');
-        if (html === '') html = 'No categories';
-        return `<vaadin-vertical-layout theme="spacing-xs">${html}</vaadin-vertical-layout>`;
+    get _layoutNode() {
+        let layout = document.createElement('vaadin-vertical-layout');
+        layout.theme = 'spacing-xs';
+        for (let name of storage.getCategoryNames()) layout.appendChild(this._createCategory(name));
+        return layout;
     }
 
-    _addCheckboxListeners() {
-        for (let checkbox of document.querySelectorAll('.category-checkbox')) {
-            checkbox.addEventListener('click', () => {
-                let categories = storage.getCategories();
-                let value = Object.values(categories).filter((value) => value['id'] === checkbox.id)[0];
-                let tracks = value['tracks'];
-                if (checkbox.checked) {
-                    tracks.push(this.track);
-                } else {
-                    tracks.splice(tracks.indexOf(this.track), 1);
-                }
-                storage.setCategories(categories);
-            });
+    _getAdder(layout) {
+        let adder = document.createElement('category-adder');
+        adder.addEventListener('add', ({detail}) => {
+            layout.appendChild(this._createCategory(detail));
+        });
+        return adder;
+    }
+
+    _createCategory(name) {
+        let checkbox = document.createElement('vaadin-checkbox');
+        if (storage.categoryHasTrack(name, this._track)) {
+            checkbox.setAttribute('checked', 'checked');
         }
+        checkbox.textContent = name;
+        checkbox.addEventListener('change', () => {
+            if (checkbox.checked) {
+                storage.addCategoryTrack(name, this._track);
+            } else {
+                storage.removeCategoryTrack(name, this._track);
+            }
+        });
+        return checkbox;
     }
 }
