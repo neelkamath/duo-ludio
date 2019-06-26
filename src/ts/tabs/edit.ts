@@ -2,21 +2,19 @@ import './category_adder';
 import * as message from './message';
 import * as storage from '../storage';
 
-export function getContent() {
-    let span = document.createElement('span');
-    let editors = document.createElement('div');
-    for (let category of storage.getCategoryNames()) addEditor(editors, category);
-    let adder = document.createElement('category-adder');
-    adder.addEventListener('add', ({detail}: CustomEvent) => {
-        addEditor(editors, detail);
-    });
+export function getContent(): HTMLElement {
+    const span = document.createElement('span');
+    const editors = document.createElement('div');
+    for (const category of storage.getCategoryNames()) addEditor(editors, category);
+    const adder = document.createElement('category-adder');
+    adder.addEventListener('add', ({detail}: CustomEvent) => addEditor(editors, detail));
     span.appendChild(adder);
     span.appendChild(editors);
     return span;
 }
 
-function addEditor(editors, category) {
-    let editor: any = createEditor(category);
+function addEditor(editors: HTMLDivElement, category: string): void {
+    const editor: any = createEditor(category);
     editor.getInvalidMessage = message.getInvalidMessage;
     let name = category;
     editor.addEventListener('set', ({detail}) => {
@@ -27,8 +25,8 @@ function addEditor(editors, category) {
     editors.appendChild(editor);
 }
 
-function createEditor(category) {
-    let editor = document.createElement('item-editor');
+function createEditor(category: string): HTMLElement {
+    const editor = document.createElement('item-editor');
     editor.setAttribute('aria-label', `Edit category ${category}`);
     editor.setAttribute('dialog-title', 'Delete?');
     editor.setAttribute('dialog-body', `This will delete the category ${category}.`);

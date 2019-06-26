@@ -1,3 +1,3 @@
-export function getContent() {
+export function getContent(): HTMLElement {
     return document.createElement('span');
 }

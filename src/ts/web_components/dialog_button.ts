@@ -5,7 +5,7 @@ class DialogButton extends HTMLElement {
     }
 
     connectedCallback() {
-        let button = document.createElement('vaadin-button');
+        const button = document.createElement('vaadin-button');
         button.innerHTML = this.innerHTML;
         button.style.cssFloat = 'right';
         button.style.margin = '1em 0';

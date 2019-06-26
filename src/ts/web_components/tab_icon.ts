@@ -5,7 +5,7 @@ class TabIcon extends HTMLElement {
     }
 
     connectedCallback() {
-        let img: HTMLImageElement = document.createElement('img');
+        const img: HTMLImageElement = document.createElement('img');
         img.alt = this.getAttribute('alt')!;
         img.src = this.getAttribute('src')!;
         img.style.height = img.style.width = '24px';

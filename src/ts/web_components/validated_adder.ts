@@ -1,35 +1,35 @@
 class ValidatedAdder extends HTMLElement {
-    _dialog: any;
+    private readonly dialog: any;
     getInvalidMessage: (name: string) => string | null;
 
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
-        this._dialog = document.createElement('dismiss-dialog');
+        this.dialog = document.createElement('dismiss-dialog');
     }
 
-    get _itemNode() {
-        let item = document.createElement('add-item');
+    private get itemNode(): HTMLElement {
+        const item = document.createElement('add-item');
         item.addEventListener('add', ({detail}: CustomEvent) => {
-            let name = detail.trim();
-            let message = this.getInvalidMessage(name);
+            const name = detail.trim();
+            const message = this.getInvalidMessage(name);
             if (message === null) {
                 this.dispatchEvent(new CustomEvent('add', {detail: name}));
                 return;
             }
-            let span = document.createElement('span');
+            const span = document.createElement('span');
             span.innerHTML = message;
-            this._dialog.render(span);
+            this.dialog.render(span);
         });
         return item;
     }
 
     connectedCallback() {
         if (this.hasAttribute('aria-label')) {
-            this._dialog.ariaLabel = this.getAttribute('aria-label');
+            this.dialog.ariaLabel = this.getAttribute('aria-label');
         }
-        this.shadowRoot!.appendChild(this._dialog);
-        this.shadowRoot!.appendChild(this._itemNode);
+        this.shadowRoot!.appendChild(this.dialog);
+        this.shadowRoot!.appendChild(this.itemNode);
     }
 }
 

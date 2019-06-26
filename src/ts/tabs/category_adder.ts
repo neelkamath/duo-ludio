@@ -8,7 +8,7 @@ class CategoryAdder extends HTMLElement {
     }
 
     connectedCallback() {
-        let adder: any = document.createElement('validated-adder');
+        const adder: any = document.createElement('validated-adder');
         adder.setAttribute('aria-label', 'Invalid category name');
         adder.getInvalidMessage = message.getInvalidMessage;
         adder.addEventListener('add', ({detail}: CustomEvent) => {

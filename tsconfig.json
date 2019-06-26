@@ -1,14 +1,9 @@
 {
   "compilerOptions": {
-    "outDir": "./dist/",
-    "sourceMap": true,
     "strictNullChecks": true,
     "module": "es6",
-    "target": "es2017",
+    "target": "es2018",
     "resolveJsonModule": true,
     "moduleResolution": "node"
-  },
-  "include": [
-    "./src/"
-  ]
+  }
 }

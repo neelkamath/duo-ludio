@@ -5,13 +5,13 @@ class TitledItem extends HTMLElement {
     }
 
     connectedCallback() {
-        let item = document.createElement('vaadin-item');
-        let titleDiv = document.createElement('div');
-        let strong = document.createElement('strong');
+        const item = document.createElement('vaadin-item');
+        const titleDiv = document.createElement('div');
+        const strong = document.createElement('strong');
         strong.textContent = this.getAttribute('title');
         titleDiv.appendChild(strong);
         item.appendChild(titleDiv);
-        let bodyDiv = document.createElement('div');
+        const bodyDiv = document.createElement('div');
         bodyDiv.innerHTML = this.innerHTML;
         item.appendChild(bodyDiv);
         this.shadowRoot!.appendChild(item);

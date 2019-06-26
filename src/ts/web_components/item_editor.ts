@@ -1,32 +1,32 @@
 class ItemEditor extends HTMLElement {
-    _confirmDialog: any;
-    _dismissDialog: any;
+    private readonly confirmDialog: any;
+    private readonly dismissDialog: any;
     getInvalidMessage: (name: string) => string | null;
 
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
-        this._confirmDialog = document.createElement('confirm-dialog');
-        this._dismissDialog = document.createElement('dismiss-dialog');
+        this.confirmDialog = document.createElement('confirm-dialog');
+        this.dismissDialog = document.createElement('dismiss-dialog');
     }
 
-    get _fieldNode() {
-        let field: any = document.createElement('vaadin-text-field');
+    private get fieldNode(): HTMLElement {
+        const field: any = document.createElement('vaadin-text-field');
         field.id = 'field';
         field.label = 'Rename';
-        field.value = this._item;
-        field.addEventListener('change', () => this._handleRename(field));
+        field.value = this.item;
+        field.addEventListener('change', () => this.handleRename(field));
         return field;
     }
 
-    get _buttonNode() {
-        let button: any = document.createElement('vaadin-button');
+    private get buttonNode(): HTMLElement {
+        const button: any = document.createElement('vaadin-button');
         button.ariaLabel = 'Delete item';
         button.theme = 'icon';
         button.innerHTML = '<iron-icon icon="vaadin:minus"></iron-icon>';
         button.addEventListener('click', () => {
-            this._confirmDialog.render();
-            this._confirmDialog.addEventListener('confirm', () => {
+            this.confirmDialog.render();
+            this.confirmDialog.addEventListener('confirm', () => {
                 this.remove();
                 this.dispatchEvent(new Event('delete'));
             });
@@ -34,53 +34,53 @@ class ItemEditor extends HTMLElement {
         return button;
     }
 
-    get _item() {
+    private get item(): string {
         return this.getAttribute('item')!;
     }
 
-    set _item(value: string) {
+    private set item(value: string) {
         this.setAttribute('item', value);
     }
 
-    _setUpConfirmDialog() {
-        let label: any = 'Edit item';
-        if (this.hasAttribute('aria-label')) label = this.getAttribute('aria-label');
-        this._confirmDialog.ariaLabel = label;
-        this._confirmDialog.title = this.getAttribute('dialog-title');
-        let cancel: any = 'Cancel';
-        if (this.hasAttribute('dialog-cancel')) cancel = this.getAttribute('dialog-cancel');
-        this._confirmDialog.cancel = cancel;
-        let confirm: any = 'Confirm';
-        if (this.hasAttribute('dialog-confirm')) {
-            confirm = this.getAttribute('dialog-confirm');
-        }
-        this._confirmDialog.confirm = confirm;
-        this._confirmDialog.textContent = this.getAttribute('dialog-body');
-        return this._confirmDialog;
-    }
-
-    _handleRename(field) {
-        let html = this.getInvalidMessage(field.value);
-        if (html !== null) {
-            field.value = this._item;
-            let span = document.createElement('span');
-            span.innerHTML = html;
-            this._dismissDialog.render(span);
-        } else {
-            let detail = {oldName: this._item, newName: field.value};
-            this.dispatchEvent(new CustomEvent('set', {detail}));
-            this._item = field.value;
-        }
-    }
-
     connectedCallback() {
-        this._setUpConfirmDialog();
-        let div = document.createElement('div');
-        div.appendChild(this._confirmDialog);
-        div.appendChild(this._dismissDialog);
-        div.appendChild(this._fieldNode);
-        div.appendChild(this._buttonNode);
+        this.setUpConfirmDialog();
+        const div = document.createElement('div');
+        div.appendChild(this.confirmDialog);
+        div.appendChild(this.dismissDialog);
+        div.appendChild(this.fieldNode);
+        div.appendChild(this.buttonNode);
         this.shadowRoot!.appendChild(div);
+    }
+
+    private setUpConfirmDialog(): HTMLElement {
+        let label = 'Edit item';
+        if (this.hasAttribute('aria-label')) label = this.getAttribute('aria-label')!;
+        this.confirmDialog.ariaLabel = label;
+        this.confirmDialog.title = this.getAttribute('dialog-title');
+        let cancel = 'Cancel';
+        if (this.hasAttribute('dialog-cancel')) cancel = this.getAttribute('dialog-cancel')!;
+        this.confirmDialog.cancel = cancel;
+        let confirm = 'Confirm';
+        if (this.hasAttribute('dialog-confirm')) {
+            confirm = this.getAttribute('dialog-confirm')!;
+        }
+        this.confirmDialog.confirm = confirm;
+        this.confirmDialog.textContent = this.getAttribute('dialog-body');
+        return this.confirmDialog;
+    }
+
+    private handleRename(field: HTMLInputElement): void {
+        const html = this.getInvalidMessage(field.value);
+        if (html !== null) {
+            field.value = this.item;
+            const span = document.createElement('span');
+            span.innerHTML = html;
+            this.dismissDialog.render(span);
+        } else {
+            const detail = {oldName: this.item, newName: field.value};
+            this.dispatchEvent(new CustomEvent('set', {detail}));
+            this.item = field.value;
+        }
     }
 }
 
