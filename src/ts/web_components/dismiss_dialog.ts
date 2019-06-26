@@ -1,4 +1,6 @@
 class DismissDialog extends HTMLElement {
+    _dialog: any;
+
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
@@ -9,7 +11,7 @@ class DismissDialog extends HTMLElement {
         if (this.hasAttribute('aria-label')) {
             this._dialog.ariaLabel = this.getAttribute('aria-label');
         }
-        this.shadowRoot.appendChild(this._dialog);
+        this.shadowRoot!.appendChild(this._dialog);
     }
 
     render(child) {

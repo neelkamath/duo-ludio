@@ -8,14 +8,14 @@ class CategoryAdder extends HTMLElement {
     }
 
     connectedCallback() {
-        let adder = document.createElement('validated-adder');
+        let adder: any = document.createElement('validated-adder');
         adder.setAttribute('aria-label', 'Invalid category name');
         adder.getInvalidMessage = message.getInvalidMessage;
-        adder.addEventListener('add', ({detail}) => {
+        adder.addEventListener('add', ({detail}: CustomEvent) => {
             storage.createCategory(detail);
             this.dispatchEvent(new CustomEvent('add', {detail}));
         });
-        this.shadowRoot.appendChild(adder);
+        this.shadowRoot!.appendChild(adder);
     }
 }
 

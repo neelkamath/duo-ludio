@@ -19,7 +19,7 @@ class TrackData extends HTMLElement {
     }
 
     get _frequencyNode() {
-        let trackType = this.getAttribute('track-type');
+        let trackType: string = this.getAttribute('track-type')!;
         let text = '';
         if (['pure', 'isochronic'].includes(trackType)) {
             text = `${this.getAttribute('hz')} Hz`;
@@ -34,7 +34,7 @@ class TrackData extends HTMLElement {
     }
 
     static _createDiv(child) {
-        let div = document.createElement('div');
+        let div: any = document.createElement('div');
         div.class = 'block';
         div.appendChild(child);
         return div;
@@ -45,7 +45,7 @@ class TrackData extends HTMLElement {
         layout.appendChild(TrackData._createDiv(this._frequencyNode));
         if (this.children.length > 0) layout.appendChild(TrackData._createDiv(this._effectsNode));
         layout.appendChild(TrackData._createDiv(this._buttonNode));
-        this.shadowRoot.appendChild(layout);
+        this.shadowRoot!.appendChild(layout);
     }
 }
 

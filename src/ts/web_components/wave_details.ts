@@ -39,7 +39,7 @@ class WaveDetails extends HTMLElement {
         details.appendChild(this._frequencyNode);
         details.appendChild(this._explanationNode);
         details.appendChild(this._benefitsNode);
-        this.shadowRoot.appendChild(details);
+        this.shadowRoot!.appendChild(details);
     }
 }
 

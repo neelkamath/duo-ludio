@@ -9,7 +9,7 @@ class DialogButton extends HTMLElement {
         button.innerHTML = this.innerHTML;
         button.style.cssFloat = 'right';
         button.style.margin = '1em 0';
-        this.shadowRoot.appendChild(button);
+        this.shadowRoot!.appendChild(button);
     }
 }
 

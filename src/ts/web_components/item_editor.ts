@@ -1,4 +1,8 @@
 class ItemEditor extends HTMLElement {
+    _confirmDialog: any;
+    _dismissDialog: any;
+    getInvalidMessage: (name: string) => string | null;
+
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
@@ -7,7 +11,7 @@ class ItemEditor extends HTMLElement {
     }
 
     get _fieldNode() {
-        let field = document.createElement('vaadin-text-field');
+        let field: any = document.createElement('vaadin-text-field');
         field.id = 'field';
         field.label = 'Rename';
         field.value = this._item;
@@ -16,7 +20,7 @@ class ItemEditor extends HTMLElement {
     }
 
     get _buttonNode() {
-        let button = document.createElement('vaadin-button');
+        let button: any = document.createElement('vaadin-button');
         button.ariaLabel = 'Delete item';
         button.theme = 'icon';
         button.innerHTML = '<iron-icon icon="vaadin:minus"></iron-icon>';
@@ -30,15 +34,23 @@ class ItemEditor extends HTMLElement {
         return button;
     }
 
+    get _item() {
+        return this.getAttribute('item')!;
+    }
+
+    set _item(value: string) {
+        this.setAttribute('item', value);
+    }
+
     _setUpConfirmDialog() {
-        let label = 'Edit item';
+        let label: any = 'Edit item';
         if (this.hasAttribute('aria-label')) label = this.getAttribute('aria-label');
         this._confirmDialog.ariaLabel = label;
         this._confirmDialog.title = this.getAttribute('dialog-title');
-        let cancel = 'Cancel';
+        let cancel: any = 'Cancel';
         if (this.hasAttribute('dialog-cancel')) cancel = this.getAttribute('dialog-cancel');
         this._confirmDialog.cancel = cancel;
-        let confirm = 'Confirm';
+        let confirm: any = 'Confirm';
         if (this.hasAttribute('dialog-confirm')) {
             confirm = this.getAttribute('dialog-confirm');
         }
@@ -61,14 +73,6 @@ class ItemEditor extends HTMLElement {
         }
     }
 
-    get _item() {
-        return this.getAttribute('item');
-    }
-
-    set _item(value) {
-        this.setAttribute('item', value);
-    }
-
     connectedCallback() {
         this._setUpConfirmDialog();
         let div = document.createElement('div');
@@ -76,7 +80,7 @@ class ItemEditor extends HTMLElement {
         div.appendChild(this._dismissDialog);
         div.appendChild(this._fieldNode);
         div.appendChild(this._buttonNode);
-        this.shadowRoot.appendChild(div);
+        this.shadowRoot!.appendChild(div);
     }
 }
 

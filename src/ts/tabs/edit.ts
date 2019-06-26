@@ -7,7 +7,7 @@ export function getContent() {
     let editors = document.createElement('div');
     for (let category of storage.getCategoryNames()) addEditor(editors, category);
     let adder = document.createElement('category-adder');
-    adder.addEventListener('add', ({detail}) => {
+    adder.addEventListener('add', ({detail}: CustomEvent) => {
         addEditor(editors, detail);
     });
     span.appendChild(adder);
@@ -16,7 +16,7 @@ export function getContent() {
 }
 
 function addEditor(editors, category) {
-    let editor = createEditor(category);
+    let editor: any = createEditor(category);
     editor.getInvalidMessage = message.getInvalidMessage;
     let name = category;
     editor.addEventListener('set', ({detail}) => {

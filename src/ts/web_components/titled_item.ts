@@ -14,7 +14,7 @@ class TitledItem extends HTMLElement {
         let bodyDiv = document.createElement('div');
         bodyDiv.innerHTML = this.innerHTML;
         item.appendChild(bodyDiv);
-        this.shadowRoot.appendChild(item);
+        this.shadowRoot!.appendChild(item);
     }
 }
 

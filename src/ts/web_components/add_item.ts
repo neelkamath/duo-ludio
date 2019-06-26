@@ -5,15 +5,15 @@ class ItemAdder extends HTMLElement {
     }
 
     connectedCallback() {
-        let field = document.createElement('vaadin-text-field');
+        let field: any = document.createElement('vaadin-text-field');
         field.label = 'Item name';
         field.placeholder = 'Mindless HW';
-        this.shadowRoot.appendChild(field);
-        this.shadowRoot.appendChild(this._getButton(field));
+        this.shadowRoot!.appendChild(field);
+        this.shadowRoot!.appendChild(this._getButton(field));
     }
 
     _getButton(field) {
-        let button = document.createElement('vaadin-button');
+        let button: any = document.createElement('vaadin-button');
         button.ariaLabel = 'Add item';
         button.theme = 'icon';
         button.innerHTML = '<iron-icon icon="vaadin:plus"></iron-icon>';

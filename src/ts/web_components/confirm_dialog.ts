@@ -1,4 +1,6 @@
 class ConfirmDialog extends HTMLElement {
+    _dialog: any;
+
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
@@ -15,7 +17,7 @@ class ConfirmDialog extends HTMLElement {
 
     get _confirmNode() {
         let button = document.createElement('dialog-button');
-        let content = 'Confirm';
+        let content: any = 'Confirm';
         if (this.hasAttribute('confirm')) content = this.getAttribute('confirm');
         button.textContent = content;
         button.addEventListener('click', () => {
@@ -27,7 +29,7 @@ class ConfirmDialog extends HTMLElement {
 
     get _cancelNode() {
         let button = document.createElement('dialog-button');
-        let cancel = 'Cancel';
+        let cancel: any = 'Cancel';
         if (this.hasAttribute('cancel')) cancel = this.getAttribute('cancel');
         button.textContent = cancel;
         button.addEventListener('click', () => this._dialog.opened = false);
@@ -37,10 +39,10 @@ class ConfirmDialog extends HTMLElement {
     connectedCallback() {
         this._dialog.noCloseOnEsc = true;
         this._dialog.noCloseOnOutsideClick = true;
-        let label = 'Confirm';
+        let label: any = 'Confirm';
         if (this.hasAttribute('aria-label')) label = this.getAttribute('aria-label');
         this._dialog.ariaLabel = label;
-        this.shadowRoot.appendChild(this._dialog);
+        this.shadowRoot!.appendChild(this._dialog);
     }
 
     render() {

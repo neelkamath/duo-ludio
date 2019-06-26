@@ -5,11 +5,11 @@ class TabIcon extends HTMLElement {
     }
 
     connectedCallback() {
-        let img = document.createElement('img');
-        img.alt = this.getAttribute('alt');
-        img.src = this.getAttribute('src');
+        let img: HTMLImageElement = document.createElement('img');
+        img.alt = this.getAttribute('alt')!;
+        img.src = this.getAttribute('src')!;
         img.style.height = img.style.width = '24px';
-        this.shadowRoot.appendChild(img);
+        this.shadowRoot!.appendChild(img);
     }
 }
 

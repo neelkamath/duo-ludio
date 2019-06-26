@@ -1,12 +1,12 @@
-import * as binaurals from '../../binaural_beats/data';
+import * as binaurals from '../../binaural_beats/data.json';
 import * as storage from '../storage';
-import * as waves from './waves';
+import * as waves from './waves.json';
 
 export function getContent() {
     let span = document.createElement('span');
     let binauralsContent = document.createElement('div');
     let tabs = getTabs(binauralsContent);
-    tabs[0].click();
+    (tabs[0] as any).click();
     let vaadinTabs = document.createElement('vaadin-tabs');
     for (let tab of tabs) vaadinTabs.appendChild(tab);
     span.appendChild(vaadinTabs);
@@ -23,7 +23,7 @@ function getTabs(binauralsContent) {
             binauralsContent.appendChild(getDetails(data));
             binauralsContent.appendChild(getTrackTypes(data));
         });
-        tabs.push(tab);
+        (tabs as any).push(tab);
         return tabs;
     }, []);
 }
@@ -108,6 +108,8 @@ function getTrack(track, type, dialog) {
 }
 
 class CategoryAdder {
+    _track: any;
+
     constructor(track, dialog) {
         this._track = track;
         dialog.render(this._renderer);
@@ -127,7 +129,7 @@ class CategoryAdder {
     }
 
     get _layoutNode() {
-        let layout = document.createElement('vaadin-vertical-layout');
+        let layout: any = document.createElement('vaadin-vertical-layout');
         layout.theme = 'spacing-xs';
         for (let name of storage.getCategoryNames()) layout.appendChild(this._createCategory(name));
         return layout;
@@ -135,14 +137,14 @@ class CategoryAdder {
 
     _getAdder(layout) {
         let adder = document.createElement('category-adder');
-        adder.addEventListener('add', ({detail}) => {
+        adder.addEventListener('add', ({detail}: CustomEvent) => {
             layout.appendChild(this._createCategory(detail));
         });
         return adder;
     }
 
     _createCategory(name) {
-        let checkbox = document.createElement('vaadin-checkbox');
+        let checkbox: any = document.createElement('vaadin-checkbox');
         if (storage.categoryHasTrack(name, this._track)) {
             checkbox.setAttribute('checked', 'checked');
         }

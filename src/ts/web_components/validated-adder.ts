@@ -1,4 +1,7 @@
 class ValidatedAdder extends HTMLElement {
+    _dialog: any;
+    getInvalidMessage: (name: string) => string | null;
+
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
@@ -7,7 +10,7 @@ class ValidatedAdder extends HTMLElement {
 
     get _itemNode() {
         let item = document.createElement('add-item');
-        item.addEventListener('add', ({detail}) => {
+        item.addEventListener('add', ({detail}: CustomEvent) => {
             let name = detail.trim();
             let message = this.getInvalidMessage(name);
             if (message === null) {
@@ -25,8 +28,8 @@ class ValidatedAdder extends HTMLElement {
         if (this.hasAttribute('aria-label')) {
             this._dialog.ariaLabel = this.getAttribute('aria-label');
         }
-        this.shadowRoot.appendChild(this._dialog);
-        this.shadowRoot.appendChild(this._itemNode);
+        this.shadowRoot!.appendChild(this._dialog);
+        this.shadowRoot!.appendChild(this._itemNode);
     }
 }
 
