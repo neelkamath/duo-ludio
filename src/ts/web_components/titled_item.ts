@@ -1,4 +1,12 @@
-class TitledItem extends HTMLElement {
+/**
+ * This web component has the HTML name `titled-item`. It contains a title, and a body. Place the item's HTML in between
+ * this element's HTML tags.
+ *
+ * Example: `<titled-item title="Effects"><ul><li>Focusing</li></ul></titled-item>`
+ *
+ * @attribute `title` (required) Title (e.g., `Effects`)
+ */
+export class TitledItemElement extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
@@ -18,4 +26,4 @@ class TitledItem extends HTMLElement {
     }
 }
 
-customElements.define('titled-item', TitledItem);
+customElements.define('titled-item', TitledItemElement);

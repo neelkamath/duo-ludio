@@ -8,8 +8,6 @@ For a person who needs help concentrating, Duo Ludio is a web app that provides 
 
 The name Duo Ludio is Latin for "Two Player" ("Two" for binaural beats).
 
-Developer documentation is available on the [wiki](https://github.com/neelkamath/duo-ludio/wiki).
-
 ## Installation
 
 1. Install [node.js 10](https://nodejs.org/en/download/).
@@ -30,14 +28,61 @@ Developer documentation is available on the [wiki](https://github.com/neelkamath
 
 `npm run build`
 
-The `dist` directory will contain the built website.
+The `dist/` directory will contain the built website.
+
+### Documentation
+
+1. `npm run doc` 
+1. Open `docs/index.html` in your browser.
+
+## Documentation
+
+The Material Design spec is not to be followed strictly, but as a guideline.
+
+### Binaural Beats
+
+The binaural beats used are from the [v2.0.2](https://github.com/neelkamath/binaural-beats-dataset/releases/tag/v2.0.2) release of the Binaural Beats Dataset. The `src` directory from the dataset is saved as `src/binaural_beats` in this repo.
+
+### Continuous Deployment
+
+Continuous delivery has been setup using [Netlify](https://www.netlify.com), which automatically deploys all commits to the `master` branch.
+
+### Favicon
+
+[favicon.io](https://favicon.io/favicon-generator/) is used to generate the favicon. When styling the favicon on their site, follow [Vaadin's Material Design specs](https://cdn.vaadin.com/vaadin-material-styles/1.2.0/demo/index.html). This means using the Roboto font family, `#6200ee` text color, and `#fff` background color. After downloading the favicon set from their site, save `apple-touch-icon.png` as `src/favicon.png`.
+
+### Storage
+
+`localStorage` is used to persist data. `src/ts/storage.ts` is the abstraction layer for manipulating it. It contains a single item, `categories`, which contains the user's binaural beats collection. Each key is the name of a category (e.g., `Meditation`). Each value is an `array` of `string`s denoting the names of tracks. Track names correspond to tracks in the directory `src/binaural_beats/tracks`. An example is shown below.
+```json
+{
+  "Meditation": [
+    "Theta_6_Hz_Isochronic_Pulses.mp3"
+  ]
+}
+```
+
+### Web Components
+
+All web components are imported in `src/ts/index.ts`.
+
+When using TypeDoc to document web components, use the custom `@attribute` field to document the element's attributes.
+
+Mandatory attribute documentation example:
+```
+@attribute `aria-label` (required) ARIA label (e.g., `Confirm deleting category Meditation`)
+```
+Optional attribute documentation example:
+```
+@attribute `aria-label` (optional, default: `Confirm`) ARIA label (e.g., `Confirm deleting category Meditation`)
+```
 
 ## Credits
 
 - Description: [How to Create a Product Vision by Joel Spolsky](https://www.joelonsoftware.com/2002/05/09/product-vision/)
 - Favicon: [favicon.io](https://favicon.io/favicon-generator/)
 - [Website Boilerplate](https://github.com/neelkamath/website-boilerplate)
-- [Vaadin Imports](https://github.com/neelkamath/vaadin-imports)
+- [Vaadin Imports](https://gist.github.com/neelkamath/2f7bc1e7215fd22527c83e2f05de9b78)
 - [Binaural Beats Dataset](https://github.com/neelkamath/binaural-beats-dataset)
 
 ## License

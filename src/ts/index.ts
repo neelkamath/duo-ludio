@@ -2,6 +2,7 @@ import * as categoriesTab from './tabs/categories';
 import * as editTab from './tabs/edit';
 import * as storage from './storage';
 import * as tracksTab from './tabs/tracks';
+import {TabElement} from '@vaadin/vaadin-tabs/src/vaadin-tab';
 import './web_components/add_item';
 import './web_components/item_editor';
 import './web_components/confirm_dialog';
@@ -16,39 +17,35 @@ import './web_components/wave_details';
 
 storage.initialize();
 
+/**
+ * If `span`'s first `ChildNode` is `null`, `child` will be appended to `span`. Otherwise, it's first child will be
+ * replaced with `child`.
+ */
 function putChild(child: HTMLElement, span: HTMLSpanElement): void {
     span.firstChild === null ? span.appendChild(child) : span.replaceChild(child, span.firstChild);
 }
 
-function getCategoriesTab(span: HTMLSpanElement): HTMLElement {
+/**
+ * @param span Where the tab's contents go
+ * @param name Tab's name
+ * @param getter The function to return the tab's content
+ */
+function getTab(span: HTMLSpanElement, name: 'Categories' | 'Tracks' | 'Edit', getter: () => HTMLElement): TabElement {
     const tab = document.createElement('vaadin-tab');
-    tab.innerHTML = '<iron-icon icon="vaadin:file-tree"></iron-icon> Categories';
-    tab.addEventListener('click', () => putChild(categoriesTab.getContent(), span));
-    return tab;
-}
-
-function getTracksTab(span: HTMLSpanElement): HTMLElement {
-    const tab = document.createElement('vaadin-tab');
-    tab.innerHTML = '<iron-icon icon="vaadin:music"></iron-icon> Tracks';
-    tab.addEventListener('click', () => putChild(tracksTab.getContent(), span));
-    return tab;
-}
-
-function getEditTab(span: HTMLSpanElement): HTMLElement {
-    const tab = document.createElement('vaadin-tab');
-    tab.innerHTML = '<iron-icon icon="vaadin:edit"></iron-icon> Edit';
-    tab.addEventListener('click', () => putChild(editTab.getContent(), span));
+    const icons = {'Categories': 'file-tree', 'Tracks': 'music', 'Edit': 'edit'};
+    tab.innerHTML = `<iron-icon icon="vaadin:${icons[name]}"></iron-icon> ${name}`;
+    tab.addEventListener('click', () => putChild(getter(), span));
     return tab;
 }
 
 addEventListener('load', () => {
     const content = document.createElement('span');
     const tabs = document.createElement('vaadin-tabs');
-    const tab = getCategoriesTab(content);
+    const tab = getTab(content, 'Categories', categoriesTab.getContent);
     tab.click();
     tabs.appendChild(tab);
-    tabs.appendChild(getTracksTab(content));
-    tabs.appendChild(getEditTab(content));
+    tabs.appendChild(getTab(content, 'Tracks', tracksTab.getContent));
+    tabs.appendChild(getTab(content, 'Edit', editTab.getContent));
     document.body.appendChild(tabs);
     document.body.appendChild(content);
 });

@@ -1,16 +1,31 @@
 import * as message from './message';
-import * as storage from "../storage";
+import * as storage from '../storage';
+import {ValidatedAdderElement} from '../web_components/validated_adder';
 
-class CategoryAdder extends HTMLElement {
+/**
+ * This web component has the HTML name `category-adder`. It validates and adds categories to persistent storage.
+ *
+ * The `add` `CustomEvent` is fired after a category has been added to persistent storage. The event's `detail` will
+ * contain the category name.
+ *
+ * Example:
+ * ```
+ * <category-adder id="adder"></category-adder>
+ * <script>
+ *     document.querySelector('#adder').addEventListener('add', ({detail}) => console.log(`Category ${detail} added`));
+ * </script>
+ * ```
+ */
+export class CategoryAdderElement extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
     }
 
     connectedCallback() {
-        const adder: any = document.createElement('validated-adder');
+        const adder = document.createElement('validated-adder') as ValidatedAdderElement;
         adder.setAttribute('aria-label', 'Invalid category name');
-        adder.getInvalidMessage = message.getInvalidMessage;
+        adder.getInvalidMessage = message.getInvalidMessenger();
         adder.addEventListener('add', ({detail}: CustomEvent) => {
             storage.createCategory(detail);
             this.dispatchEvent(new CustomEvent('add', {detail}));
@@ -19,4 +34,4 @@ class CategoryAdder extends HTMLElement {
     }
 }
 
-customElements.define('category-adder', CategoryAdder);
+customElements.define('category-adder', CategoryAdderElement);

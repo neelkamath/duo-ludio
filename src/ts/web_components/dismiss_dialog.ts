@@ -1,5 +1,24 @@
-class DismissDialog extends HTMLElement {
-    private readonly dialog: any;
+import {DialogElement} from '@vaadin/vaadin-dialog/src/vaadin-dialog';
+
+/**
+ * This web component has the HTML name `dismiss-dialog`. It is for dialogs requiring no buttons. Use
+ * [[DismissDialogElement.render]] to render the dialog.
+ *
+ * Example:
+ * ```
+ * <ok-dialog id="dialog"></ok-dialog>
+ * <vaadin-button id="submit">Submit</vaadin-button>
+ * <script>
+ *     document.querySelector('#submit').addEventListener('click', () => {
+ *         document.querySelector('#dialog').render('Please enter your <b>name</b>.');
+ *     });
+ * </script>
+ * ```
+ *
+ * @attribute `aria-label` (optional) ARIA label (e.g., `Invalid category name`)
+ */
+export class DismissDialogElement extends HTMLElement {
+    private readonly dialog: DialogElement;
 
     constructor() {
         super();
@@ -20,4 +39,4 @@ class DismissDialog extends HTMLElement {
     }
 }
 
-customElements.define('dismiss-dialog', DismissDialog);
+customElements.define('dismiss-dialog', DismissDialogElement);
