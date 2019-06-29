@@ -1,4 +1,4 @@
 /** @returns The "Categories" tab's content */
-export function getContent(): HTMLSpanElement {
+export default function (): HTMLSpanElement {
     return document.createElement('span');
 }

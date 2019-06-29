@@ -1,15 +1,15 @@
-import './category_adder';
-import * as message from './message';
-import * as storage from '../storage';
-import {ItemEditorElement} from '../web_components/item_editor';
+import getInvalidMessenger from './message';
+import * as categories from '../storage/categories';
+import {ItemEditorElement, SetEvent} from '../web_components/reusable/item_editor';
+import {AddEvent} from '../web_components/custom/category_adder';
 
 /** @returns The contents of the "Edit" tab */
-export function getContent(): HTMLSpanElement {
+export default function (): HTMLSpanElement {
     const span = document.createElement('span');
     const editors = document.createElement('div');
-    for (const category of storage.getCategoryNames()) editors.appendChild(getEditor(category));
+    for (const category of categories.getNames()) editors.appendChild(getEditor(category));
     const adder = document.createElement('category-adder');
-    adder.addEventListener('add', ({detail}: CustomEvent) => editors.appendChild(getEditor(detail)));
+    adder.addEventListener('add', (event) => editors.appendChild(getEditor((event as AddEvent).data)));
     span.appendChild(adder);
     span.appendChild(editors);
     return span;
@@ -23,12 +23,13 @@ function getEditor(category: string): ItemEditorElement {
     editor.setAttribute('dialog-body', `This will delete the category ${category}.`);
     editor.setAttribute('dialog-confirm', 'Delete');
     editor.setAttribute('item', category);
-    editor.getInvalidMessage = message.getInvalidMessenger();
+    editor.getInvalidMessage = getInvalidMessenger();
     let name = category;
-    editor.addEventListener('set', ({detail}: CustomEvent) => {
-        storage.renameCategory(detail.oldName, detail.newName);
-        name = detail.newName;
+    editor.addEventListener('set', (event) => {
+        const {oldName, newName} = event as SetEvent;
+        categories.rename(oldName, newName);
+        name = newName;
     });
-    editor.addEventListener('delete', () => storage.deleteCategory(name));
+    editor.addEventListener('delete', () => categories.deleteCategory(name));
     return editor;
 }

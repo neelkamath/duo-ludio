@@ -1,10 +1,10 @@
-import * as storage from '../storage';
-import {getInvalidMessage} from '../web_components/invalid_message';
+import * as categories from '../storage/categories';
+import {invalidityMessenger} from '../web_components/invalid_message';
 
-export function getInvalidMessenger(): getInvalidMessage {
+export default function (): invalidityMessenger {
     return (name) => {
         if (name === '') return 'Please enter a category name.';
-        if (storage.hasCategory(name)) return 'That category already exists.';
+        if (categories.has(name)) return 'That category already exists.';
         return null;
     }
 }

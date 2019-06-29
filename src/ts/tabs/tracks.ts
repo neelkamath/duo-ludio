@@ -1,17 +1,20 @@
-import {AccordionPanelElement} from '@vaadin/vaadin-accordion/src/vaadin-accordion-panel';
-import * as binaurals from '../../binaural_beats/data.json';
-import {CategoryAdderElement} from './category_adder';
+// @ts-ignore
 import {CheckboxElement} from '@vaadin/vaadin-checkbox/src/vaadin-checkbox';
-import * as storage from '../storage';
+// @ts-ignore
 import {VerticalLayoutElement} from '@vaadin/vaadin-ordered-layout/src/vaadin-vertical-layout';
+// @ts-ignore
 import {TabElement} from '@vaadin/vaadin-tabs/src/vaadin-tab';
-import * as waves from './waves.json';
-import {WaveDetailsElement} from '../web_components/wave_details';
-import {DismissDialogElement} from '../web_components/dismiss_dialog';
-import {TrackDataElement} from '../web_components/track_data';
+// @ts-ignore
+import {AccordionPanelElement} from '@vaadin/vaadin-accordion/src/vaadin-accordion-panel';
+import {AddEvent, CategoryAdderElement} from '../web_components/custom/category_adder';
+import * as categories from '../storage/categories';
+import WaveDetailsElement from '../web_components/reusable/wave_details';
+import DismissDialogElement from '../web_components/reusable/dismiss_dialog';
+import TrackDataElement from '../web_components/reusable/track_data';
+import {getWaveData, IsochronicTrack, PureTrack, SolfeggioTrack, WaveData} from '../storage/beats';
 
-/** @returns The "Tracks" tab's content */
-export function getContent(): HTMLSpanElement {
+/** @returns The 'Tracks' tab's content */
+export default function (): HTMLSpanElement {
     const span = document.createElement('span');
     const content = document.createElement('div');
     const tabs = getTabs(content);
@@ -28,11 +31,18 @@ export function getContent(): HTMLSpanElement {
  * @returns Tabs for every brainwave
  */
 function getTabs(content: HTMLDivElement): TabElement[] {
-    return Object.entries(waves).filter(([wave]) => wave !== 'default').reduce((tabs, [wave, image]) => {
+    const waves = {
+        alpha: 'https://bit.ly/2wTc8tv',
+        beta: 'https://bit.ly/2F7YAyU',
+        delta: 'https://bit.ly/2WJ83az',
+        gamma: 'https://bit.ly/2WGfzOP',
+        theta: 'https://bit.ly/2WFjrPV'
+    };
+    return Object.entries(waves).reduce((tabs, [wave, image]) => {
         const tab = getTab(wave, image);
         tab.addEventListener('click', () => {
             content.innerHTML = '';
-            const data = binaurals[wave];
+            const data = getWaveData(wave);
             content.appendChild(getDetails(data));
             content.appendChild(getTrackTypes(data));
         });
@@ -58,54 +68,6 @@ function getTab(wave: string, image: string): TabElement {
     return tab;
 }
 
-/** Metadata on a binaural beat having a single frequency */
-interface SingleFrequencyTrack {
-    /** Frequency (e.g., `0.9`) */
-    frequency: number;
-    /** Effects of hearing this track (e.g., `['Euphoric feeling']`) */
-    effects?: string[];
-    /** Track's name (e.g., `'Delta_0.9_Hz.mp3'`) */
-    name: string;
-}
-
-/** Metadata on a pure binaural beat */
-interface PureTrack extends SingleFrequencyTrack {
-}
-
-/** Metadata on a binaural beat mixed with isochronic pulses */
-interface IsochronicTrack extends SingleFrequencyTrack {
-}
-
-/** Metadata on a binaural beat mixed with solfeggio */
-interface SolfeggioTrack {
-    /** Binaural beats' frequency (e.g., `3`) */
-    binauralBeatFrequency: number;
-    /** Solfeggio's frequency (e.g., `741`) */
-    solfeggioFrequency: number;
-    /** Effects of hearing this track (e.g., `['Deep state of relaxation']`) */
-    effects: string[];
-    /** Track's name (e.g., `'Delta_3_Hz_Solfeggio_741_Hz.mp3'`) */
-    name: string;
-}
-
-/** Metadata on a brainwave's binaural beats */
-interface WaveData {
-    /** Starting frequency (e.g., `0.5`) */
-    minFrequency: number;
-    /** Ending frequency (e.g., `4`) */
-    maxFrequency: number;
-    /** Metadata on pure binaural beats */
-    pure: PureTrack[];
-    /** Metadata on the binaural beats mixed with solfeggio */
-    solfeggio?: SolfeggioTrack[];
-    /** Metadata on binaural beats mixed with isochronic pulses */
-    isochronic?: IsochronicTrack[];
-    /** What this range of binaural beats do */
-    explanation: string;
-    /** Positive effects of this brainwave */
-    benefits: string[];
-}
-
 /** @param data The data from which a UI element is created */
 function getDetails(data: WaveData): WaveDetailsElement {
     const details = document.createElement('wave-details') as WaveDetailsElement;
@@ -122,7 +84,7 @@ function getDetails(data: WaveData): WaveDetailsElement {
     return details;
 }
 
-enum TrackType {pure, isochronic, solfeggio}
+const enum TrackType {pure = 'pure', isochronic = 'isochronic', solfeggio = 'solfeggio'}
 
 /** @param data The data from which the brainwave's tracks are made into a UI element */
 function getTrackTypes(data: WaveData): HTMLSpanElement {
@@ -131,32 +93,53 @@ function getTrackTypes(data: WaveData): HTMLSpanElement {
     dialog.setAttribute('aria-label', 'Add track');
     span.appendChild(dialog);
     const accordion = document.createElement('vaadin-accordion');
-    for (const type of [TrackType.pure, TrackType.isochronic, TrackType.solfeggio]) {
-        accordion.appendChild(getTracks(data, TrackType[type.toString()], dialog));
-    }
+    accordion.appendChild(getTracks(data.pure, TrackType.pure, dialog));
+    if (data.isochronic) accordion.appendChild(getTracks(data.isochronic, TrackType.isochronic, dialog));
+    if (data.solfeggio) accordion.appendChild(getTracks(data.solfeggio, TrackType.solfeggio, dialog));
     span.appendChild(accordion);
     return span;
 }
 
-/**
- * @param data The data for the tracks of a particular type which are to be made into a UI element
- * @param type The type of tracks to extract from `data`
- * @param dialog Used to prompt the addition of a track to a category
- */
-function getTracks(data: WaveData, type: TrackType, dialog: DismissDialogElement): AccordionPanelElement {
+/** `dialog` is used to prompt the addition of a track to a category */
+function getTracks(
+    data: PureTrack[] | IsochronicTrack[] | SolfeggioTrack[],
+    type: TrackType,
+    dialog: DismissDialogElement
+): AccordionPanelElement {
     const panel = document.createElement('vaadin-accordion-panel');
     const div = document.createElement('div');
     div.slot = 'summary';
     const h1 = document.createElement('h1');
-    h1.textContent = type.toString()[0].toUpperCase() + type.toString().slice(1);
+    h1.textContent = type[0].toUpperCase() + type.slice(1);
     div.appendChild(h1);
     panel.appendChild(div);
-    const tracks = data[type.toString()].reduce((tracks, track) => {
+    const tracks = (data as []).reduce((tracks, track) => {
         tracks.appendChild(getTrack(track, type, dialog));
         return tracks;
     }, document.createElement('span'));
     panel.appendChild(tracks);
     return panel;
+}
+
+/** `dialog` is used to prompt the addition of `track` to a category */
+function getTrack(
+    track: PureTrack | IsochronicTrack | SolfeggioTrack,
+    type: TrackType,
+    dialog: DismissDialogElement
+): TrackDataElement {
+    const data = document.createElement('track-data') as TrackDataElement;
+    data.setAttribute('track-type', type);
+    if ([TrackType.pure, TrackType.isochronic].includes(type)) {
+        track = track as PureTrack | IsochronicTrack;
+        data.setAttribute('hz', track.frequency.toString());
+    } else if (type === TrackType.solfeggio) {
+        track = track as SolfeggioTrack;
+        data.setAttribute('binaural-hz', track.binauralBeatFrequency.toString());
+        data.setAttribute('solfeggio-hz', track.solfeggioFrequency.toString());
+    }
+    if (track.effects) data.appendChild(getEffects(track));
+    data.addEventListener('add', () => new CategoryAdder(track.name, dialog));
+    return data;
 }
 
 function getEffects(track: PureTrack | IsochronicTrack | SolfeggioTrack): HTMLUListElement {
@@ -168,33 +151,9 @@ function getEffects(track: PureTrack | IsochronicTrack | SolfeggioTrack): HTMLUL
     }, document.createElement('ul'));
 }
 
-/** `dialog` is used to prompt the addition of `track` to a category */
-function getTrack(
-    track: PureTrack | IsochronicTrack | SolfeggioTrack,
-    type: TrackType,
-    dialog: DismissDialogElement
-): TrackDataElement {
-    const data = document.createElement('track-data') as TrackDataElement;
-    data.setAttribute('track-type', type.toString());
-    if ([TrackType.pure, TrackType.isochronic].includes(TrackType[type.toString()])) {
-        track = track as PureTrack | IsochronicTrack;
-        data.setAttribute('hz', track.frequency.toString());
-    } else if (TrackType[type.toString()] === TrackType.solfeggio) {
-        track = track as SolfeggioTrack;
-        data.setAttribute('binaural-hz', track.binauralBeatFrequency.toString());
-        data.setAttribute('solfeggio-hz', track.solfeggioFrequency.toString());
-    }
-    if (track.effects !== undefined) data.appendChild(getEffects(track));
-    data.addEventListener('add', () => new CategoryAdder(track.name, dialog));
-    return data;
-}
-
 /** A dialog to add a track to a category */
 class CategoryAdder {
-    /**
-     * @param track Track's name
-     * @param dialog Used to render the category adder
-     */
+    /** `dialog` is used to render the category adder */
     constructor(private readonly track: string, dialog: DismissDialogElement) {
         dialog.render(this.getRenderer());
     }
@@ -217,15 +176,15 @@ class CategoryAdder {
     private getLayout(): VerticalLayoutElement {
         const layout = document.createElement('vaadin-vertical-layout') as VerticalLayoutElement;
         layout.theme = 'spacing-xs';
-        for (const name of storage.getCategoryNames()) layout.appendChild(this.createCategory(name));
+        for (const name of categories.getNames()) layout.appendChild(this.getCategory(name));
         return layout;
     }
 
     /** @param layout The layout to which the category creator will be appended to */
     private getAdder(layout: VerticalLayoutElement): CategoryAdderElement {
         const adder = document.createElement('category-adder') as CategoryAdderElement;
-        adder.addEventListener('add', ({detail}: CustomEvent) => {
-            layout.appendChild(this.createCategory(detail));
+        adder.addEventListener('add', (event) => {
+            layout.appendChild(this.getCategory((event as AddEvent).data));
         });
         return adder;
     }
@@ -234,15 +193,15 @@ class CategoryAdder {
      * @param category Category to which the track can be added
      * @returns The checkbox element to add the track
      */
-    private createCategory(category: string): CheckboxElement {
+    private getCategory(category: string): CheckboxElement {
         const checkbox = document.createElement('vaadin-checkbox') as CheckboxElement;
-        if (storage.categoryHasTrack(category, this.track)) checkbox.setAttribute('checked', 'checked');
+        if (categories.hasTrack(category, this.track)) checkbox.setAttribute('checked', 'checked');
         checkbox.textContent = category;
         checkbox.addEventListener('change', () => {
             if (checkbox.checked) {
-                storage.addCategoryTrack(category, this.track);
+                categories.addTrack(category, this.track);
             } else {
-                storage.removeCategoryTrack(category, this.track);
+                categories.removeTrack(category, this.track);
             }
         });
         return checkbox;

@@ -6,7 +6,7 @@
  *
  * @attribute `title` (required) Title (e.g., `Effects`)
  */
-export class TitledItemElement extends HTMLElement {
+export default class TitledItemElement extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});

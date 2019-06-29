@@ -1,6 +1,6 @@
 /** This is the abstraction layer for the `localStorage` item "categories". Use [[initialize]] when the app starts. */
 
-/** The item in `localStorage` */
+/** The `localStorage` item "categories" */
 interface Categories {
     [category: string]: string[];
 }
@@ -10,19 +10,18 @@ export function initialize(): void {
     if (getCategories() === null) setCategories({});
 }
 
-/** @returns Every category */
 export function getCategories(): Categories {
     return JSON.parse(localStorage.getItem('categories')!);
 }
 
-export function createCategory(category: string): void {
+export function create(category: string): void {
     const categories = getCategories();
     categories[category] = [];
     setCategories(categories);
 }
 
 /** @returns Whether `category` has `track` saved */
-export function categoryHasTrack(category: string, track: string): boolean {
+export function hasTrack(category: string, track: string): boolean {
     return getCategory(category).includes(track);
 }
 
@@ -30,7 +29,7 @@ export function categoryHasTrack(category: string, track: string): boolean {
  * @param category Category to add `track` to
  * @param track Track to add
  */
-export function addCategoryTrack(category: string, track: string): void {
+export function addTrack(category: string, track: string): void {
     const categories = getCategories();
     categories[category].push(track);
     setCategories(categories);
@@ -40,7 +39,7 @@ export function addCategoryTrack(category: string, track: string): void {
  * @param category Category from which `track` will be removed
  * @param track Track's name
  */
-export function removeCategoryTrack(category: string, track: string): void {
+export function removeTrack(category: string, track: string): void {
     const categories = getCategories();
     const tracks = categories[category];
     tracks.splice(tracks.indexOf(track), 1);
@@ -53,18 +52,18 @@ export function getCategory(category: string): string[] {
 }
 
 /** @returns Names of every category */
-export function getCategoryNames(): string[] {
+export function getNames(): string[] {
     return Object.keys(getCategories());
 }
 
 /** @returns Whether there are any categories */
 export function hasNoCategories(): boolean {
-    return getCategoryNames().length === 0;
+    return getNames().length === 0;
 }
 
 /** @param category Category to check for existence */
-export function hasCategory(category: string): boolean {
-    return getCategoryNames().includes(category);
+export function has(category: string): boolean {
+    return getNames().includes(category);
 }
 
 export function deleteCategory(category: string): void {
@@ -73,7 +72,7 @@ export function deleteCategory(category: string): void {
     setCategories(categories);
 }
 
-export function renameCategory(currentName: string, newName: string): void {
+export function rename(currentName: string, newName: string): void {
     const categories = getCategories();
     const value = categories[currentName];
     delete categories[currentName];

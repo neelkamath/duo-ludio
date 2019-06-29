@@ -53,7 +53,9 @@ Continuous delivery has been setup using [Netlify](https://www.netlify.com), whi
 
 ### Storage
 
-`localStorage` is used to persist data. `src/ts/storage.ts` is the abstraction layer for manipulating it. It contains a single item, `categories`, which contains the user's binaural beats collection. Each key is the name of a category (e.g., `Meditation`). Each value is an `array` of `string`s denoting the names of tracks. Track names correspond to tracks in the directory `src/binaural_beats/tracks`. An example is shown below.
+To access metadata on binaural beats (which are stored in `src/binaural_beats/data.json`), use the abstraction layer `src/ts/storage/beats.ts`.
+
+`localStorage` is used to persist data. It contains a single item, `categories`, which contains the user's binaural beats collection. `src/ts/storage/categories.ts` is the abstraction layer for manipulating it. Each key is the name of a category. Each value is an `array` of `string`s denoting the names of tracks. Track names correspond to tracks in the directory `src/binaural_beats/tracks/`. An example is shown below.
 ```json
 {
   "Meditation": [
@@ -76,6 +78,8 @@ Optional attribute documentation example:
 ```
 @attribute `aria-label` (optional, default: `Confirm`) ARIA label (e.g., `Confirm deleting category Meditation`)
 ```
+
+TypeDoc does'nt allow you to use the `event` in places such as constructors. A workaround is to document `Event`s by creating and documenting `private` methods which dispatch them.
 
 ## Credits
 

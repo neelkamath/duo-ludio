@@ -9,7 +9,7 @@
  * <script>document.querySelector('#button').addEventListener('click', () => console.log('Clicked'));</script>
  * ```
  */
-export class DialogButtonElement extends HTMLElement {
+export default class DialogButtonElement extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});

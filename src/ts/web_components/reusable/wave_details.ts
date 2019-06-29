@@ -1,4 +1,4 @@
-import {TitledItemElement} from './titled_item';
+import TitledItemElement from './titled_item';
 
 /**
  * This web component's HTML name is `wave-details`. It contains an expandable item describing a wave (e.g., alpha
@@ -22,7 +22,7 @@ import {TitledItemElement} from './titled_item';
  * @attribute `explanation` (required) Explanation of what the wave does (e.g.,
  * `This is the &quot;safest&quot; brainwave, and increasing it can feel awesome!`)
  */
-export class WaveDetailsElement extends HTMLElement {
+export default class WaveDetailsElement extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});

@@ -1,11 +1,10 @@
+// @ts-ignore
 import {DialogElement} from '@vaadin/vaadin-dialog/src/vaadin-dialog';
-import {DialogButtonElement} from './dialog_button';
+import DialogButtonElement from './dialog_button';
 
 /**
  * This web component has the HTML name `confirm-dialog`. It was created because Vaadin's confirm dialog wasn't free.
  * Place the body HTML between this element's HTML tags. Render the dialog using [[ConfirmDialogElement.render]].
- *
- * The `confirm` `Event` is fired when the confirm button is clicked.
  *
  * Example:
  * ```
@@ -25,7 +24,7 @@ import {DialogButtonElement} from './dialog_button';
  * @attribute `cancel` (optional, default: `Cancel`) Cancel button text (e.g., `No`)
  * @attribute `confirm` (optional, default: `Confirm`) Confirm button text (e.g., `Delete`)
  */
-export class ConfirmDialogElement extends HTMLElement {
+export default class ConfirmDialogElement extends HTMLElement {
     private readonly dialog: DialogElement;
 
     constructor() {
@@ -35,7 +34,7 @@ export class ConfirmDialogElement extends HTMLElement {
     }
 
     render(): void {
-        this.dialog.renderer = (root) => {
+        this.dialog.renderer = (root: HTMLElement) => {
             root.appendChild(this.getTitle());
             root.appendChild(document.createElement('br'));
             const div = document.createElement('div');
@@ -62,9 +61,17 @@ export class ConfirmDialogElement extends HTMLElement {
         button.textContent = content;
         button.addEventListener('click', () => {
             this.dialog.opened = false;
-            this.dispatchEvent(new Event('confirm'));
+            this.dispatchConfirm();
         });
         return button;
+    }
+
+    /**
+     * Dispatches the `confirm` `Event`
+     * @event Fired when the confirm button is clicked
+     */
+    private dispatchConfirm(): void {
+        this.dispatchEvent(new Event('confirm'));
     }
 
     connectedCallback() {

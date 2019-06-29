@@ -6,7 +6,7 @@
  * @attribute `alt` (required) Alternative text to display if the icon can't be seen (e.g., `Alpha`)
  * @attribute `src` (required) Icon's source (e.g., `https://bit.ly/2wTc8tv`)
  */
-export class TabIconElement extends HTMLElement {
+export default class TabIconElement extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});

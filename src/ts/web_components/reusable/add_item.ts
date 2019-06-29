@@ -1,18 +1,25 @@
+// @ts-ignore
 import {ButtonElement} from '@vaadin/vaadin-button/src/vaadin-button';
+// @ts-ignore
 import {TextFieldElement} from '@vaadin/vaadin-text-field/src/vaadin-text-field';
+
+/** An `add` event */
+export class AddEvent extends Event {
+    constructor(readonly data: string) {
+        super('add');
+    }
+}
 
 /**
  * This web component has the HTML name `add-item`. It contains a text field for the user to enter the name of an item
  * they'd like to add, and a button to add it. When the button is clicked, the text field is cleared.
- *
- * The `add` `CustomEvent` is fired when an item is to be added. The event's `detail` contains the field's value.
  *
  * Example:
  * ```
  * <add-item id="new-item"></add-item>
  * <script>
  *     const adder = document.querySelector('#new-item');
- *     adder.addEventListener('add', ({detail}) => console.log(detail.trim()));
+ *     adder.addEventListener('add', ({data}) => console.log(data.trim()));
  * </script>
  ```
  */
@@ -30,13 +37,22 @@ export class ItemAdderElement extends HTMLElement {
         this.shadowRoot!.appendChild(this.getButton(field));
     }
 
+    /**
+     * Dispatches an [[AddEvent]]
+     * @event Fired when an item is to be added
+     * @param data Field's value
+     */
+    private dispatchAdd(data: string): void {
+        this.dispatchEvent(new AddEvent(data));
+    }
+
     private getButton(field: TextFieldElement): ButtonElement {
         const button = document.createElement('vaadin-button') as ButtonElement;
         button.ariaLabel = 'Add item';
         button.theme = 'icon';
         button.innerHTML = '<iron-icon icon="vaadin:plus"></iron-icon>';
         button.addEventListener('click', () => {
-            this.dispatchEvent(new CustomEvent('add', {detail: field.value}));
+            this.dispatchAdd(field.value);
             field.value = '';
         });
         return button;

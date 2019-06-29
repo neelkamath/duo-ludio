@@ -3,4 +3,4 @@
  * @param name Item to be added
  * @returns `null` if `name` is valid; `string` containing why it isn't otherwise
  */
-export type getInvalidMessage = (name) => string | null;
+export type invalidityMessenger = (name: string) => string | null;

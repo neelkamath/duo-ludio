@@ -1,19 +1,21 @@
-import * as categoriesTab from './tabs/categories';
-import * as editTab from './tabs/edit';
-import * as storage from './storage';
-import * as tracksTab from './tabs/tracks';
-import {TabElement} from '@vaadin/vaadin-tabs/src/vaadin-tab';
-import './web_components/add_item';
-import './web_components/item_editor';
-import './web_components/confirm_dialog';
-import './web_components/dialog_button';
-import './web_components/dismiss_dialog';
-import './web_components/tab_icon';
-import './web_components/titled_item';
-import './web_components/track_data';
+// @ts-ignore
+import {TabElement} from '@vaadin/vaadin-tabs/src/vaadin-tab.js';
+import getCategoriesTab from './tabs/categories';
+import getEditTab from './tabs/edit';
+import getTracksTab from './tabs/tracks';
+import * as storage from './storage/storage';
 import './web_components/vaadin';
-import './web_components/validated_adder';
-import './web_components/wave_details';
+import './web_components/reusable/add_item';
+import './web_components/reusable/item_editor';
+import './web_components/reusable/confirm_dialog';
+import './web_components/reusable/dialog_button';
+import './web_components/reusable/dismiss_dialog';
+import './web_components/reusable/tab_icon';
+import './web_components/reusable/titled_item';
+import './web_components/reusable/track_data';
+import './web_components/reusable/validated_adder';
+import './web_components/reusable/wave_details';
+import './web_components/custom/category_adder';
 
 storage.initialize();
 
@@ -41,11 +43,11 @@ function getTab(span: HTMLSpanElement, name: 'Categories' | 'Tracks' | 'Edit', g
 addEventListener('load', () => {
     const content = document.createElement('span');
     const tabs = document.createElement('vaadin-tabs');
-    const tab = getTab(content, 'Categories', categoriesTab.getContent);
+    const tab = getTab(content, 'Categories', getCategoriesTab);
     tab.click();
     tabs.appendChild(tab);
-    tabs.appendChild(getTab(content, 'Tracks', tracksTab.getContent));
-    tabs.appendChild(getTab(content, 'Edit', editTab.getContent));
+    tabs.appendChild(getTab(content, 'Tracks', getTracksTab));
+    tabs.appendChild(getTab(content, 'Edit', getEditTab));
     document.body.appendChild(tabs);
     document.body.appendChild(content);
 });

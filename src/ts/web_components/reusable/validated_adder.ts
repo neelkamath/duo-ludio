@@ -1,12 +1,17 @@
-import {DismissDialogElement} from './dismiss_dialog';
-import {ItemAdderElement} from './add_item';
-import {getInvalidMessage} from './invalid_message';
+import DismissDialogElement from './dismiss_dialog';
+import * as itemAdder from './add_item';
+import {invalidityMessenger} from '../invalid_message';
+
+/** An `add` event */
+export class AddEvent extends Event {
+    constructor(readonly data: string) {
+        super('add');
+    }
+}
 
 /**
  * This web component has the HTML name `validated-adder`. It contains a field to add a validatable item. Supply
  * [[ValidatedAdderElement.getInvalidMessage]] ASAP.
- *
- * The `add` `Event` is fired when a valid item name has been added. The event's `detail` contains the name to be added.
  *
  * Example:
  * ```
@@ -14,7 +19,7 @@ import {getInvalidMessage} from './invalid_message';
  * <script>
  *     const adder = document.querySelector('#new-category');
  *     adder.getInvalidMessage = (name) => name === '' ? 'Please enter a name' : null;
- *     adder.addEventListener('add', ({detail}) => console.log(detail);
+ *     adder.addEventListener('add', ({data}) => console.log(data);
  * </script>
  * ```
  *
@@ -22,7 +27,7 @@ import {getInvalidMessage} from './invalid_message';
  * display explaining why (e.g., `Invalid category name`)
  */
 export class ValidatedAdderElement extends HTMLElement {
-    getInvalidMessage: getInvalidMessage;
+    getInvalidMessage!: invalidityMessenger;
     private readonly dialog: DismissDialogElement;
 
     constructor() {
@@ -39,13 +44,23 @@ export class ValidatedAdderElement extends HTMLElement {
         this.shadowRoot!.appendChild(this.getItem());
     }
 
-    private getItem(): ItemAdderElement {
-        const item = document.createElement('add-item') as ItemAdderElement;
-        item.addEventListener('add', ({detail}: CustomEvent) => {
-            const name = detail.trim();
+    /**
+     * Dispatches an [[AddEvent]]
+     * @event Fired when a valid item name has been added
+     * @param data Name to be added
+     */
+    private dispatchAdd(data: string): void {
+        this.dispatchEvent(new AddEvent(data));
+    }
+
+    private getItem(): itemAdder.ItemAdderElement {
+        const item = document.createElement('add-item') as itemAdder.ItemAdderElement;
+        item.addEventListener('add', (event) => {
+            const {data} = (event as itemAdder.AddEvent);
+            const name = data.trim();
             const message = this.getInvalidMessage(name);
             if (message === null) {
-                this.dispatchEvent(new CustomEvent('add', {detail: name}));
+                this.dispatchAdd(data);
                 return;
             }
             const span = document.createElement('span');

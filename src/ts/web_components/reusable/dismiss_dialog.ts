@@ -1,3 +1,4 @@
+// @ts-ignore
 import {DialogElement} from '@vaadin/vaadin-dialog/src/vaadin-dialog';
 
 /**
@@ -17,7 +18,7 @@ import {DialogElement} from '@vaadin/vaadin-dialog/src/vaadin-dialog';
  *
  * @attribute `aria-label` (optional) ARIA label (e.g., `Invalid category name`)
  */
-export class DismissDialogElement extends HTMLElement {
+export default class DismissDialogElement extends HTMLElement {
     private readonly dialog: DialogElement;
 
     constructor() {
@@ -34,7 +35,7 @@ export class DismissDialogElement extends HTMLElement {
     }
 
     render(child: HTMLElement): void {
-        this.dialog.renderer = (root) => root.appendChild(child);
+        this.dialog.renderer = (root: HTMLElement) => root.appendChild(child);
         this.dialog.opened = true;
     }
 }
