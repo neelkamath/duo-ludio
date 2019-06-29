@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "parcel src/index.html",
     "build": "parcel build src/index.html",
-    "doc": "typedoc --out docs --listInvalidSymbolLinks --name 'Duo Ludio'"
+    "doc": "typedoc --out docs --listInvalidSymbolLinks --name 'Duo Ludio'",
+    "test": "tsc --noEmit"
   },
   "license": "MIT",
   "devDependencies": {

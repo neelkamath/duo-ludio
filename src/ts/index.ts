@@ -3,7 +3,7 @@ import {TabElement} from '@vaadin/vaadin-tabs/src/vaadin-tab.js';
 import getCategoriesTab from './tabs/categories';
 import getEditTab from './tabs/edit';
 import getTracksTab from './tabs/tracks';
-import * as storage from './storage/storage';
+import * as categories from './storage/categories';
 import './web_components/vaadin';
 import './web_components/reusable/add_item';
 import './web_components/reusable/item_editor';
@@ -17,7 +17,7 @@ import './web_components/reusable/validated_adder';
 import './web_components/reusable/wave_details';
 import './web_components/custom/category_adder';
 
-storage.initialize();
+categories.initialize();
 
 /**
  * If `span`'s first `ChildNode` is `null`, `child` will be appended to `span`. Otherwise, it's first child will be
