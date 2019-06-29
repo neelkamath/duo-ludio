@@ -5,13 +5,17 @@
   },
   "scripts": {
     "dev": "parcel src/index.html",
-    "build": "parcel build src/index.html"
+    "build": "parcel build src/index.html",
+    "doc": "typedoc --out docs --listInvalidSymbolLinks --name 'Duo Ludio'",
+    "test": "tsc --noEmit"
   },
   "license": "MIT",
   "devDependencies": {
-    "parcel-bundler": "^1.12.3"
+    "parcel-bundler": "^1.12.3",
+    "typedoc": "^0.14.2",
+    "typescript": "^3.5.2"
   },
   "dependencies": {
-    "@vaadin/vaadin": "^13.0.8"
+    "@vaadin/vaadin": "^13.0.9"
   }
 }
