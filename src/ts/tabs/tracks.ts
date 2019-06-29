@@ -97,7 +97,7 @@ function getTrackTypes(data: WaveData): HTMLSpanElement {
     if (data.isochronic) accordion.appendChild(getTracks(data.isochronic, TrackType.isochronic, dialog));
     if (data.solfeggio) accordion.appendChild(getTracks(data.solfeggio, TrackType.solfeggio, dialog));
     span.appendChild(accordion);
-    return span;
+    return spans;
 }
 
 /** `dialog` is used to prompt the addition of a track to a category */

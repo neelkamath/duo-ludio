@@ -35,6 +35,10 @@ The `dist/` directory will contain the built website.
 1. `npm run doc` 
 1. Open `docs/index.html` in your browser.
 
+## Testing
+
+`npm run test`
+
 ## Documentation
 
 The Material Design spec is not to be followed strictly, but as a guideline.
