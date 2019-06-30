@@ -16,6 +16,15 @@
     "typescript": "^3.5.2"
   },
   "dependencies": {
-    "@vaadin/vaadin": "^13.0.9"
+    "@vaadin/vaadin-accordion": "^1.0.1",
+    "@vaadin/vaadin-button": "^2.2.0",
+    "@vaadin/vaadin-checkbox": "^2.2.10",
+    "@vaadin/vaadin-details": "^1.0.1",
+    "@vaadin/vaadin-dialog": "^2.2.1",
+    "@vaadin/vaadin-icons": "^4.3.1",
+    "@vaadin/vaadin-item": "^2.1.1",
+    "@vaadin/vaadin-ordered-layout": "^1.1.0",
+    "@vaadin/vaadin-tabs": "^3.0.4",
+    "@vaadin/vaadin-text-field": "^2.4.7"
   }
 }
