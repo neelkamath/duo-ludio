@@ -8,7 +8,7 @@ export interface BinauralBeats {
     readonly gamma: WaveData;
     readonly theta: WaveData;
 
-    readonly [wave: string]: WaveDat;
+    readonly [wave: string]: WaveData;
 }
 
 /** Metadata on a brainwave's binaural beats */
