@@ -5,7 +5,7 @@ import {DetailsElement} from '@vaadin/vaadin-details/src/vaadin-details';
 export default function (): DetailsElement {
     const details = document.createElement('vaadin-details');
     details.innerHTML = `
-        <div slot="summary">About</div>
+        <div slot="summary"><h1>About</h1></div>
         <p>
             For a person who needs help concentrating, Duo Ludio is a web app that provides categorized binaural beats. 
             Unlike other binaural beats players, this product is accessible anywhere since it has the option to be 

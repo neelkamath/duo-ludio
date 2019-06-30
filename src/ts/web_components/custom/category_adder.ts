@@ -30,9 +30,9 @@ export class CategoryAdderElement extends HTMLElement {
         const adder = document.createElement('validated-adder') as validatedAdder.ValidatedAdderElement;
         adder.setAttribute('aria-label', 'Invalid category name');
         adder.getInvalidMessage = getInvalidMessenger();
-        adder.addEventListener('add', (event) => {
+        adder.addEventListener('add', async (event) => {
             const {data} = (event as validatedAdder.AddEvent);
-            categories.create(data);
+            await categories.create(data);
             this.dispatchAdd(data);
         });
         this.shadowRoot!.appendChild(adder);

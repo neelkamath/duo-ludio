@@ -1,86 +1,89 @@
-/** This is the abstraction layer for the `localStorage` item "categories". Use [[initialize]] when the app starts. */
+/** This is the abstraction layer for the `localForage` item "categories". Use [[initialize]] when the app starts. */
 
-/** The `localStorage` item "categories" */
-interface Categories {
+import localForage from 'localforage';
+
+/** The `localForage` item "categories" */
+export interface Categories {
     [category: string]: string[];
 }
 
-/** Initializes `localStorage` if necessary */
-export function initialize(): void {
-    if (getCategories() === null) setCategories({});
+/** Initializes storage if necessary */
+export async function initialize(): Promise<void> {
+    localForage.config({name: 'Duo Ludio', description: "Stores the user's binaural beats collection"});
+    if (await getCategories() === null) await setCategories({});
 }
 
-export function getCategories(): Categories {
-    return JSON.parse(localStorage.getItem('categories')!);
+export async function getCategories(): Promise<Categories> {
+    return await localForage.getItem('categories');
 }
 
-export function create(category: string): void {
-    const categories = getCategories();
+export async function create(category: string): Promise<void> {
+    const categories = await getCategories();
     categories[category] = [];
-    setCategories(categories);
+    await setCategories(categories);
 }
 
 /** @returns Whether `category` has `track` saved */
-export function hasTrack(category: string, track: string): boolean {
-    return getCategory(category).includes(track);
+export async function hasTrack(category: string, track: string): Promise<boolean> {
+    return (await getCategory(category)).includes(track);
 }
 
 /**
  * @param category Category to add `track` to
  * @param track Track to add
  */
-export function addTrack(category: string, track: string): void {
-    const categories = getCategories();
+export async function addTrack(category: string, track: string): Promise<void> {
+    const categories = await getCategories();
     categories[category].push(track);
-    setCategories(categories);
+    await setCategories(categories);
 }
 
 /**
  * @param category Category from which `track` will be removed
  * @param track Track's name
  */
-export function removeTrack(category: string, track: string): void {
-    const categories = getCategories();
+export async function removeTrack(category: string, track: string): Promise<void> {
+    const categories = await getCategories();
     const tracks = categories[category];
     tracks.splice(tracks.indexOf(track), 1);
-    setCategories(categories);
+    await setCategories(categories);
 }
 
 /** @param category Category's tracks to return */
-export function getCategory(category: string): string[] {
-    return getCategories()[category];
+export async function getCategory(category: string): Promise<string[]> {
+    return (await getCategories())[category];
 }
 
 /** @returns Names of every category */
-export function getNames(): string[] {
-    return Object.keys(getCategories());
+export async function getNames(): Promise<string[]> {
+    return Object.keys(await getCategories());
 }
 
 /** @returns Whether there are any categories */
-export function hasNoCategories(): boolean {
-    return getNames().length === 0;
+export async function hasNoCategories(): Promise<boolean> {
+    return (await getNames()).length === 0;
 }
 
 /** @param category Category to check for existence */
-export function has(category: string): boolean {
-    return getNames().includes(category);
+export async function has(category: string): Promise<boolean> {
+    return (await getNames()).includes(category);
 }
 
-export function deleteCategory(category: string): void {
-    const categories = getCategories();
+export async function deleteCategory(category: string): Promise<void> {
+    const categories = await getCategories();
     delete categories[category];
-    setCategories(categories);
+    await setCategories(categories);
 }
 
-export function rename(currentName: string, newName: string): void {
-    const categories = getCategories();
+export async function rename(currentName: string, newName: string): Promise<void> {
+    const categories = await getCategories();
     const value = categories[currentName];
     delete categories[currentName];
     categories[newName] = value;
-    setCategories(categories);
+    await setCategories(categories);
 }
 
 /** @param categories The categories which will overwrite all existing categories */
-export function setCategories(categories: Categories): void {
-    localStorage.setItem('categories', JSON.stringify(categories));
+export async function setCategories(categories: Categories): Promise<void> {
+    await localForage.setItem('categories', categories);
 }

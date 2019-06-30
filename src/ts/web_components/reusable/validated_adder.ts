@@ -55,10 +55,10 @@ export class ValidatedAdderElement extends HTMLElement {
 
     private getItem(): itemAdder.ItemAdderElement {
         const item = document.createElement('add-item') as itemAdder.ItemAdderElement;
-        item.addEventListener('add', (event) => {
+        item.addEventListener('add', async (event) => {
             const {data} = (event as itemAdder.AddEvent);
             const name = data.trim();
-            const message = this.getInvalidMessage(name);
+            const message = await this.getInvalidMessage(name);
             if (message === null) {
                 this.dispatchAdd(data);
                 return;

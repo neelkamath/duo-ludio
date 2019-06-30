@@ -12,6 +12,7 @@ import WaveDetailsElement from '../web_components/reusable/wave_details';
 import DismissDialogElement from '../web_components/reusable/dismiss_dialog';
 import TrackDataElement from '../web_components/reusable/track_data';
 import {getWaveData, IsochronicTrack, PureTrack, SolfeggioTrack, WaveData} from '../storage/beats';
+import 'regenerator-runtime/runtime';
 
 /** @returns The 'Tracks' tab's content */
 export default function (): HTMLSpanElement {
@@ -155,16 +156,20 @@ function getEffects(track: PureTrack | IsochronicTrack | SolfeggioTrack): HTMLUL
 class CategoryAdder {
     /** `dialog` is used to render the category adder */
     constructor(private readonly track: string, dialog: DismissDialogElement) {
-        dialog.render(this.getRenderer());
+        this.render(dialog);
+    }
+
+    async render(dialog: DismissDialogElement): Promise<void> {
+        dialog.render(await this.getRenderer());
     }
 
     /** @returns Dialog's body */
-    private getRenderer(): HTMLSpanElement {
+    private async getRenderer(): Promise<HTMLSpanElement> {
         const span = document.createElement('span');
         const div = document.createElement('div');
         div.innerHTML = '<strong>Add to category</strong>';
         span.appendChild(div);
-        const layout = this.getLayout();
+        const layout = await this.getLayout();
         span.appendChild(this.getAdder(layout));
         span.appendChild(document.createElement('br'));
         span.appendChild(document.createElement('br'));
@@ -173,18 +178,18 @@ class CategoryAdder {
     }
 
     /** @returns The layout containing the categories */
-    private getLayout(): VerticalLayoutElement {
+    private async getLayout(): Promise<VerticalLayoutElement> {
         const layout = document.createElement('vaadin-vertical-layout') as VerticalLayoutElement;
         layout.theme = 'spacing-xs';
-        for (const name of categories.getNames()) layout.appendChild(this.getCategory(name));
+        for (const name of await categories.getNames()) layout.appendChild(await this.getCategory(name));
         return layout;
     }
 
     /** @param layout The layout to which the category creator will be appended to */
     private getAdder(layout: VerticalLayoutElement): CategoryAdderElement {
         const adder = document.createElement('category-adder') as CategoryAdderElement;
-        adder.addEventListener('add', (event) => {
-            layout.appendChild(this.getCategory((event as AddEvent).data));
+        adder.addEventListener('add', async (event) => {
+            layout.appendChild(await this.getCategory((event as AddEvent).data));
         });
         return adder;
     }
@@ -193,15 +198,15 @@ class CategoryAdder {
      * @param category Category to which the track can be added
      * @returns The checkbox element to add the track
      */
-    private getCategory(category: string): CheckboxElement {
+    private async getCategory(category: string): Promise<CheckboxElement> {
         const checkbox = document.createElement('vaadin-checkbox') as CheckboxElement;
-        if (categories.hasTrack(category, this.track)) checkbox.setAttribute('checked', 'checked');
+        if (await categories.hasTrack(category, this.track)) checkbox.setAttribute('checked', 'checked');
         checkbox.textContent = category;
-        checkbox.addEventListener('change', () => {
+        checkbox.addEventListener('change', async () => {
             if (checkbox.checked) {
-                categories.addTrack(category, this.track);
+                await categories.addTrack(category, this.track);
             } else {
-                categories.removeTrack(category, this.track);
+                await categories.removeTrack(category, this.track);
             }
         });
         return checkbox;

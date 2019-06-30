@@ -92,8 +92,8 @@ export class ItemEditorElement extends HTMLElement {
         field.id = 'field';
         field.label = 'Rename';
         field.value = this.item;
-        field.addEventListener('change', () => {
-            const html = this.getInvalidMessage(field.value);
+        field.addEventListener('change', async () => {
+            const html = await this.getInvalidMessage(field.value);
             if (html) {
                 field.value = this.item;
                 const span = document.createElement('span');

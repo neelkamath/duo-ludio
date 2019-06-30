@@ -4,10 +4,10 @@ import {ItemEditorElement, SetEvent} from '../web_components/reusable/item_edito
 import {AddEvent} from '../web_components/custom/category_adder';
 
 /** @returns The contents of the "Edit" tab */
-export default function (): HTMLSpanElement {
+export default async function (): Promise<HTMLSpanElement> {
     const span = document.createElement('span');
     const editors = document.createElement('div');
-    for (const category of categories.getNames()) editors.appendChild(getEditor(category));
+    for (const category of await categories.getNames()) editors.appendChild(getEditor(category));
     const adder = document.createElement('category-adder');
     adder.addEventListener('add', (event) => editors.appendChild(getEditor((event as AddEvent).data)));
     span.appendChild(adder);
@@ -25,11 +25,11 @@ function getEditor(category: string): ItemEditorElement {
     editor.setAttribute('item', category);
     editor.getInvalidMessage = getInvalidMessenger();
     let name = category;
-    editor.addEventListener('set', (event) => {
+    editor.addEventListener('set', async (event) => {
         const {oldName, newName} = event as SetEvent;
-        categories.rename(oldName, newName);
+        await categories.rename(oldName, newName);
         name = newName;
     });
-    editor.addEventListener('delete', () => categories.deleteCategory(name));
+    editor.addEventListener('delete', async () => await categories.deleteCategory(name));
     return editor;
 }

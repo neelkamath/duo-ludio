@@ -16,8 +16,7 @@ import './web_components/reusable/track_data';
 import './web_components/reusable/validated_adder';
 import './web_components/reusable/wave_details';
 import './web_components/custom/category_adder';
-
-categories.initialize();
+import 'regenerator-runtime/runtime';
 
 /**
  * If `span`'s first `ChildNode` is `null`, `child` will be appended to `span`. Otherwise, it's first child will be
@@ -32,15 +31,20 @@ function putChild(child: HTMLElement, span: HTMLSpanElement): void {
  * @param name Tab's name
  * @param getter The function to return the tab's content
  */
-function getTab(span: HTMLSpanElement, name: 'Categories' | 'Tracks' | 'Edit', getter: () => HTMLElement): TabElement {
+function getTab(
+    span: HTMLSpanElement,
+    name: 'Categories' | 'Tracks' | 'Edit',
+    getter: () => HTMLElement | Promise<HTMLElement>
+): TabElement {
     const tab = document.createElement('vaadin-tab');
     const icons = {'Categories': 'file-tree', 'Tracks': 'music', 'Edit': 'edit'};
     tab.innerHTML = `<iron-icon icon="vaadin:${icons[name]}"></iron-icon> ${name}`;
-    tab.addEventListener('click', () => putChild(getter(), span));
+    tab.addEventListener('click', async () => putChild(await getter(), span));
     return tab;
 }
 
-addEventListener('load', () => {
+addEventListener('load', async () => {
+    await categories.initialize();
     const content = document.createElement('span');
     const tabs = document.createElement('vaadin-tabs');
     const tab = getTab(content, 'Categories', getCategoriesTab);
