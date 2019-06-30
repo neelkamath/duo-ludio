@@ -90,7 +90,6 @@ TypeDoc does'nt allow you to use the `event` in places such as constructors. A w
 - Description: [How to Create a Product Vision by Joel Spolsky](https://www.joelonsoftware.com/2002/05/09/product-vision/)
 - Favicon: [favicon.io](https://favicon.io/favicon-generator/)
 - [Website Boilerplate](https://github.com/neelkamath/website-boilerplate)
-- [Vaadin Imports](https://gist.github.com/neelkamath/2f7bc1e7215fd22527c83e2f05de9b78)
 - [Binaural Beats Dataset](https://github.com/neelkamath/binaural-beats-dataset)
 
 ## License
