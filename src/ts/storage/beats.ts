@@ -1,4 +1,4 @@
-import binaurals from '../../binaural_beats/data.json';
+import binauralBeats from '../../binaural_beats/data.json';
 
 /** Metadata on binaural beats for each brainwave */
 export interface BinauralBeats {
@@ -45,7 +45,21 @@ export interface SolfeggioTrack {
     readonly name: string;
 }
 
-/** Returns data for an `'alpha'`, `'beta'`, `'delta'`, `'gamma'`, or `'theta'` wave. */
-export function getWaveData(wave: string): WaveData {
-    return (binaurals as BinauralBeats)[wave];
+/** Wave is `'alpha'`, `'beta'`, `'delta'`, `'gamma'`, or `'theta'` */
+export function getBrainwave(wave: string): WaveData {
+    return (binauralBeats as BinauralBeats)[wave];
+}
+
+export function getTrackEffects(name: string): string[] | undefined {
+    for (const wave of ['alpha', 'beta', 'delta', 'gamma', 'theta']) {
+        const data = getBrainwave(wave);
+        for (const track of data.pure) if (track.name === name) return track.effects;
+        if (data.isochronic) for (const track of data.isochronic) if (track.name === name) return track.effects;
+        if (data.solfeggio) for (const track of data.solfeggio) if (track.name === name) return track.effects;
+    }
+    throw Error(`Track ${name} doesn't exist`);
+}
+
+export function trackHasEffects(track: string): boolean {
+    return getTrackEffects(track) !== undefined;
 }

@@ -40,7 +40,10 @@ export class CategoryAdderElement extends HTMLElement {
 
     /**
      * Dispatches an [[AddEvent]]
-     * @event Fired after a category has been added to persistent storage
+     *
+     * Fired after a category has been added to persistent storage
+     *
+     * @event
      */
     private dispatchAdd(category: string): void {
         this.dispatchEvent(new AddEvent(category));

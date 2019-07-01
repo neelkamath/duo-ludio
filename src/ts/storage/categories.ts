@@ -17,6 +17,10 @@ export async function getCategories(): Promise<Categories> {
     return await localForage.getItem('categories');
 }
 
+export async function hasTracks(category: string): Promise<boolean> {
+    return (await getCategory(category)).length > 0;
+}
+
 export async function create(category: string): Promise<void> {
     const categories = await getCategories();
     categories[category] = [];

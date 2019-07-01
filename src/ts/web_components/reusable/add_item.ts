@@ -39,8 +39,11 @@ export class ItemAdderElement extends HTMLElement {
 
     /**
      * Dispatches an [[AddEvent]]
-     * @event Fired when an item is to be added
+     *
+     * Fired when an item is to be added
+     *
      * @param data Field's value
+     * @event
      */
     private dispatchAdd(data: string): void {
         this.dispatchEvent(new AddEvent(data));

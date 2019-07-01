@@ -46,8 +46,11 @@ export class ValidatedAdderElement extends HTMLElement {
 
     /**
      * Dispatches an [[AddEvent]]
-     * @event Fired when a valid item name has been added
+     *
+     * Fired when a valid item name has been added
+     *
      * @param data Name to be added
+     * @event
      */
     private dispatchAdd(data: string): void {
         this.dispatchEvent(new AddEvent(data));
@@ -63,9 +66,7 @@ export class ValidatedAdderElement extends HTMLElement {
                 this.dispatchAdd(data);
                 return;
             }
-            const span = document.createElement('span');
-            span.innerHTML = message;
-            this.dialog.render(span);
+            this.dialog.renderHTML(message);
         });
         return item;
     }

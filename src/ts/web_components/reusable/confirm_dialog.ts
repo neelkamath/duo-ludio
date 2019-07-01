@@ -4,7 +4,7 @@ import DialogButtonElement from './dialog_button';
 
 /**
  * This web component has the HTML name `confirm-dialog`. It was created because Vaadin's confirm dialog wasn't free.
- * Place the body HTML between this element's HTML tags. Render the dialog using [[ConfirmDialogElement.render]].
+ * Place the body HTML between this element's HTML tags. Render the dialog using [[render]].
  *
  * Example:
  * ```
@@ -20,11 +20,14 @@ import DialogButtonElement from './dialog_button';
  * ```
  *
  * @attribute `aria-label` (optional, default: `Confirm`) ARIA label (e.g., `Confirm deleting category Meditation`)
- * @attribute `title` (required) Title (e.g., `Delete?`)
+ * @attribute `title` (optional) Title (e.g., `Delete?`)
  * @attribute `cancel` (optional, default: `Cancel`) Cancel button text (e.g., `No`)
  * @attribute `confirm` (optional, default: `Confirm`) Confirm button text (e.g., `Delete`)
+ * @attribute `no-confirm-close` (optional) If this boolean attribute is present, this dialog will not automatically
+ * close when the confirm button is clicked. You should instead manually close it using [[close]].
  */
 export default class ConfirmDialogElement extends HTMLElement {
+    private content!: ChildNode | null;
     private readonly dialog: DialogElement;
 
     constructor() {
@@ -35,15 +38,31 @@ export default class ConfirmDialogElement extends HTMLElement {
 
     render(): void {
         this.dialog.renderer = (root: HTMLElement) => {
-            root.appendChild(this.getTitle());
+            if (this.hasAttribute('title')) root.appendChild(this.getTitle());
             root.appendChild(document.createElement('br'));
-            const div = document.createElement('div');
-            div.innerHTML = this.innerHTML;
-            root.appendChild(div);
+            if (this.content !== null) {
+                const div = document.createElement('div');
+                div.appendChild(this.content);
+                root.appendChild(div);
+            }
             root.appendChild(this.getConfirm());
             root.appendChild(this.getCancel());
         };
         this.dialog.opened = true;
+    }
+
+    connectedCallback() {
+        this.content = this.firstChild;
+        this.dialog.noCloseOnEsc = true;
+        this.dialog.noCloseOnOutsideClick = true;
+        let label = 'Confirm';
+        if (this.hasAttribute('aria-label')) label = this.getAttribute('aria-label')!;
+        this.dialog.ariaLabel = label;
+        this.shadowRoot!.appendChild(this.dialog);
+    }
+
+    close(): void {
+        this.dialog.opened = false;
     }
 
     private getTitle(): HTMLDivElement {
@@ -60,7 +79,7 @@ export default class ConfirmDialogElement extends HTMLElement {
         if (this.hasAttribute('confirm')) content = this.getAttribute('confirm')!;
         button.textContent = content;
         button.addEventListener('click', () => {
-            this.dialog.opened = false;
+            if (!this.hasAttribute('no-confirm-close')) this.dialog.opened = false;
             this.dispatchConfirm();
         });
         return button;
@@ -68,19 +87,13 @@ export default class ConfirmDialogElement extends HTMLElement {
 
     /**
      * Dispatches the `confirm` `Event`
-     * @event Fired when the confirm button is clicked
+     *
+     * Fired when the confirm button is clicked
+     *
+     * @event
      */
     private dispatchConfirm(): void {
         this.dispatchEvent(new Event('confirm'));
-    }
-
-    connectedCallback() {
-        this.dialog.noCloseOnEsc = true;
-        this.dialog.noCloseOnOutsideClick = true;
-        let label = 'Confirm';
-        if (this.hasAttribute('aria-label')) label = this.getAttribute('aria-label')!;
-        this.dialog.ariaLabel = label;
-        this.shadowRoot!.appendChild(this.dialog);
     }
 
     private getCancel(): DialogButtonElement {

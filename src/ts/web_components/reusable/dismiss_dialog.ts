@@ -3,7 +3,7 @@ import {DialogElement} from '@vaadin/vaadin-dialog/src/vaadin-dialog';
 
 /**
  * This web component has the HTML name `dismiss-dialog`. It is for dialogs requiring no buttons. Use
- * [[DismissDialogElement.render]] to render the dialog.
+ * [[render]] or [[renderHTML]] to render the dialog.
  *
  * Example:
  * ```
@@ -11,7 +11,7 @@ import {DialogElement} from '@vaadin/vaadin-dialog/src/vaadin-dialog';
  * <vaadin-button id="submit">Submit</vaadin-button>
  * <script>
  *     document.querySelector('#submit').addEventListener('click', () => {
- *         document.querySelector('#dialog').render('Please enter your <b>name</b>.');
+ *         document.querySelector('#dialog').renderHTML('Please enter your <b>name</b>.');
  *     });
  * </script>
  * ```
@@ -32,6 +32,13 @@ export default class DismissDialogElement extends HTMLElement {
             this.dialog.ariaLabel = this.getAttribute('aria-label');
         }
         this.shadowRoot!.appendChild(this.dialog);
+    }
+
+    renderHTML(html: string): void {
+        const span = document.createElement('span');
+        span.innerHTML = html;
+        this.dialog.renderer = (root: HTMLElement) => root.appendChild(span);
+        this.dialog.opened = true;
     }
 
     render(child: HTMLElement): void {

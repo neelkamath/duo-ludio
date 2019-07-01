@@ -39,7 +39,10 @@ export default class TrackDataElement extends HTMLElement {
 
     /**
      * Dispatches the `add` `Event`
-     * @event Fired when the button is clicked
+     *
+     * Fired when the button is clicked
+     *
+     * @event
      */
     private dispatchAdd(): void {
         this.dispatchEvent(new Event('add'));

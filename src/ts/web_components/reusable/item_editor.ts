@@ -1,55 +1,53 @@
 // @ts-ignore
 import {ButtonElement} from '@vaadin/vaadin-button/src/vaadin-button';
 // @ts-ignore
+import {ItemElement} from '@vaadin/vaadin-item/src/vaadin-item';
+// @ts-ignore
 import {TextFieldElement} from '@vaadin/vaadin-text-field/src/vaadin-text-field';
 import ConfirmDialogElement from './confirm_dialog';
 import DismissDialogElement from './dismiss_dialog';
 import {invalidityMessenger} from '../invalid_message';
 
-export class SetEvent extends Event {
+export class RenameEvent extends Event {
     constructor(readonly oldName: string, readonly newName: string) {
-        super('set');
+        super('rename');
     }
 }
 
 /**
  * This web component has the HTML name `item-editor`. It contains an item's name which can be edited or deleted. Attach
- * [[ItemEditorElement.getInvalidMessage]] ASAP.
+ * [[getInvalidMessage]] ASAP.
  *
  * Example:
  * ```
- * <item-editor
- *         dialog-body="This will delete the category Meditation."
- *         dialog-confirm="Delete"
- *         dialog-title="Delete?"
- *         id="editor"
- *         item="Meditation"
- * ></item-editor>
+ * <item-editor id="editor" item="Meditation"></item-editor>
  * <script>
  *     const editor = document.querySelector('#editor');
- *     editor.addEventListener('delete', () => console.log('Item should be deleted'));
  *     editor.getInvalidMessage = (name) => name === '' ? 'The name cannot be empty' : null;
- *     editor.addEventListener('set', ({oldName, newName}) => console.log(`${oldName} updated to ${newName}`));
+ *     editor.addEventListener('delete', () => console.log('Item should be deleted'));
+ *     editor.addEventListener('rename', ({oldName, newName}) => console.log(`${oldName} updated to ${newName}`));
  * </script>
  ```
  *
- * @attribute `aria-label` (optional, default: `Edit item`) ARIA label (e.g., `Edit category Meditation`)
- * @attribute `dialog-cancel` (optional, default: `Cancel`) Dialog's cancel button text (e.g., `No`)
- * @attribute `dialog-confirm` (optional, default: `Confirm`) Dialog's confirm button text (e.g., `Delete`)
- * @attribute `dialog-title` (required) Dialog's title (e.g., `Delete?`)
- * @attribute `dialog-body` (required) Dialog's body (e.g., `This will delete the category Meditation.`)
  * @attribute `item` (required) The item (e.g., `Meditation`)
  */
 export class ItemEditorElement extends HTMLElement {
     getInvalidMessage!: invalidityMessenger;
-    private readonly confirmDialog: ConfirmDialogElement;
-    private readonly dismissDialog: DismissDialogElement;
+    private readonly deleteDialog: ConfirmDialogElement;
+    private readonly errorDialog: DismissDialogElement;
+    private readonly renameDialog: ConfirmDialogElement;
+    private readonly field: TextFieldElement;
+    /** The readonly item name placed next to the buttons */
+    private readonly itemName: HTMLSpanElement;
 
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
-        this.confirmDialog = document.createElement('confirm-dialog') as ConfirmDialogElement;
-        this.dismissDialog = document.createElement('dismiss-dialog') as DismissDialogElement;
+        this.deleteDialog = document.createElement('confirm-dialog') as ConfirmDialogElement;
+        this.errorDialog = document.createElement('dismiss-dialog') as DismissDialogElement;
+        this.renameDialog = document.createElement('confirm-dialog') as ConfirmDialogElement;
+        this.field = document.createElement('vaadin-text-field');
+        this.itemName = document.createElement('span');
     }
 
     private get item(): string {
@@ -58,63 +56,59 @@ export class ItemEditorElement extends HTMLElement {
 
     private set item(value: string) {
         this.setAttribute('item', value);
+        this.itemName.textContent = this.item;
     }
 
     connectedCallback() {
-        this.setUpConfirmDialog();
-        const div = document.createElement('div');
-        div.appendChild(this.confirmDialog);
-        div.appendChild(this.dismissDialog);
-        div.appendChild(this.getField());
-        div.appendChild(this.getButton());
-        this.shadowRoot!.appendChild(div);
+        this.setUpDeleteDialog();
+        this.setUpRenameDialog();
+        this.setUpField();
+        this.itemName.textContent = this.item;
+        this.shadowRoot!.appendChild(this.deleteDialog);
+        this.shadowRoot!.appendChild(this.errorDialog);
+        this.shadowRoot!.appendChild(this.renameDialog);
+        this.shadowRoot!.appendChild(this.getItem());
+    }
+
+    private getItem(): ItemElement {
+        const item = document.createElement('vaadin-item');
+        item.appendChild(this.getDeleteButton());
+        item.appendChild(this.getEditButton());
+        item.appendChild(this.itemName);
+        return item;
     }
 
     /**
      * Dispatches the `delete` `Event`
-     * @event Fired after this element is removed from the DOM (i.e., the item was deleted)
+     *
+     * Fired after this element is removed from the DOM (i.e., the item was deleted)
+     *
+     * @event
      */
     private dispatchDelete(): void {
         this.dispatchEvent(new Event('delete'));
     }
 
     /**
-     * Dispatches a [[SetEvent]]
-     * @event Fired each time the item's name has been successfully changed (i.e., the user edited the item's name, and
-     * [[ItemEditorElement.getInvalidMessage]] returned `null`)
+     * Dispatches a [[RenameEvent]]
+     *
+     * Fired each time the item's name has been successfully changed (i.e., the user edited the item's name, and
+     * [[getInvalidMessage]] returned `null`)
+     *
+     * @event
      */
-    private dispatchSet(oldName: string, newName: string): void {
-        this.dispatchEvent(new SetEvent(oldName, newName));
+    private dispatchRename(oldName: string, newName: string): void {
+        this.dispatchEvent(new RenameEvent(oldName, newName));
     }
 
-    private getField(): TextFieldElement {
-        const field = document.createElement('vaadin-text-field') as TextFieldElement;
-        field.id = 'field';
-        field.label = 'Rename';
-        field.value = this.item;
-        field.addEventListener('change', async () => {
-            const html = await this.getInvalidMessage(field.value);
-            if (html) {
-                field.value = this.item;
-                const span = document.createElement('span');
-                span.innerHTML = html;
-                this.dismissDialog.render(span);
-            } else {
-                this.dispatchSet(this.item, field.value);
-                this.item = field.value;
-            }
-        });
-        return field;
-    }
-
-    private getButton(): ButtonElement {
+    private getDeleteButton(): ButtonElement {
         const button = document.createElement('vaadin-button') as ButtonElement;
         button.ariaLabel = 'Delete item';
         button.theme = 'icon';
         button.innerHTML = '<iron-icon icon="vaadin:minus"></iron-icon>';
         button.addEventListener('click', () => {
-            this.confirmDialog.render();
-            this.confirmDialog.addEventListener('confirm', () => {
+            this.deleteDialog.render();
+            this.deleteDialog.addEventListener('confirm', () => {
                 this.remove();
                 this.dispatchDelete();
             });
@@ -122,20 +116,49 @@ export class ItemEditorElement extends HTMLElement {
         return button;
     }
 
-    private setUpConfirmDialog(): void {
-        let label = 'Edit item';
-        if (this.hasAttribute('aria-label')) label = this.getAttribute('aria-label')!;
-        this.confirmDialog.setAttribute('aria-label', label);
-        this.confirmDialog.title = this.getAttribute('dialog-title')!;
-        let cancel = 'Cancel';
-        if (this.hasAttribute('dialog-cancel')) cancel = this.getAttribute('dialog-cancel')!;
-        this.confirmDialog.setAttribute('cancel', cancel);
-        let confirm = 'Confirm';
-        if (this.hasAttribute('dialog-confirm')) {
-            confirm = this.getAttribute('dialog-confirm')!;
+    private getEditButton(): ButtonElement {
+        const button = document.createElement('vaadin-button') as ButtonElement;
+        button.ariaLabel = 'Rename';
+        button.theme = 'icon';
+        button.innerHTML = '<iron-icon icon="vaadin:pencil"></iron-icon>';
+        button.addEventListener('click', () => this.renameDialog.render());
+        this.renameDialog.addEventListener('confirm', () => this.handleConfirmedEdit());
+        return button;
+    }
+
+    private async handleConfirmedEdit(): Promise<void> {
+        if (this.field.value === this.item) {
+            this.renameDialog.close();
+            return;
         }
-        this.confirmDialog.setAttribute('confirm', confirm);
-        this.confirmDialog.textContent = this.getAttribute('dialog-body');
+        const html = await this.getInvalidMessage(this.field.value);
+        if (html) {
+            this.field.value = this.item;
+            this.errorDialog.renderHTML(html);
+        } else {
+            this.dispatchRename(this.item, this.field.value);
+            this.item = this.field.value;
+            this.renameDialog.close();
+        }
+    }
+
+    private setUpField(): void {
+        this.field.label = 'Rename';
+        this.field.value = this.item;
+    }
+
+    private setUpRenameDialog(): void {
+        this.renameDialog.setAttribute('aria-label', `Rename ${this.item}`);
+        this.renameDialog.setAttribute('confirm', 'Rename');
+        this.renameDialog.setAttribute('no-confirm-close', 'no-confirm-close');
+        this.renameDialog.appendChild(this.field);
+    }
+
+    private setUpDeleteDialog(): void {
+        this.deleteDialog.setAttribute('aria-label', 'Edit item');
+        this.deleteDialog.setAttribute('cancel', 'No');
+        this.deleteDialog.setAttribute('confirm', 'Delete');
+        this.deleteDialog.textContent = `Delete ${this.item}?`;
     }
 }
 

@@ -11,7 +11,7 @@ import * as categories from '../storage/categories';
 import WaveDetailsElement from '../web_components/reusable/wave_details';
 import DismissDialogElement from '../web_components/reusable/dismiss_dialog';
 import TrackDataElement from '../web_components/reusable/track_data';
-import {getWaveData, IsochronicTrack, PureTrack, SolfeggioTrack, WaveData} from '../storage/beats';
+import {getBrainwave, IsochronicTrack, PureTrack, SolfeggioTrack, WaveData} from '../storage/beats';
 import 'regenerator-runtime/runtime';
 
 /** @returns The 'Tracks' tab's content */
@@ -43,7 +43,7 @@ function getTabs(content: HTMLDivElement): TabElement[] {
         const tab = getTab(wave, image);
         tab.addEventListener('click', () => {
             content.innerHTML = '';
-            const data = getWaveData(wave);
+            const data = getBrainwave(wave);
             content.appendChild(getDetails(data));
             content.appendChild(getTrackTypes(data));
         });
