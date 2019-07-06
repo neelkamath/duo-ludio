@@ -1,0 +1,30 @@
+/** Importing this file creates the necessary side effects to allow using any web component used in this project */
+
+import './components/category_adder';
+import './components/add_item';
+import './components/audio_control';
+import './components/item_editor';
+import './components/playable_track';
+import './components/progress_indicator';
+import './components/confirm_dialog';
+import './components/dialog_button';
+import './components/dismiss_dialog';
+import './components/tab_icon';
+import './components/titled_item';
+import './components/track_data';
+import './components/validated_adder';
+import './components/wave_details';
+import '@vaadin/vaadin-checkbox/theme/material/vaadin-checkbox';
+import '@vaadin/vaadin-text-field/theme/material/vaadin-text-field';
+import '@vaadin/vaadin-accordion/theme/material/vaadin-accordion';
+import '@vaadin/vaadin-accordion/theme/material/vaadin-accordion-panel';
+import '@vaadin/vaadin-button/theme/material/vaadin-button';
+import '@vaadin/vaadin-details/theme/material/vaadin-details';
+import '@vaadin/vaadin-dialog/theme/material/vaadin-dialog';
+import '@vaadin/vaadin-icons/vaadin-icons';
+import '@vaadin/vaadin-item/theme/material/vaadin-item';
+import '@vaadin/vaadin-tabs/theme/material/vaadin-tabs';
+import '@vaadin/vaadin-tabs/theme/material/vaadin-tab';
+import '@vaadin/vaadin-ordered-layout/theme/material/vaadin-vertical-layout';
+import '@vaadin/vaadin-progress-bar/theme/material/vaadin-progress-bar';
+import '@vaadin/vaadin-notification/theme/material/vaadin-notification';

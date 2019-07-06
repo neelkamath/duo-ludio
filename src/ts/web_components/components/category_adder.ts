@@ -1,6 +1,6 @@
 import getInvalidMessenger from '../../tabs/message';
 import * as categories from '../../storage/categories';
-import * as validatedAdder from '../reusable/validated_adder';
+import * as validatedAdder from './validated_adder';
 
 /** An `add` event */
 export class AddEvent extends Event {
@@ -21,12 +21,16 @@ export class AddEvent extends Event {
  * ```
  */
 export class CategoryAdderElement extends HTMLElement {
+    private connectedOnce = false;
+
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
     }
 
     connectedCallback() {
+        if (this.connectedOnce) return;
+        this.connectedOnce = true;
         const adder = document.createElement('validated-adder') as validatedAdder.ValidatedAdderElement;
         adder.setAttribute('aria-label', 'Invalid category name');
         adder.getInvalidMessage = getInvalidMessenger();
@@ -35,14 +39,13 @@ export class CategoryAdderElement extends HTMLElement {
             await categories.create(data);
             this.dispatchAdd(data);
         });
-        this.shadowRoot!.appendChild(adder);
+        this.shadowRoot!.append(adder);
     }
 
     /**
      * Dispatches an [[AddEvent]]
      *
      * Fired after a category has been added to persistent storage
-     *
      * @event
      */
     private dispatchAdd(category: string): void {

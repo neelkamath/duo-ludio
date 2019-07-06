@@ -1,18 +1,17 @@
-// @ts-ignore
+// @ts-ignore: Missing module declaration
 import {CheckboxElement} from '@vaadin/vaadin-checkbox/src/vaadin-checkbox';
-// @ts-ignore
+// @ts-ignore: Missing module declaration
 import {VerticalLayoutElement} from '@vaadin/vaadin-ordered-layout/src/vaadin-vertical-layout';
-// @ts-ignore
+// @ts-ignore: Missing module declaration
 import {TabElement} from '@vaadin/vaadin-tabs/src/vaadin-tab';
-// @ts-ignore
+// @ts-ignore: Missing module declaration
 import {AccordionPanelElement} from '@vaadin/vaadin-accordion/src/vaadin-accordion-panel';
-import {AddEvent, CategoryAdderElement} from '../web_components/custom/category_adder';
-import * as categories from '../storage/categories';
-import WaveDetailsElement from '../web_components/reusable/wave_details';
-import DismissDialogElement from '../web_components/reusable/dismiss_dialog';
-import TrackDataElement from '../web_components/reusable/track_data';
-import {getBrainwave, IsochronicTrack, PureTrack, SolfeggioTrack, WaveData} from '../storage/beats';
-import 'regenerator-runtime/runtime';
+import {AddEvent, CategoryAdderElement} from '../../web_components/components/category_adder';
+import * as categories from '../../storage/categories';
+import WaveDetailsElement from '../../web_components/components/wave_details';
+import DismissDialogElement from '../../web_components/components/dismiss_dialog';
+import TrackDataElement from '../../web_components/components/track_data';
+import {getBrainwave, IsochronicTrack, PureTrack, SolfeggioTrack, WaveData} from '../../storage/beats';
 
 /** @returns The 'Tracks' tab's content */
 export default function (): HTMLSpanElement {
@@ -21,9 +20,8 @@ export default function (): HTMLSpanElement {
     const tabs = getTabs(content);
     tabs[0].click();
     const vaadinTabs = document.createElement('vaadin-tabs');
-    for (const tab of tabs) vaadinTabs.appendChild(tab);
-    span.appendChild(vaadinTabs);
-    span.appendChild(content);
+    for (const tab of tabs) vaadinTabs.append(tab);
+    span.append(vaadinTabs, content);
     return span;
 }
 
@@ -44,8 +42,7 @@ function getTabs(content: HTMLDivElement): TabElement[] {
         tab.addEventListener('click', () => {
             content.innerHTML = '';
             const data = getBrainwave(wave);
-            content.appendChild(getDetails(data));
-            content.appendChild(getTrackTypes(data));
+            content.append(getDetails(data), getTrackTypes(data));
         });
         tabs.push(tab);
         return tabs;
@@ -62,10 +59,7 @@ function getTab(wave: string, image: string): TabElement {
     const icon = document.createElement('tab-icon');
     icon.setAttribute('alt', title);
     icon.setAttribute('src', image);
-    tab.appendChild(icon);
-    const span = document.createElement('span');
-    span.textContent = title;
-    tab.appendChild(span);
+    tab.append(icon, document.createTextNode(title));
     return tab;
 }
 
@@ -78,26 +72,26 @@ function getDetails(data: WaveData): WaveDetailsElement {
     const benefits = data.benefits.reduce((benefits, benefit) => {
         const li = document.createElement('li');
         li.innerHTML = benefit;
-        benefits.appendChild(li);
+        benefits.append(li);
         return benefits;
     }, document.createElement('ul'));
-    details.appendChild(benefits);
+    details.append(benefits);
     return details;
 }
 
-const enum TrackType {pure = 'pure', isochronic = 'isochronic', solfeggio = 'solfeggio'}
+enum TrackType {pure = 'pure', isochronic = 'isochronic', solfeggio = 'solfeggio'}
 
 /** @param data The data from which the brainwave's tracks are made into a UI element */
 function getTrackTypes(data: WaveData): HTMLSpanElement {
     const span = document.createElement('span');
     const dialog = document.createElement('dismiss-dialog') as DismissDialogElement;
     dialog.setAttribute('aria-label', 'Add track');
-    span.appendChild(dialog);
+    span.append(dialog);
     const accordion = document.createElement('vaadin-accordion');
-    accordion.appendChild(getTracks(data.pure, TrackType.pure, dialog));
-    if (data.isochronic) accordion.appendChild(getTracks(data.isochronic, TrackType.isochronic, dialog));
-    if (data.solfeggio) accordion.appendChild(getTracks(data.solfeggio, TrackType.solfeggio, dialog));
-    span.appendChild(accordion);
+    accordion.append(getTracks(data.pure, TrackType.pure, dialog));
+    if (data.isochronic) accordion.append(getTracks(data.isochronic, TrackType.isochronic, dialog));
+    if (data.solfeggio) accordion.append(getTracks(data.solfeggio, TrackType.solfeggio, dialog));
+    span.append(accordion);
     return span;
 }
 
@@ -108,17 +102,14 @@ function getTracks(
     dialog: DismissDialogElement
 ): AccordionPanelElement {
     const panel = document.createElement('vaadin-accordion-panel');
-    const div = document.createElement('div');
-    div.slot = 'summary';
     const h1 = document.createElement('h1');
+    h1.slot = 'summary';
     h1.textContent = type[0].toUpperCase() + type.slice(1);
-    div.appendChild(h1);
-    panel.appendChild(div);
     const tracks = (data as []).reduce((tracks, track) => {
-        tracks.appendChild(getTrack(track, type, dialog));
+        tracks.append(getTrack(track, type, dialog));
         return tracks;
     }, document.createElement('span'));
-    panel.appendChild(tracks);
+    panel.append(h1, tracks);
     return panel;
 }
 
@@ -138,7 +129,7 @@ function getTrack(
         data.setAttribute('binaural-hz', track.binauralBeatFrequency.toString());
         data.setAttribute('solfeggio-hz', track.solfeggioFrequency.toString());
     }
-    if (track.effects) data.appendChild(getEffects(track));
+    if (track.effects) data.append(getEffects(track));
     data.addEventListener('add', () => new CategoryAdder(track.name, dialog));
     return data;
 }
@@ -147,7 +138,7 @@ function getEffects(track: PureTrack | IsochronicTrack | SolfeggioTrack): HTMLUL
     return track.effects!.reduce((effects, effect) => {
         const li = document.createElement('li');
         li.innerHTML = effect;
-        effects.appendChild(li);
+        effects.append(li);
         return effects;
     }, document.createElement('ul'));
 }
@@ -168,12 +159,13 @@ class CategoryAdder {
         const span = document.createElement('span');
         const div = document.createElement('div');
         div.innerHTML = '<strong>Add to category</strong>';
-        span.appendChild(div);
         const layout = await this.getLayout();
-        span.appendChild(this.getAdder(layout));
-        span.appendChild(document.createElement('br'));
-        span.appendChild(document.createElement('br'));
-        span.appendChild(layout);
+        span.append(
+            div, this.getAdder(layout),
+            document.createElement('br'),
+            document.createElement('br'),
+            layout
+        );
         return span;
     }
 
@@ -181,7 +173,7 @@ class CategoryAdder {
     private async getLayout(): Promise<VerticalLayoutElement> {
         const layout = document.createElement('vaadin-vertical-layout') as VerticalLayoutElement;
         layout.theme = 'spacing-xs';
-        for (const name of await categories.getNames()) layout.appendChild(await this.getCategory(name));
+        for (const name of await categories.getNames()) layout.append(await this.getCategory(name));
         return layout;
     }
 
@@ -189,7 +181,7 @@ class CategoryAdder {
     private getAdder(layout: VerticalLayoutElement): CategoryAdderElement {
         const adder = document.createElement('category-adder') as CategoryAdderElement;
         adder.addEventListener('add', async (event) => {
-            layout.appendChild(await this.getCategory((event as AddEvent).data));
+            layout.append(await this.getCategory((event as AddEvent).data));
         });
         return adder;
     }

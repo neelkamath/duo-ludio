@@ -1,17 +1,16 @@
-import getInvalidMessenger from './message';
-import * as categories from '../storage/categories';
-import {ItemEditorElement, RenameEvent} from '../web_components/reusable/item_editor';
-import {AddEvent} from '../web_components/custom/category_adder';
+import getInvalidMessenger from '../message';
+import * as categories from '../../storage/categories';
+import {ItemEditorElement, RenameEvent} from '../../web_components/components/item_editor';
+import {AddEvent} from '../../web_components/components/category_adder';
 
 /** @returns The contents of the "Edit" tab */
 export default async function (): Promise<HTMLSpanElement> {
     const span = document.createElement('span');
     const editors = document.createElement('div');
-    for (const category of await categories.getNames()) editors.appendChild(getEditor(category));
+    for (const category of await categories.getNames()) editors.append(getEditor(category));
     const adder = document.createElement('category-adder');
-    adder.addEventListener('add', (event) => editors.appendChild(getEditor((event as AddEvent).data)));
-    span.appendChild(adder);
-    span.appendChild(editors);
+    adder.addEventListener('add', (event) => editors.append(getEditor((event as AddEvent).data)));
+    span.append(adder, editors);
     return span;
 }
 

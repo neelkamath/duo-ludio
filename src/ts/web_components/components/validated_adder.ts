@@ -1,6 +1,6 @@
 import DismissDialogElement from './dismiss_dialog';
 import * as itemAdder from './add_item';
-import {invalidityMessenger} from '../invalid_message';
+import {InvalidityMessenger} from '../invalid_message';
 
 /** An `add` event */
 export class AddEvent extends Event {
@@ -22,33 +22,32 @@ export class AddEvent extends Event {
  *     adder.addEventListener('add', ({data}) => console.log(data);
  * </script>
  * ```
- *
  * @attribute `aria-label` (optional) If the item name being added is invalid, a dialog having this ARIA label will
  * display explaining why (e.g., `Invalid category name`)
  */
 export class ValidatedAdderElement extends HTMLElement {
-    getInvalidMessage!: invalidityMessenger;
-    private readonly dialog: DismissDialogElement;
+    getInvalidMessage!: InvalidityMessenger;
+    private connectedOnce = false;
+    private readonly dialog = document.createElement('dismiss-dialog') as DismissDialogElement;
 
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
-        this.dialog = document.createElement('dismiss-dialog') as DismissDialogElement;
     }
 
     connectedCallback() {
+        if (this.connectedOnce) return;
+        this.connectedOnce = true;
         if (this.hasAttribute('aria-label')) {
             this.dialog.setAttribute('aria-label', this.getAttribute('aria-label')!);
         }
-        this.shadowRoot!.appendChild(this.dialog);
-        this.shadowRoot!.appendChild(this.getItem());
+        this.shadowRoot!.append(this.dialog, this.getItem());
     }
 
     /**
      * Dispatches an [[AddEvent]]
      *
      * Fired when a valid item name has been added
-     *
      * @param data Name to be added
      * @event
      */

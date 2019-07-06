@@ -10,17 +10,21 @@
  * ```
  */
 export default class DialogButtonElement extends HTMLElement {
+    private connectedOnce = false;
+
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
     }
 
     connectedCallback() {
+        if (this.connectedOnce) return;
+        this.connectedOnce = true;
         const button = document.createElement('vaadin-button');
-        button.innerHTML = this.innerHTML;
+        button.append(...this.childNodes);
         button.style.cssFloat = 'right';
         button.style.margin = '1em 0';
-        this.shadowRoot!.appendChild(button);
+        this.shadowRoot!.append(button);
     }
 }
 
