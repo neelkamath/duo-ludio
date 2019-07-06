@@ -43,8 +43,9 @@ export async function* getCategories(player: AudioPlayer): AsyncIterableIterator
         h1.textContent = category;
         const span = document.createElement('span');
         if (await categories.hasTracks(category)) {
-            (await categories.getCategory(category))
-                .forEach(async (track) => span.append(await PlayableGetter.getTrack(track, player)));
+            for (const track of await categories.getCategory(category)) {
+                span.append(await PlayableGetter.getTrack(category, track, player));
+            }
         } else {
             span.textContent = 'No tracks';
         }
@@ -55,24 +56,26 @@ export async function* getCategories(player: AudioPlayer): AsyncIterableIterator
 
 /** Singleton for getting [[PlayableTrackElement]]s */
 class PlayableGetter {
-    /** The keys are track names (e.g., `'Alpha_8_Hz.mp3'`). */
-    private static memoizedPlayableTracks: Map<string, PlayableTrackElement> = new Map();
+    /** Keys are category names, and the keys of values are track names (e.g., `'Alpha_8_Hz.mp3'`) */
+    private static memoizedElements: Map<string, Map<string, PlayableTrackElement>> = new Map();
 
     /**
+     * @param category Category containing `track`
      * @param track The track (e.g., `'Alpha_8_Hz.mp3'`) to create into a UI element
      * @param player The single audio player which controls playback of all tracks
      */
-    static async getTrack(track: string, player: AudioPlayer): Promise<PlayableTrackElement> {
-        if (!PlayableGetter.memoizedPlayableTracks.has(track)) {
+    static async getTrack(category: string, track: string, player: AudioPlayer): Promise<PlayableTrackElement> {
+        if (!PlayableGetter.memoizedElements.has(category)) PlayableGetter.memoizedElements.set(category, new Map());
+        if (!PlayableGetter.memoizedElements.get(category)!.has(track)) {
             const playable = document.createElement('playable-track') as PlayableTrackElement;
             playable.player = player;
             const name = track.slice(0, track.lastIndexOf('.')).replace(/_/g, ' ');
             playable.setAttribute('name', name);
             if (beats.trackHasEffects(track)) playable.append(getEffects(track));
             await beats.isDownloaded(track) ? await placeAudio(playable, track) : downloadTrack(playable, track);
-            PlayableGetter.memoizedPlayableTracks.set(track, playable);
+            PlayableGetter.memoizedElements.get(category)!.set(track, playable);
         }
-        return PlayableGetter.memoizedPlayableTracks.get(track)!;
+        return PlayableGetter.memoizedElements.get(category)!.get(track)!;
     }
 }
 

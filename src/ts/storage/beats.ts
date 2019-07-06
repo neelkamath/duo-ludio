@@ -49,9 +49,13 @@ export interface SolfeggioTrack extends Track {
     readonly solfeggioFrequency: number;
 }
 
+export function getAllBrainwaves(): BinauralBeats {
+    return binauralBeats;
+}
+
 /** Wave is `'alpha'`, `'beta'`, `'delta'`, `'gamma'`, or `'theta'` */
 export function getBrainwave(wave: string): WaveData {
-    return (binauralBeats as BinauralBeats)[wave];
+    return getAllBrainwaves()[wave];
 }
 
 export function getTrackEffects(name: string): string[] | undefined {
@@ -69,7 +73,7 @@ export function trackHasEffects(track: string): boolean {
 }
 
 /**
- * @throws `Error` May be thrown for any reason; most probably because the network disconnected in between
+ * @throws An `Error` May be thrown for any reason; most probably because the network disconnected in between
  * @returns After `track` (e.g., `'Alpha_8_Hz.mp3'`) is downloaded to `localForage`
  */
 export async function downloadTrack(track: string): Promise<void> {
@@ -78,8 +82,16 @@ export async function downloadTrack(track: string): Promise<void> {
 }
 
 /** Saves `data` to the `localForage` item `track` (e.g., `'Alpha_8_Hz.mp3'`) */
-async function saveTrack(track: string, data: ArrayBuffer): Promise<void> {
+export async function saveTrack(track: string, data: ArrayBuffer): Promise<void> {
     await localForage.setItem(track, data);
+}
+
+/**
+ * It's safe to call this function with a track which hasn't been downloaded.
+ * @param track Track (e.g., `'Alpha_8_Hz.mp3'`) to remove from storage
+ */
+export async function deleteTrack(track: string): Promise<void> {
+    await localForage.removeItem(track);
 }
 
 /**
@@ -106,4 +118,22 @@ export class TrackGetter {
         }
         return TrackGetter.memoizedTracks.get(track)!;
     }
+}
+
+/** @returns Each track's name (e.g., `'Alpha_8_Hz.mp3'`), regardless of whether it's been downloaded */
+export function getAllTrackNames(): string[] {
+    const tracks = [];
+    for (const brainwave of Object.values(getAllBrainwaves())) {
+        for (const track of brainwave.pure) tracks.push(track.name);
+        if (brainwave.isochronic) for (const track of brainwave.isochronic) tracks.push(track.name);
+        if (brainwave.solfeggio) for (const track of brainwave.solfeggio) tracks.push(track.name);
+    }
+    return tracks;
+}
+
+/** Deletes all downloaded tracks except `tracks` */
+export async function pruneExcept(tracks: string[]): Promise<void> {
+    getAllTrackNames().filter((track) => !tracks.includes(track)).forEach(async (track) => {
+        await deleteTrack(track);
+    });
 }
