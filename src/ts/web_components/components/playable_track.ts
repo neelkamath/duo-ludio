@@ -103,7 +103,7 @@ export default class PlayableTrackElement extends HTMLElement {
         notification.position = 'bottom-stretch';
         notification.duration = 3000;
         notification.renderer = (root: HTMLElement) => {
-            root.append(document.createTextNode('Please wait for the current track to buffer'));
+            root.append(document.createTextNode('Please wait for the current track to stop buffering'));
         };
         notification.open();
         this.shadowRoot!.append(notification);

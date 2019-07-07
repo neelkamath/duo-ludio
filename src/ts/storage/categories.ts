@@ -7,8 +7,8 @@
 import * as beats from './beats';
 import localForage from 'localforage';
 
-/** This is the `localForage` item "categories". The keys are category names, and the values are the tracks in it. */
-export type Categories = Map<string, string[]>;
+/** This is the item "categories" in persistent storage. The keys are category names, and the values are its tracks. */
+export type Categories = Map<string, Set<string>>;
 
 /** Initializes storage if necessary */
 export async function initialize(): Promise<void> {
@@ -20,18 +20,18 @@ export async function getCategories(): Promise<Categories> {
 }
 
 export async function hasTracks(category: string): Promise<boolean> {
-    return (await getCategory(category)).length > 0;
+    return (await getCategory(category)).size > 0;
 }
 
 export async function create(category: string): Promise<void> {
     const categories = await getCategories();
-    categories.set(category, []);
+    categories.set(category, new Set());
     await setCategories(categories);
 }
 
 /** @returns Whether `category` has `track` */
 export async function hasTrack(category: string, track: string): Promise<boolean> {
-    return (await getCategory(category)).includes(track);
+    return (await getCategory(category)).has(track);
 }
 
 /**
@@ -42,7 +42,7 @@ export async function hasTrack(category: string, track: string): Promise<boolean
 export async function addTrack(category: string, track: string): Promise<void> {
     if (await hasTrack(category, track)) return;
     const categories = await getCategories();
-    categories.get(category)!.push(track);
+    categories.get(category)!.add(track);
     await setCategories(categories);
 }
 
@@ -55,23 +55,23 @@ export async function removeTrack(category: string, track: string): Promise<void
     if (!await hasTrack(category, track)) return;
     const categories = await getCategories();
     const tracks = categories.get(category)!;
-    tracks.splice(tracks.indexOf(track), 1);
+    tracks.delete(track);
     await setCategories(categories);
 }
 
 /** @param category Category's tracks to return */
-export async function getCategory(category: string): Promise<string[]> {
+export async function getCategory(category: string): Promise<Set<string>> {
     return (await getCategories()).get(category)!;
 }
 
 /** @returns Names of every category */
-export async function getNames(): Promise<string[]> {
-    return [...(await getCategories()).keys()];
+export async function getNames(): Promise<Set<string>> {
+    return new Set((await getCategories()).keys());
 }
 
 /** @param category Category to check for existence */
 export async function has(category: string): Promise<boolean> {
-    return (await getNames()).includes(category);
+    return (await getNames()).has(category);
 }
 
 export async function deleteCategory(category: string): Promise<void> {
@@ -88,20 +88,23 @@ export async function rename(currentName: string, newName: string): Promise<void
     await setCategories(categories);
 }
 
-/** @returns Every track from every category sans duplicates */
-export async function getAllTracks(): Promise<string[]> {
-    const tracks = new Array<string>().concat(...(await getCategories()).values());
-    return tracks.filter((track, index) => tracks.indexOf(track) === index);
+/** @returns Every track from every category */
+export async function getAllTracks(): Promise<Set<string>> {
+    const strings = [...(await getCategories()).values()].reduce((allTracks, tracks) => {
+        allTracks.push(...tracks);
+        return allTracks;
+    }, new Array<string>());
+    return new Set(strings);
 }
 
 /**
  * This will download every track in `categories`, and delete every other downloaded track. This function will return
  * before all the tracks have finished downloading.
- * @param categories The categories which will overwrite all existing categories
+ * @param categories Categories to overwrite all existing categories
  */
 export async function setCategories(categories: Categories): Promise<void> {
     await localForage.setItem('categories', categories);
     const tracks = await getAllTracks();
-    beats.downloadTracks(tracks);
-    await beats.pruneExcept(tracks);
+    beats.TrackManager.downloadAll([...tracks]);
+    await beats.pruneExcept([...tracks]);
 }

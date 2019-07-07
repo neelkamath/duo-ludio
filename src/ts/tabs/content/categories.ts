@@ -72,7 +72,7 @@ class PlayableGetter {
             const name = track.slice(0, track.lastIndexOf('.')).replace(/_/g, ' ');
             playable.setAttribute('name', name);
             if (beats.trackHasEffects(track)) playable.append(getEffects(track));
-            placeAudio(playable, track);
+            await placeAudio(playable, track);
             PlayableGetter.memoizedElements.get(category)!.set(track, playable);
         }
         return PlayableGetter.memoizedElements.get(category)!.get(track)!;
@@ -108,7 +108,7 @@ async function displayControl(playable: PlayableTrackElement, track: string): Pr
  * @return Track's effects, assuming they're present
  */
 function getEffects(track: string): HTMLUListElement {
-    return beats.getTrackEffects(track)!.reduce((effects, effect) => {
+    return [...beats.getTrackEffects(track)!].reduce((effects, effect) => {
         const li = document.createElement('li');
         li.textContent = effect;
         effects.append(li);

@@ -25,19 +25,23 @@ export interface BinauralBeats {
 export interface WaveData {
     readonly minFrequency: number;
     readonly maxFrequency: number;
-    readonly pure: PureTrack[];
-    readonly isochronic?: IsochronicTrack[];
-    readonly solfeggio?: SolfeggioTrack[];
+    readonly pure: ReadonlySet<PureTrack>;
+    readonly isochronic?: ReadonlySet<IsochronicTrack>;
+    readonly solfeggio?: ReadonlySet<SolfeggioTrack>;
     readonly explanation: string;
-    readonly benefits: string[];
+    readonly benefits: ReadonlySet<string>;
 }
 
-interface Track {
-    readonly effects?: string[];
+/** Metadata for a binaural beat (use [[PureTrack]], [[IsochronicTrack]], or [[SolfeggioTrack]] for all properties) */
+export interface Track {
+    readonly effects?: ReadonlySet<string>;
     readonly name: string;
 }
 
-/** Metadata on a binaural beat containing only a single frequency */
+/**
+ * Metadata for a binaural beat containing only a single frequency (use [[PureTrack]], [[IsochronicTrack]], or
+ * [[SolfeggioTrack]] for all properties)
+ */
 export interface SingleFrequencyTrack extends Track {
     readonly frequency: number;
 }
@@ -57,7 +61,7 @@ export interface SolfeggioTrack extends Track {
 }
 
 export function getAllBrainwaves(): BinauralBeats {
-    return binauralBeats;
+    return binauralBeats as any as BinauralBeats;
 }
 
 /** Wave is `'alpha'`, `'beta'`, `'delta'`, `'gamma'`, or `'theta'` */
@@ -69,7 +73,7 @@ export function getBrainwave(wave: string): WaveData {
  * Use [[trackHasEffects]] to check if this will return `undefined`.
  * @param name Track's name; if it doesn't exist this function will throw an `Error`
  */
-export function getTrackEffects(name: string): string[] | undefined {
+export function getTrackEffects(name: string): ReadonlySet<string> | undefined {
     for (const wave of ['alpha', 'beta', 'delta', 'gamma', 'theta']) {
         const data = getBrainwave(wave);
         for (const track of data.pure) if (track.name === name) return track.effects;
@@ -91,28 +95,63 @@ export async function isDownloaded(track: string): Promise<boolean> {
     return (await localForage.keys()).includes(track);
 }
 
-/**
- * This function will download the track even if it has been previously downloaded. It will handle re-downloading the
- * track when the network goes offline/online. This function returns before finishing the download. You may want to use
- * [[downloadTracks]] instead.
- */
-export async function downloadTrack(track: string): Promise<void> {
-    try {
-        const response = await fetch(trackUrls[track.slice(0, track.lastIndexOf('.'))]);
-        await saveTrack(track, await response.arrayBuffer());
-    } catch {
-        addEventListener('online', () => downloadTrack(track), {once: true});
-    }
-}
+/** Manages downloading and deleting tracks to and from persistent storage */
+export class TrackManager {
+    /**
+     * The keys are the tracks, and the values are functions callable to cancel the download. Tracks which are
+     * queued to download (i.e., tracks which cannot currently be downloaded due to the lack of a network connection),
+     * will also be present.
+     */
+    private static readonly downloading: Map<string, () => void> = new Map();
 
-/** @param tracks The tracks to download in parallel (previously downloaded tracks will not be downloaded) */
-export async function downloadTracks(tracks: string[]): Promise<void> {
-    for (const track of tracks) if (!await isDownloaded(track)) downloadTrack(track);
+    /**
+     * This function will download the track even if it has been previously downloaded. Unless manually aborted, it will
+     * reattempt to download the track any number of times necessary. [[downloadAll]] is an alternative. This function
+     * returns before finishing the download.
+     */
+    static async download(track: string): Promise<void> {
+        try {
+            const name = track.slice(0, track.lastIndexOf('.'));
+            const controller = new AbortController();
+            TrackManager.downloading.set(track, () => controller.abort());
+            const response = await fetch(trackUrls[name], {signal: controller.signal});
+            await saveTrack(track, await response.arrayBuffer());
+            TrackManager.downloading.delete(track);
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                TrackManager.downloading.delete(track);
+            } else {
+                const listener = () => TrackManager.download(track);
+                addEventListener('online', listener, {once: true});
+                TrackManager.downloading.set(track, () => removeEventListener('online', listener));
+            }
+        }
+    }
+
+    /** @param tracks Tracks to download in parallel (downloading/downloaded tracks will be skipped) */
+    static async downloadAll(tracks: string[]): Promise<void> {
+        for (const track of tracks) {
+            if (!await isDownloaded(track) && !TrackManager.downloading.has(track)) TrackManager.download(track);
+        }
+    }
+
+    /**
+     * @param track If this track has been downloaded, it will be deleted from storage. If it is currently being
+     * downloaded, the download will be cancelled. If it hasn't been downloaded, this function will do nothing.
+     */
+    static async deleteTrack(track: string): Promise<void> {
+        if (TrackManager.downloading.has(track)) {
+            TrackManager.downloading.get(track)!();
+        } else {
+            await localForage.removeItem(track);
+        }
+    }
 }
 
 /** @returns After `track` has finished downloading */
 export async function awaitDownload(track: string): Promise<void> {
-    while (!await isDownloaded(track)) ;
+    while (!await isDownloaded(track)) {
+    }
 }
 
 /**
@@ -122,14 +161,6 @@ export async function awaitDownload(track: string): Promise<void> {
  */
 export async function saveTrack(track: string, data: ArrayBuffer): Promise<void> {
     await localForage.setItem(track, data);
-}
-
-/**
- * It's safe to call this function with a track which hasn't been downloaded.
- * @param track Track to remove from storage
- */
-export async function deleteTrack(track: string): Promise<void> {
-    await localForage.removeItem(track);
 }
 
 /** Singleton for getting tracks */
@@ -164,6 +195,6 @@ export function getAllTracks(): string[] {
 /** Deletes all downloaded tracks except `tracks` */
 export async function pruneExcept(tracks: string[]): Promise<void> {
     getAllTracks().filter((track) => !tracks.includes(track)).forEach(async (track) => {
-        await deleteTrack(track);
+        await TrackManager.deleteTrack(track);
     });
 }

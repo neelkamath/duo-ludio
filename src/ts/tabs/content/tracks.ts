@@ -69,7 +69,7 @@ function getDetails(data: beats.WaveData): WaveDetailsElement {
     details.setAttribute('min', data.minFrequency.toString());
     details.setAttribute('max', data.maxFrequency.toString());
     details.setAttribute('explanation', data.explanation);
-    const benefits = data.benefits.reduce((benefits, benefit) => {
+    const benefits = [...data.benefits].reduce((benefits, benefit) => {
         const li = document.createElement('li');
         li.innerHTML = benefit;
         benefits.append(li);
@@ -97,7 +97,7 @@ function getTrackTypes(data: beats.WaveData): HTMLSpanElement {
 
 /** `dialog` is used to prompt the addition of a track to a category */
 function getTracks(
-    data: beats.PureTrack[] | beats.IsochronicTrack[] | beats.SolfeggioTrack[],
+    data: ReadonlySet<beats.PureTrack> | ReadonlySet<beats.IsochronicTrack> | ReadonlySet<beats.SolfeggioTrack>,
     type: TrackType,
     dialog: DismissDialogElement
 ): AccordionPanelElement {
@@ -105,7 +105,7 @@ function getTracks(
     const h1 = document.createElement('h1');
     h1.slot = 'summary';
     h1.textContent = type[0].toUpperCase() + type.slice(1);
-    const tracks = (data as []).reduce((tracks, track) => {
+    const tracks = [...data].reduce((tracks, track) => {
         tracks.append(getTrack(track, type, dialog));
         return tracks;
     }, document.createElement('span'));
@@ -135,7 +135,7 @@ function getTrack(
 }
 
 function getEffects(track: beats.PureTrack | beats.IsochronicTrack | beats.SolfeggioTrack): HTMLUListElement {
-    return track.effects!.reduce((effects, effect) => {
+    return [...track.effects!].reduce((effects, effect) => {
         const li = document.createElement('li');
         li.innerHTML = effect;
         effects.append(li);
