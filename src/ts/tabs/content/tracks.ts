@@ -11,7 +11,7 @@ import * as categories from '../../storage/categories';
 import WaveDetailsElement from '../../web_components/components/wave_details';
 import DismissDialogElement from '../../web_components/components/dismiss_dialog';
 import TrackDataElement from '../../web_components/components/track_data';
-import {getBrainwave, IsochronicTrack, PureTrack, SolfeggioTrack, WaveData} from '../../storage/beats';
+import * as beats from '../../storage/beats';
 
 /** @returns The 'Tracks' tab's content */
 export default function (): HTMLSpanElement {
@@ -41,7 +41,7 @@ function getTabs(content: HTMLDivElement): TabElement[] {
         const tab = getTab(wave, image);
         tab.addEventListener('click', () => {
             content.innerHTML = '';
-            const data = getBrainwave(wave);
+            const data = beats.getBrainwave(wave);
             content.append(getDetails(data), getTrackTypes(data));
         });
         tabs.push(tab);
@@ -64,7 +64,7 @@ function getTab(wave: string, image: string): TabElement {
 }
 
 /** @param data The data from which a UI element is created */
-function getDetails(data: WaveData): WaveDetailsElement {
+function getDetails(data: beats.WaveData): WaveDetailsElement {
     const details = document.createElement('wave-details') as WaveDetailsElement;
     details.setAttribute('min', data.minFrequency.toString());
     details.setAttribute('max', data.maxFrequency.toString());
@@ -82,7 +82,7 @@ function getDetails(data: WaveData): WaveDetailsElement {
 enum TrackType {pure = 'pure', isochronic = 'isochronic', solfeggio = 'solfeggio'}
 
 /** @param data The data from which the brainwave's tracks are made into a UI element */
-function getTrackTypes(data: WaveData): HTMLSpanElement {
+function getTrackTypes(data: beats.WaveData): HTMLSpanElement {
     const span = document.createElement('span');
     const dialog = document.createElement('dismiss-dialog') as DismissDialogElement;
     dialog.setAttribute('aria-label', 'Add track');
@@ -97,7 +97,7 @@ function getTrackTypes(data: WaveData): HTMLSpanElement {
 
 /** `dialog` is used to prompt the addition of a track to a category */
 function getTracks(
-    data: PureTrack[] | IsochronicTrack[] | SolfeggioTrack[],
+    data: beats.PureTrack[] | beats.IsochronicTrack[] | beats.SolfeggioTrack[],
     type: TrackType,
     dialog: DismissDialogElement
 ): AccordionPanelElement {
@@ -115,17 +115,17 @@ function getTracks(
 
 /** `dialog` is used to prompt the addition of `track` to a category */
 function getTrack(
-    track: PureTrack | IsochronicTrack | SolfeggioTrack,
+    track: beats.PureTrack | beats.IsochronicTrack | beats.SolfeggioTrack,
     type: TrackType,
     dialog: DismissDialogElement
 ): TrackDataElement {
     const data = document.createElement('track-data') as TrackDataElement;
     data.setAttribute('track-type', type);
     if ([TrackType.pure, TrackType.isochronic].includes(type)) {
-        track = track as PureTrack | IsochronicTrack;
+        track = track as beats.PureTrack | beats.IsochronicTrack;
         data.setAttribute('hz', track.frequency.toString());
     } else if (type === TrackType.solfeggio) {
-        track = track as SolfeggioTrack;
+        track = track as beats.SolfeggioTrack;
         data.setAttribute('binaural-hz', track.binauralBeatFrequency.toString());
         data.setAttribute('solfeggio-hz', track.solfeggioFrequency.toString());
     }
@@ -134,7 +134,7 @@ function getTrack(
     return data;
 }
 
-function getEffects(track: PureTrack | IsochronicTrack | SolfeggioTrack): HTMLUListElement {
+function getEffects(track: beats.PureTrack | beats.IsochronicTrack | beats.SolfeggioTrack): HTMLUListElement {
     return track.effects!.reduce((effects, effect) => {
         const li = document.createElement('li');
         li.innerHTML = effect;
@@ -145,7 +145,10 @@ function getEffects(track: PureTrack | IsochronicTrack | SolfeggioTrack): HTMLUL
 
 /** A dialog to add a track to a category */
 class CategoryAdder {
-    /** `dialog` is used to render the category adder */
+    /**
+     * @param track Track to prompt for addition to a category (e.g., `'Alpha_8_Hz.mp3'`)
+     * @param dialog is used to render the category adder
+     */
     constructor(private readonly track: string, dialog: DismissDialogElement) {
         this.render(dialog);
     }

@@ -1,4 +1,8 @@
-/** This is the abstraction layer for the `localForage` item "categories". Use [[initialize]] when the app starts. */
+/**
+ * This is the abstraction layer for the `localForage` item "categories". Use [[initialize]] when the app starts. The
+ * use of any function will automatically download and delete relevant tracks to `localForage`. Therefore, any track
+ * saved to a category can be considered to have been downloaded, or in the process of being downloaded.
+ */
 
 import * as beats from './beats';
 import localForage from 'localforage';
@@ -8,7 +12,6 @@ export type Categories = Map<string, string[]>;
 
 /** Initializes storage if necessary */
 export async function initialize(): Promise<void> {
-    localForage.config({name: 'Duo Ludio', description: "Stores the user's binaural beats collection"});
     if (await getCategories() === null) await setCategories(new Map());
 }
 
@@ -26,26 +29,30 @@ export async function create(category: string): Promise<void> {
     await setCategories(categories);
 }
 
-/** @returns Whether `category` has `track` saved */
+/** @returns Whether `category` has `track` */
 export async function hasTrack(category: string, track: string): Promise<boolean> {
     return (await getCategory(category)).includes(track);
 }
 
 /**
+ * This function won't do anything if `category` already contains `track`.
  * @param category Category to add `track` to
  * @param track Track to add
  */
 export async function addTrack(category: string, track: string): Promise<void> {
+    if (await hasTrack(category, track)) return;
     const categories = await getCategories();
     categories.get(category)!.push(track);
     await setCategories(categories);
 }
 
 /**
+ * It is safe to call this function with a `track` which isn't in `category`.
  * @param category Category from which `track` will be removed
  * @param track Track's name
  */
 export async function removeTrack(category: string, track: string): Promise<void> {
+    if (!await hasTrack(category, track)) return;
     const categories = await getCategories();
     const tracks = categories.get(category)!;
     tracks.splice(tracks.indexOf(track), 1);
@@ -88,10 +95,13 @@ export async function getAllTracks(): Promise<string[]> {
 }
 
 /**
- * This will delete all downloaded tracks which aren't present in `categories`.
+ * This will download every track in `categories`, and delete every other downloaded track. This function will return
+ * before all the tracks have finished downloading.
  * @param categories The categories which will overwrite all existing categories
  */
 export async function setCategories(categories: Categories): Promise<void> {
     await localForage.setItem('categories', categories);
-    await beats.pruneExcept(await getAllTracks());
+    const tracks = await getAllTracks();
+    beats.downloadTracks(tracks);
+    await beats.pruneExcept(tracks);
 }

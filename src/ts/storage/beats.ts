@@ -1,5 +1,11 @@
+/**
+ * This is the abstraction layer for dealing with binaural beats. A "track" is a track's filename
+ * (e.g., `'Alpha_8_Hz.mp3'`). When a track is downloaded, it is saved to `localForage` with the key as the track
+ * (e.g., `'Alpha_8_Hz.mp3'`), and the value as its `ArrayBuffer`.
+ */
+
 // @ts-ignore: Missing module declaration
-import trackUrls from '../../../binaural_beats/tracks/*.mp3';
+import trackUrls from '../../binaural_beats/tracks/*.mp3';
 import binauralBeats from '../../binaural_beats/data.json';
 import localForage from 'localforage';
 
@@ -31,7 +37,8 @@ interface Track {
     readonly name: string;
 }
 
-interface SingleFrequencyTrack extends Track {
+/** Metadata on a binaural beat containing only a single frequency */
+export interface SingleFrequencyTrack extends Track {
     readonly frequency: number;
 }
 
@@ -58,6 +65,10 @@ export function getBrainwave(wave: string): WaveData {
     return getAllBrainwaves()[wave];
 }
 
+/**
+ * Use [[trackHasEffects]] to check if this will return `undefined`.
+ * @param name Track's name; if it doesn't exist this function will throw an `Error`
+ */
 export function getTrackEffects(name: string): string[] | undefined {
     for (const wave of ['alpha', 'beta', 'delta', 'gamma', 'theta']) {
         const data = getBrainwave(wave);
@@ -73,44 +84,63 @@ export function trackHasEffects(track: string): boolean {
 }
 
 /**
- * @throws An `Error` May be thrown for any reason; most probably because the network disconnected in between
- * @returns After `track` (e.g., `'Alpha_8_Hz.mp3'`) is downloaded to `localForage`
+ * The average browser will execute this for around 750 ms.
+ * @returns Whether `track` has been downloaded
  */
-export async function downloadTrack(track: string): Promise<void> {
-    const response = await fetch(trackUrls[track.slice(0, track.lastIndexOf('.'))]);
-    await saveTrack(track, await response.arrayBuffer());
+export async function isDownloaded(track: string): Promise<boolean> {
+    return (await localForage.keys()).includes(track);
 }
 
-/** Saves `data` to the `localForage` item `track` (e.g., `'Alpha_8_Hz.mp3'`) */
+/**
+ * This function will download the track even if it has been previously downloaded. It will handle re-downloading the
+ * track when the network goes offline/online. This function returns before finishing the download. You may want to use
+ * [[downloadTracks]] instead.
+ */
+export async function downloadTrack(track: string): Promise<void> {
+    try {
+        const response = await fetch(trackUrls[track.slice(0, track.lastIndexOf('.'))]);
+        await saveTrack(track, await response.arrayBuffer());
+    } catch {
+        addEventListener('online', () => downloadTrack(track), {once: true});
+    }
+}
+
+/** @param tracks The tracks to download in parallel (previously downloaded tracks will not be downloaded) */
+export async function downloadTracks(tracks: string[]): Promise<void> {
+    for (const track of tracks) if (!await isDownloaded(track)) downloadTrack(track);
+}
+
+/** @returns After `track` has finished downloading */
+export async function awaitDownload(track: string): Promise<void> {
+    while (!await isDownloaded(track)) ;
+}
+
+/**
+ * Saves a track to `localForage`
+ * @param track `localForage` key
+ * @param data `localForage` value
+ */
 export async function saveTrack(track: string, data: ArrayBuffer): Promise<void> {
     await localForage.setItem(track, data);
 }
 
 /**
  * It's safe to call this function with a track which hasn't been downloaded.
- * @param track Track (e.g., `'Alpha_8_Hz.mp3'`) to remove from storage
+ * @param track Track to remove from storage
  */
 export async function deleteTrack(track: string): Promise<void> {
     await localForage.removeItem(track);
 }
 
-/**
- * The average browser will execute this for around 750 ms.
- * @returns Whether `track` (e.g., `'Alpha_8_Hz.mp3'`) has been downloaded
- */
-export async function isDownloaded(track: string): Promise<boolean> {
-    return (await localForage.keys()).includes(track);
-}
-
 /** Singleton for getting tracks */
 export class TrackGetter {
-    /** The keys are track names (e.g., `'Alpha_8_Hz.mp3'`), and the values are their audio buffers. */
+    /** Keys are tracks; values are audios */
     private static readonly memoizedTracks: Map<string, ArrayBuffer> = new Map();
 
     /**
      * The average browser will execute this for around 1 second to retrieve a one-hour long MP3. However, the
      * retrievals are cached, and hence subsequent calls for the same `track` will be around 200 ms faster.
-     * @returns Audio for `track` (e.g., `'Alpha_8_Hz.mp3'`)
+     * @returns `track`'s audio
      */
     static async getTrack(track: string): Promise<ArrayBuffer> {
         if (!TrackGetter.memoizedTracks.has(track)) {
@@ -120,8 +150,8 @@ export class TrackGetter {
     }
 }
 
-/** @returns Each track's name (e.g., `'Alpha_8_Hz.mp3'`), regardless of whether it's been downloaded */
-export function getAllTrackNames(): string[] {
+/** @returns Each track's name, regardless of whether it's been downloaded */
+export function getAllTracks(): string[] {
     const tracks = [];
     for (const brainwave of Object.values(getAllBrainwaves())) {
         for (const track of brainwave.pure) tracks.push(track.name);
@@ -133,7 +163,7 @@ export function getAllTrackNames(): string[] {
 
 /** Deletes all downloaded tracks except `tracks` */
 export async function pruneExcept(tracks: string[]): Promise<void> {
-    getAllTrackNames().filter((track) => !tracks.includes(track)).forEach(async (track) => {
+    getAllTracks().filter((track) => !tracks.includes(track)).forEach(async (track) => {
         await deleteTrack(track);
     });
 }

@@ -72,26 +72,35 @@ class PlayableGetter {
             const name = track.slice(0, track.lastIndexOf('.')).replace(/_/g, ' ');
             playable.setAttribute('name', name);
             if (beats.trackHasEffects(track)) playable.append(getEffects(track));
-            await beats.isDownloaded(track) ? await placeAudio(playable, track) : downloadTrack(playable, track);
+            placeAudio(playable, track);
             PlayableGetter.memoizedElements.get(category)!.set(track, playable);
         }
         return PlayableGetter.memoizedElements.get(category)!.get(track)!;
     }
 }
 
-/** Sets [[PlayableTrackElement.source]] to the assumed to be already downloaded `track` (e.g., `'Alpha_8_Hz.mp3'`) */
+/** Deals with `playable`'s audio player, including when it the network goes off/on  */
 async function placeAudio(playable: PlayableTrackElement, track: string): Promise<void> {
-    playable.source = await beats.TrackGetter.getTrack(track);
-    playable.displayControl();
+    if (await beats.isDownloaded(track)) {
+        displayControl(playable, track);
+    } else {
+        navigator.onLine ? playable.displayDownloader() : playable.displayOffline();
+        const displayDownloader = () => playable.displayDownloader();
+        addEventListener('online', displayDownloader);
+        const displayOffline = () => playable.displayOffline();
+        addEventListener('offline', displayOffline);
+        beats.awaitDownload(track).then(() => {
+            removeEventListener('online', displayDownloader);
+            removeEventListener('offline', displayOffline);
+            displayControl(playable, track);
+        });
+    }
 }
 
-/** Sets `playable`'s [[PlayableTrackElement.source]] after downloading `track` (e.g., `'Alpha_8_Hz.mp3'`) */
-function downloadTrack(playable: PlayableTrackElement, track: string): void {
-    playable.displayDownloader();
-    beats.downloadTrack(track).then(async () => await placeAudio(playable, track)).catch(() => {
-        playable.displayOffline();
-        addEventListener('online', () => downloadTrack(playable, track), {once: true});
-    });
+/** Sets [[PlayableTrackElement.source]] to the assumed to be already downloaded `track` (e.g., `'Alpha_8_Hz.mp3'`) */
+async function displayControl(playable: PlayableTrackElement, track: string): Promise<void> {
+    playable.source = await beats.TrackGetter.getTrack(track);
+    playable.displayControl();
 }
 
 /**

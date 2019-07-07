@@ -36,7 +36,11 @@ export default class {
         // @ts-ignore: Cannot use `new` when lacking call signature
         const context = new (window.AudioContext || window.webkitAudioContext)();
         this.source = context.createBufferSource();
-        this.source!.buffer = await await this.decodeAudioData(context, buffer);
+        try {
+            this.source!.buffer = await this.decodeAudioData(context, buffer);
+        } catch ({message}) {
+            console.error(message);
+        }
         this.source!.loop = true;
         this.source!.connect(context.destination);
         this.source!.start(0);

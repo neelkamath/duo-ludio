@@ -6,6 +6,9 @@ import getEditTab from './tabs/content/edit';
 import getTracksTab from './tabs/content/tracks';
 import * as categories from './storage/categories';
 import './web_components/components';
+import localForage from 'localforage';
+
+localForage.config({name: 'Duo Ludio', description: "Stores the user's binaural beats collection"});
 
 /** Function to put content in an `HTMLSpanElement` */
 interface ContentPutter {
