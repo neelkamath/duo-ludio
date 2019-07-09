@@ -63,7 +63,7 @@ Continuous delivery has been setup using [Netlify](https://www.netlify.com), whi
 
 `localForage` is used to persist data. To access metadata on binaural beats (which are stored in `src/binaural_beats/data.json`), use the abstraction layer `src/ts/storage/beats.ts`. The abstraction layer for the `categories` item is `src/ts/storage/categories.ts`.
 
-Each track is downloaded a `localForage` item of the same name. For example, `Alpha_8_Hz.mp3`'s `AudioBuffer` is saved to the `Alpha_8_Hz.mp3` item.
+Each track is downloaded a `localForage` item of the same name. For example, `Alpha_8_Hz.mp3`'s `Blob` is saved to the `Alpha_8_Hz.mp3` item.
 
 The `categories` item contains the user's binaural beats collection. Each key is the name of a category. Each value is an `array` of `string`s denoting the names of tracks. Track names correspond to tracks in the directory `src/binaural_beats/tracks/`. An example is shown below.
 ```json

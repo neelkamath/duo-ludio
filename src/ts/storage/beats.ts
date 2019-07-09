@@ -1,13 +1,14 @@
 /**
  * This is the abstraction layer for dealing with binaural beats. A "track" is a track's filename
  * (e.g., `'Alpha_8_Hz.mp3'`). When a track is downloaded, it is saved to `localForage` with the key as the track
- * (e.g., `'Alpha_8_Hz.mp3'`), and the value as its `ArrayBuffer`.
+ * (e.g., `'Alpha_8_Hz.mp3'`), and the value as its `Blob`.
  */
 
 // @ts-ignore: Missing module declaration
 import trackUrls from '../../binaural_beats/tracks/*.mp3';
 import binauralBeats from '../../binaural_beats/data.json';
 import localForage from 'localforage';
+import 'regenerator-runtime/runtime';
 
 /** Metadata on binaural beats for each brainwave */
 export interface BinauralBeats {
@@ -96,7 +97,7 @@ export async function isDownloaded(track: string): Promise<boolean> {
 }
 
 /** Manages downloading and deleting tracks to and from persistent storage */
-export class TrackManager {
+export abstract class TrackManager {
     /**
      * The keys are the tracks, and the values are functions callable to cancel the download. Tracks which are
      * queued to download (i.e., tracks which cannot currently be downloaded due to the lack of a network connection),
@@ -115,7 +116,7 @@ export class TrackManager {
             const controller = new AbortController();
             TrackManager.downloading.set(track, () => controller.abort());
             const response = await fetch(trackUrls[name], {signal: controller.signal});
-            await saveTrack(track, await response.arrayBuffer());
+            await saveTrack(track, await response.blob());
             TrackManager.downloading.delete(track);
         } catch (error) {
             if (error.name === 'AbortError') {
@@ -159,26 +160,13 @@ export async function awaitDownload(track: string): Promise<void> {
  * @param track `localForage` key
  * @param data `localForage` value
  */
-export async function saveTrack(track: string, data: ArrayBuffer): Promise<void> {
+export async function saveTrack(track: string, data: Blob): Promise<void> {
     await localForage.setItem(track, data);
 }
 
-/** Singleton for getting tracks */
-export class TrackGetter {
-    /** Keys are tracks; values are audios */
-    private static readonly memoizedTracks: Map<string, ArrayBuffer> = new Map();
-
-    /**
-     * The average browser will execute this for around 1 second to retrieve a one-hour long MP3. However, the
-     * retrievals are cached, and hence subsequent calls for the same `track` will be around 200 ms faster.
-     * @returns `track`'s audio
-     */
-    static async getTrack(track: string): Promise<ArrayBuffer> {
-        if (!TrackGetter.memoizedTracks.has(track)) {
-            TrackGetter.memoizedTracks.set(track, await localForage.getItem(track));
-        }
-        return TrackGetter.memoizedTracks.get(track)!;
-    }
+/** @returns `track`'s audio */
+export async function getTrack(track: string): Promise<Blob> {
+    return await localForage.getItem(track);
 }
 
 /** @returns Each track's name, regardless of whether it's been downloaded */

@@ -104,7 +104,7 @@ export async function getAllTracks(): Promise<Set<string>> {
  */
 export async function setCategories(categories: Categories): Promise<void> {
     await localForage.setItem('categories', categories);
-    const tracks = await getAllTracks();
-    beats.TrackManager.downloadAll([...tracks]);
-    await beats.pruneExcept([...tracks]);
+    const tracks = [...await getAllTracks()];
+    beats.TrackManager.downloadAll(tracks);
+    await beats.pruneExcept(tracks);
 }

@@ -3,6 +3,7 @@
 import './components/category_adder';
 import './components/add_item';
 import './components/audio_control';
+import './components/audio_player';
 import './components/item_editor';
 import './components/playable_track';
 import './components/progress_indicator';
@@ -27,4 +28,3 @@ import '@vaadin/vaadin-tabs/theme/material/vaadin-tabs';
 import '@vaadin/vaadin-tabs/theme/material/vaadin-tab';
 import '@vaadin/vaadin-ordered-layout/theme/material/vaadin-vertical-layout';
 import '@vaadin/vaadin-progress-bar/theme/material/vaadin-progress-bar';
-import '@vaadin/vaadin-notification/theme/material/vaadin-notification';
