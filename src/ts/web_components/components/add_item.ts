@@ -1,6 +1,6 @@
-// @ts-ignore
+// @ts-ignore: Missing module declaration
 import {ButtonElement} from '@vaadin/vaadin-button/src/vaadin-button';
-// @ts-ignore
+// @ts-ignore: Missing module declaration
 import {TextFieldElement} from '@vaadin/vaadin-text-field/src/vaadin-text-field';
 
 /** An `add` event */
@@ -24,23 +24,28 @@ export class AddEvent extends Event {
  ```
  */
 export class ItemAdderElement extends HTMLElement {
+    private connectedOnce = false;
+
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
     }
 
     connectedCallback() {
+        if (this.connectedOnce) return;
+        this.connectedOnce = true;
         const field = document.createElement('vaadin-text-field') as TextFieldElement;
         field.label = 'Item name';
         field.placeholder = 'Mindless HW';
-        this.shadowRoot!.appendChild(field);
-        this.shadowRoot!.appendChild(this.getButton(field));
+        this.shadowRoot!.append(field, this.getButton(field));
     }
 
     /**
      * Dispatches an [[AddEvent]]
-     * @event Fired when an item is to be added
+     *
+     * Fired when an item is to be added
      * @param data Field's value
+     * @event
      */
     private dispatchAdd(data: string): void {
         this.dispatchEvent(new AddEvent(data));

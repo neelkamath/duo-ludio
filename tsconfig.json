@@ -12,6 +12,10 @@
     "module": "es6",
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
-    "moduleResolution": "node"
-  }
+    "moduleResolution": "node",
+    "allowJs": true
+  },
+  "include": [
+    "./src/**/*"
+  ]
 }

@@ -3,26 +3,28 @@
  * this element's HTML tags.
  *
  * Example: `<titled-item title="Effects"><ul><li>Focusing</li></ul></titled-item>`
- *
  * @attribute `title` (required) Title (e.g., `Effects`)
  */
 export default class TitledItemElement extends HTMLElement {
+    private connectedOnce = false;
+
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
     }
 
     connectedCallback() {
+        if (this.connectedOnce) return;
+        this.connectedOnce = true;
         const item = document.createElement('vaadin-item');
         const titleDiv = document.createElement('div');
         const strong = document.createElement('strong');
         strong.textContent = this.getAttribute('title');
-        titleDiv.appendChild(strong);
-        item.appendChild(titleDiv);
+        titleDiv.append(strong);
         const bodyDiv = document.createElement('div');
-        bodyDiv.innerHTML = this.innerHTML;
-        item.appendChild(bodyDiv);
-        this.shadowRoot!.appendChild(item);
+        bodyDiv.append(...this.childNodes);
+        item.append(titleDiv, bodyDiv);
+        this.shadowRoot!.append(item);
     }
 }
 

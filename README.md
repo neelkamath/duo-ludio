@@ -4,7 +4,7 @@
 
 Check it out [here](https://duo-ludio.netlify.com/)!
 
-For a person who needs help concentrating, Duo Ludio is a web app that provides categorized binaural beats. Unlike other binaural beats players, this product is accessible anywhere since it has the option to be installed offline on any device.
+For a person who needs help concentrating, Duo Ludio is a web app that provides categorized binaural beats. Unlike other binaural beats players, this product is accessible anywhere since it has the option of being installed offline on any device.
 
 The name Duo Ludio is Latin for "Two Player" ("Two" for binaural beats).
 
@@ -43,9 +43,13 @@ The `dist/` directory will contain the built website.
 
 The Material Design spec is not to be followed strictly, but as a guideline.
 
+### TypeScript
+
+Parcel leaks an implementation detail for certain uses of `async`/`await` (see [this issue](https://github.com/parcel-bundler/parcel/issues/1762#issuecomment-504389468)). As a workaround, the statement `import 'regenerator-runtime/runtime';` is included in certain files.
+
 ### Binaural Beats
 
-The binaural beats used are from the [v2.0.2](https://github.com/neelkamath/binaural-beats-dataset/releases/tag/v2.0.2) release of the Binaural Beats Dataset. The `src` directory from the dataset is saved as `src/binaural_beats` in this repo.
+The binaural beats used are from the [v3.0.0](https://github.com/neelkamath/binaural-beats-dataset/releases/tag/v3.0.0) release of the Binaural Beats Dataset. The `src` directory from the dataset is saved as `src/binaural_beats` in this repo.
 
 ### Continuous Deployment
 
@@ -57,9 +61,11 @@ Continuous delivery has been setup using [Netlify](https://www.netlify.com), whi
 
 ### Storage
 
-To access metadata on binaural beats (which are stored in `src/binaural_beats/data.json`), use the abstraction layer `src/ts/storage/beats.ts`.
+`localForage` is used to persist data. To access metadata on binaural beats (which are stored in `src/binaural_beats/data.json`), use the abstraction layer `src/ts/storage/beats.ts`. The abstraction layer for the `categories` item is `src/ts/storage/categories.ts`.
 
-`localStorage` is used to persist data. It contains a single item, `categories`, which contains the user's binaural beats collection. `src/ts/storage/categories.ts` is the abstraction layer for manipulating it. Each key is the name of a category. Each value is an `array` of `string`s denoting the names of tracks. Track names correspond to tracks in the directory `src/binaural_beats/tracks/`. An example is shown below.
+Each track is downloaded a `localForage` item of the same name. For example, `Alpha_8_Hz.mp3`'s `Blob` is saved to the `Alpha_8_Hz.mp3` item.
+
+The `categories` item contains the user's binaural beats collection. Each key is the name of a category. Each value is an `array` of `string`s denoting the names of tracks. Track names correspond to tracks in the directory `src/binaural_beats/tracks/`. An example is shown below.
 ```json
 {
   "Meditation": [
@@ -70,7 +76,7 @@ To access metadata on binaural beats (which are stored in `src/binaural_beats/da
 
 ### Web Components
 
-All web components are imported in `src/ts/index.ts`.
+All web components are imported in `src/ts/web_components/components.ts`.
 
 When using TypeDoc to document web components, use the custom `@attribute` field to document the element's attributes.
 

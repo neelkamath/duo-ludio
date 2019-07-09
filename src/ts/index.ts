@@ -1,53 +1,50 @@
-// @ts-ignore
-import {TabElement} from '@vaadin/vaadin-tabs/src/vaadin-tab.js';
-import getCategoriesTab from './tabs/categories';
-import getEditTab from './tabs/edit';
-import getTracksTab from './tabs/tracks';
+// @ts-ignore: Missing module declaration
+import {TabElement} from '@vaadin/vaadin-tabs/src/vaadin-tab';
+import getCategoriesTab from './tabs/content/categories';
+import getEditTab from './tabs/content/edit';
+import getTracksTab from './tabs/content/tracks';
 import * as categories from './storage/categories';
-import './web_components/vaadin';
-import './web_components/reusable/add_item';
-import './web_components/reusable/item_editor';
-import './web_components/reusable/confirm_dialog';
-import './web_components/reusable/dialog_button';
-import './web_components/reusable/dismiss_dialog';
-import './web_components/reusable/tab_icon';
-import './web_components/reusable/titled_item';
-import './web_components/reusable/track_data';
-import './web_components/reusable/validated_adder';
-import './web_components/reusable/wave_details';
-import './web_components/custom/category_adder';
+import './web_components/components';
+import localForage from 'localforage';
+import AudioPlayerElement from './web_components/components/audio_player';
 
-categories.initialize();
+localForage.config({name: 'Duo Ludio', description: "Stores the user's binaural beats collection"});
 
 /**
- * If `span`'s first `ChildNode` is `null`, `child` will be appended to `span`. Otherwise, it's first child will be
- * replaced with `child`.
- */
-function putChild(child: HTMLElement, span: HTMLSpanElement): void {
-    span.firstChild === null ? span.appendChild(child) : span.replaceChild(child, span.firstChild);
-}
-
-/**
- * @param span Where the tab's contents go
  * @param name Tab's name
- * @param getter The function to return the tab's content
+ * @param content Parent element of the tab's contents
+ * @param putContent Called whenever this tab is opened with an empty element in which the new tab's contents should go
  */
-function getTab(span: HTMLSpanElement, name: 'Categories' | 'Tracks' | 'Edit', getter: () => HTMLElement): TabElement {
+function getTab(
+    name: 'Categories' | 'Tracks' | 'Edit',
+    content: HTMLSpanElement,
+    putContent: (span: HTMLSpanElement) => void | Promise<void>
+): TabElement {
     const tab = document.createElement('vaadin-tab');
     const icons = {'Categories': 'file-tree', 'Tracks': 'music', 'Edit': 'edit'};
     tab.innerHTML = `<iron-icon icon="vaadin:${icons[name]}"></iron-icon> ${name}`;
-    tab.addEventListener('click', () => putChild(getter(), span));
+    tab.addEventListener('click', () => {
+        while (content.hasChildNodes()) content.removeChild(content.firstChild!);
+        putContent(content);
+    });
     return tab;
 }
 
-addEventListener('load', () => {
-    const content = document.createElement('span');
+addEventListener('load', async () => {
+    await categories.initialize();
+    const player = document.createElement('audio-player') as AudioPlayerElement;
     const tabs = document.createElement('vaadin-tabs');
-    const tab = getTab(content, 'Categories', getCategoriesTab);
+    const content = document.createElement('span');
+    const tab = getTab('Categories', content, async (span) => {
+        span.append(await getCategoriesTab(player));
+    });
     tab.click();
-    tabs.appendChild(tab);
-    tabs.appendChild(getTab(content, 'Tracks', getTracksTab));
-    tabs.appendChild(getTab(content, 'Edit', getEditTab));
-    document.body.appendChild(tabs);
-    document.body.appendChild(content);
+    tabs.append(
+        tab,
+        getTab('Tracks', content, (span) => span.append(getTracksTab())),
+        getTab('Edit', content, async (span) => span.append(await getEditTab()))
+    );
+    const div = document.createElement('div');
+    div.append(player);
+    document.body.append(tabs, div, content);
 });

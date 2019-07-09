@@ -1,4 +1,4 @@
-// @ts-ignore
+// @ts-ignore: Missing module declaration
 import {ButtonElement} from '@vaadin/vaadin-button/src/vaadin-button';
 import TitledItemElement from './titled_item';
 
@@ -7,7 +7,6 @@ import TitledItemElement from './titled_item';
  * to save the track. If the track has effects to display, add the effects HTML between this element's HTML tags.
  *
  * Example: `<track-data track-type="pure" hz="8"><ul><li>Focusing</li></ul></track-data>`
- *
  * @attribute `track-type` (required) Either `pure`, `isochronic`, or `solfeggio` (e.g., `solfeggio`)
  * @attribute `hz` (required if the attribute `track-type` has the value `pure`) Track's frequency in Hz (e.g., `8`)
  * @attribute `binaural-hz` (required if the attribute `track-type` has the value `solfeggio`) The binaural beats'
@@ -16,6 +15,8 @@ import TitledItemElement from './titled_item';
  * frequency in Hz (e.g., `396`)
  */
 export default class TrackDataElement extends HTMLElement {
+    private connectedOnce = false;
+
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
@@ -25,21 +26,25 @@ export default class TrackDataElement extends HTMLElement {
     private static getDiv(child: HTMLElement): HTMLDivElement {
         const div = document.createElement('div');
         div.className = 'block';
-        div.appendChild(child);
+        div.append(child);
         return div;
     }
 
     connectedCallback() {
+        if (this.connectedOnce) return;
+        this.connectedOnce = true;
         const layout = document.createElement('vaadin-vertical-layout');
-        layout.appendChild(TrackDataElement.getDiv(this.getFrequency()));
-        if (this.children.length > 0) layout.appendChild(TrackDataElement.getDiv(this.getEffects()));
-        layout.appendChild(TrackDataElement.getDiv(this.getButton()));
-        this.shadowRoot!.appendChild(layout);
+        layout.append(TrackDataElement.getDiv(this.getFrequency()));
+        if (this.childNodes.length > 0) layout.append(TrackDataElement.getDiv(this.getEffects()));
+        layout.append(TrackDataElement.getDiv(this.getButton()));
+        this.shadowRoot!.append(layout);
     }
 
     /**
      * Dispatches the `add` `Event`
-     * @event Fired when the button is clicked
+     *
+     * Fired when the button is clicked
+     * @event
      */
     private dispatchAdd(): void {
         this.dispatchEvent(new Event('add'));
@@ -52,10 +57,11 @@ export default class TrackDataElement extends HTMLElement {
         return button;
     }
 
+    /** @returns Effects, assuming they're present */
     private getEffects(): TitledItemElement {
         const item = document.createElement('titled-item') as TitledItemElement;
         item.title = 'Effects';
-        item.innerHTML = this.innerHTML;
+        item.append(...this.childNodes);
         return item;
     }
 

@@ -16,13 +16,14 @@ import TitledItemElement from './titled_item';
  *     <ul><li>Peak performance</li></ul>
  * </wave-details>
  * ```
- *
  * @attribute `min` (required) Minimum frequency of wave in Hz (e.g., `8`)
  * @attribute `max` (required) Maximum frequency of wave in Hz (e.g., `12`)
  * @attribute `explanation` (required) Explanation of what the wave does (e.g.,
  * `This is the &quot;safest&quot; brainwave, and increasing it can feel awesome!`)
  */
 export default class WaveDetailsElement extends HTMLElement {
+    private connectedOnce = false;
+
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
@@ -36,13 +37,12 @@ export default class WaveDetailsElement extends HTMLElement {
     }
 
     connectedCallback() {
+        if (this.connectedOnce) return;
+        this.connectedOnce = true;
         const details = document.createElement('vaadin-details');
         details.style.margin = '1em 0';
-        details.appendChild(WaveDetailsElement.getSummary());
-        details.appendChild(this.getFrequency());
-        details.appendChild(this.getExplanation());
-        details.appendChild(this.getBenefits());
-        this.shadowRoot!.appendChild(details);
+        details.append(WaveDetailsElement.getSummary(), this.getFrequency(), this.getExplanation(), this.getBenefits());
+        this.shadowRoot!.append(details);
     }
 
     private getFrequency(): TitledItemElement {
@@ -62,7 +62,7 @@ export default class WaveDetailsElement extends HTMLElement {
     private getBenefits(): TitledItemElement {
         const item = document.createElement('titled-item') as TitledItemElement;
         item.title = 'Benefits';
-        item.innerHTML = this.innerHTML;
+        item.append(...this.childNodes);
         return item;
     }
 }
