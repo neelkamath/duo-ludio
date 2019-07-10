@@ -7,6 +7,15 @@
  */
 export default class TitledItemElement extends HTMLElement {
     private connectedOnce = false;
+    private readonly strong: HTMLElement = document.createElement('strong');
+
+    get title(): string {
+        return this.strong.textContent || this.getAttribute('title')!;
+    }
+
+    set title(value: string) {
+        this.strong.textContent = value;
+    }
 
     constructor() {
         super();
@@ -18,9 +27,8 @@ export default class TitledItemElement extends HTMLElement {
         this.connectedOnce = true;
         const item = document.createElement('vaadin-item');
         const titleDiv = document.createElement('div');
-        const strong = document.createElement('strong');
-        strong.textContent = this.getAttribute('title');
-        titleDiv.append(strong);
+        this.strong.textContent = this.title;
+        titleDiv.append(this.strong);
         const bodyDiv = document.createElement('div');
         bodyDiv.append(...this.childNodes);
         item.append(titleDiv, bodyDiv);

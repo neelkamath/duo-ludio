@@ -1,10 +1,11 @@
+// @ts-ignore: Missing module declaration
+import {ButtonElement} from '@vaadin/vaadin-button/src/vaadin-button';
 import ProgressIndicatorElement from './progress_indicator';
 import TitledItemElement from './titled_item';
-import AudioControlElement from './audio_control';
 
 /**
  * This web component's HTML name is `playable-track`. It contains a track's name, effects, and audio player. Place the
- * effects HTML in between this element's HTML tags. You must call [[displayDownloader]], [[displayControl]], or
+ * effects HTML in between this element's HTML tags. You must call [[displayDownloader]], [[displayAdder]], or
  * [[displayOffline]] at least once.
  *
  * Example:
@@ -12,7 +13,7 @@ import AudioControlElement from './audio_control';
  * <playable-track id="track" name="Alpha 8 Hz.mp3"><ul><li>Focusing</li></ul></playable-track>
  * <script>
  *     const track = document.querySelector('#track');
- *     track.displayControl();
+ *     track.displayAdder();
  *     track.addEventListener('play', () => console.log('Cue mixtape'));
  * </script>
  * ```
@@ -20,7 +21,7 @@ import AudioControlElement from './audio_control';
  */
 export default class PlayableTrackElement extends HTMLElement {
     private connectedOnce = false;
-    private readonly control = document.createElement('audio-control') as AudioControlElement;
+    private readonly adder: ButtonElement = document.createElement('vaadin-button');
     private readonly download = document.createElement('progress-indicator') as ProgressIndicatorElement;
     private readonly offline: Text = document.createTextNode(
         'The track cannot be downloaded since you are offline.'
@@ -29,13 +30,14 @@ export default class PlayableTrackElement extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
+        this.adder.textContent = 'Add to audio player';
         this.download.textContent = 'Downloading...';
     }
 
-    async connectedCallback() {
+    connectedCallback() {
         if (this.connectedOnce) return;
         this.connectedOnce = true;
-        this.control.addEventListener('click', () => this.dispatchPlay());
+        this.adder.addEventListener('click', () => this.dispatchPlay());
         if (this.childNodes.length > 0) this.shadowRoot!.prepend(this.getEffects());
         const h2 = document.createElement('h2');
         h2.textContent = this.getAttribute('name');
@@ -57,12 +59,9 @@ export default class PlayableTrackElement extends HTMLElement {
         this.replaceAudioContent(this.download);
     }
 
-    /**
-     * This displays the audio control. It will display a progress bar while the audio buffers (i.e., the duration
-     * between the user clicking the play button, and the track playing).
-     */
-    displayControl(): void {
-        this.replaceAudioContent(this.control);
+    /** Displays a button to add the track to the audio player */
+    displayAdder(): void {
+        this.replaceAudioContent(this.adder);
     }
 
     /** Displays that the track cannot be currently downloaded */
@@ -79,7 +78,7 @@ export default class PlayableTrackElement extends HTMLElement {
     }
 
     private replaceAudioContent(child: ChildNode): void {
-        if (this.hasChild(this.control)) this.shadowRoot!.removeChild(this.control);
+        if (this.hasChild(this.adder)) this.shadowRoot!.removeChild(this.adder);
         if (this.hasChild(this.download)) this.shadowRoot!.removeChild(this.download);
         if (this.hasChild(this.offline)) this.shadowRoot!.removeChild(this.offline);
         this.shadowRoot!.append(child);

@@ -2,7 +2,6 @@
 
 import './components/category_adder';
 import './components/add_item';
-import './components/audio_control';
 import './components/audio_player';
 import './components/item_editor';
 import './components/playable_track';

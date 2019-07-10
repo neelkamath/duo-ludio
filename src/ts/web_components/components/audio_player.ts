@@ -1,9 +1,7 @@
-// @ts-ignore: Missing module declaration
-import AudioControlElement from './audio_control';
+import TitledItemElement from './titled_item';
 
 /**
- * This web component's HTML name is `audio-player`. It plays a single audio in an infinite loop. This element will
- * display nothing until [[play]] is called.
+ * This web component's HTML name is `audio-player`. It plays a single audio in an infinite loop.
  *
  * Example:
  * ```
@@ -16,32 +14,35 @@ import AudioControlElement from './audio_control';
  * ```
  */
 export default class AudioPlayerElement extends HTMLElement {
-    // A single audio reference is required to prevent playing multiple tracks at the same time.
+    private connectedOnce = false;
+    private readonly item = document.createElement('titled-item') as TitledItemElement;
     private readonly audio: HTMLAudioElement = document.createElement('audio');
 
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
+        this.item.title = 'No tracks playing';
+        this.item.append(this.audio);
+        this.audio.setAttribute('controls', 'controls');
+        this.audio.loop = true;
+    }
+
+    connectedCallback() {
+        if (this.connectedOnce) return;
+        this.connectedOnce = true;
+        this.shadowRoot!.append(this.item);
     }
 
     /**
+     * This function sets up the audio element. The user must hit the play button themselves because Safari blocks it
+     * otherwise.
      * @param name Text to display
      * @param blob Audio to play
+     * @param type `blob`'s type
      */
-    play(name: string, blob: Blob): void {
-        while (this.shadowRoot!.firstChild) this.shadowRoot!.removeChild(this.shadowRoot!.firstChild!);
-        const control = this.getControl();
-        this.setUpAudio(control, blob);
-        const item = document.createElement('vaadin-item');
-        item.append(control, document.createTextNode(` ${name}`));
-        this.shadowRoot!.append(item);
-    }
-
-    private setUpAudio(control: AudioControlElement, blob: Blob): void {
-        this.audio.loop = true;
+    play(name: string, blob: Blob, type: string = 'audio/mpeg'): void {
+        this.item.title = name;
         this.audio.src = URL.createObjectURL(blob);
-        this.audio.addEventListener('play', () => control.displaysPause = true);
-        this.audio.addEventListener('pause', () => control.displaysPause = false);
 
         // Manipulate the audio so that it's at least five seconds long so it can be manipulated via native controls
         this.audio.addEventListener('loadedmetadata', () => {
@@ -51,19 +52,8 @@ export default class AudioPlayerElement extends HTMLElement {
                 parts.push(blob);
                 duration += duration;
             }
-            this.audio.src = URL.createObjectURL(new Blob(parts));
-            this.audio.play();
+            this.audio.src = URL.createObjectURL(new Blob(parts, {type}));
         }, {once: true});
-    }
-
-    private getControl(): AudioControlElement {
-        const control = document.createElement('audio-control') as AudioControlElement;
-        control.displaysPause = true;
-        control.addEventListener('click', () => {
-            control.displaysPause ? this.audio.pause() : this.audio.play();
-            control.displaysPause = !control.displaysPause;
-        });
-        return control;
     }
 }
 

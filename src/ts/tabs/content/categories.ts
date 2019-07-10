@@ -8,7 +8,10 @@ import AudioPlayerElement from '../../web_components/components/audio_player';
 /** The contents of the "Categories" tab */
 export default async function (player: AudioPlayerElement): Promise<HTMLSpanElement> {
     const span = document.createElement('span');
-    span.append(await getCategories(player), document.createElement('br'), getAbout());
+    const accordion = await getCategories(player);
+    span.append(accordion);
+    if (accordion.hasChildNodes()) span.append(document.createElement('br'));
+    span.append(getAbout());
     return span;
 }
 
@@ -71,7 +74,7 @@ export async function getTrack(track: string, player: AudioPlayerElement): Promi
 /** Deals with `playable`'s audio player, including when it the network goes off/on  */
 async function placeAudio(playable: PlayableTrackElement, track: string): Promise<void> {
     if (await beats.isDownloaded(track)) {
-        playable.displayControl();
+        playable.displayAdder();
     } else {
         navigator.onLine ? playable.displayDownloader() : playable.displayOffline();
         const displayDownloader = () => playable.displayDownloader();
@@ -81,7 +84,7 @@ async function placeAudio(playable: PlayableTrackElement, track: string): Promis
         beats.awaitDownload(track).then(() => {
             removeEventListener('online', displayDownloader);
             removeEventListener('offline', displayOffline);
-            playable.displayControl();
+            playable.displayAdder();
         });
     }
 }
