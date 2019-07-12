@@ -1,5 +1,14 @@
 // @ts-ignore: Missing module declaration
 import AudioControlElement from './audio_control';
+import {Howl} from 'howler';
+
+export interface AudioData {
+    audio: Blob,
+    /** File extension (e.g., `'aac'`, `'mp3'`) */
+    format: string,
+    /** Duration */
+    seconds: number
+}
 
 /**
  * This web component's HTML name is `audio-player`. It plays a single audio in an infinite loop. This element will
@@ -9,15 +18,15 @@ import AudioControlElement from './audio_control';
  * ```
  * <audio-player id="player"></audio-player>
  * <script>
- *     fetch('super_mario.mp3').then(async (response) => {
- *         document.querySelector('#player').play('Super Mario', await response.blob());
+ *     fetch('super_mario.aac').then(async (response) => {
+ *         const data = {audio: await response.blob(), format: 'aac', seconds: 5};
+ *         document.querySelector('#player').play('Super Mario', data);
  *     });
  * </script>
  * ```
  */
-export default class AudioPlayerElement extends HTMLElement {
-    // A single audio reference is required to prevent playing multiple tracks at the same time.
-    private readonly audio: HTMLAudioElement = document.createElement('audio');
+export class AudioPlayerElement extends HTMLElement {
+    private sound: Howl | null = null;
 
     constructor() {
         super();
@@ -26,42 +35,23 @@ export default class AudioPlayerElement extends HTMLElement {
 
     /**
      * @param name Text to display
-     * @param blob Audio to play
+     * @param data Audio to play
      */
-    play(name: string, blob: Blob): void {
+    play(name: string, data: AudioData): void {
         while (this.shadowRoot!.firstChild) this.shadowRoot!.removeChild(this.shadowRoot!.firstChild!);
-        const control = this.getControl();
-        this.setUpAudio(control, blob);
         const item = document.createElement('vaadin-item');
-        item.append(control, document.createTextNode(` ${name}`));
+        item.append(this.getControl(data), document.createTextNode(` ${name}`));
         this.shadowRoot!.append(item);
     }
 
-    private setUpAudio(control: AudioControlElement, blob: Blob): void {
-        this.audio.loop = true;
-        this.audio.src = URL.createObjectURL(blob);
-        this.audio.addEventListener('play', () => control.displaysPause = true);
-        this.audio.addEventListener('pause', () => control.displaysPause = false);
-
-        // Manipulate the audio so that it's at least five seconds long so it can be manipulated via native controls
-        this.audio.addEventListener('loadedmetadata', () => {
-            let duration = this.audio.duration;
-            const parts = [blob];
-            while (duration < 5) {
-                parts.push(blob);
-                duration += duration;
-            }
-            this.audio.src = URL.createObjectURL(new Blob(parts));
-            this.audio.play();
-        }, {once: true});
-    }
-
-    private getControl(): AudioControlElement {
+    private getControl(data: AudioData): AudioControlElement {
+        if (this.sound) this.sound.unload();
+        const src = URL.createObjectURL(data.audio);
+        this.sound = new Howl({src, format: data.format, sprite: {beat: [0, data.seconds * 1000, true]}});
         const control = document.createElement('audio-control') as AudioControlElement;
-        control.displaysPause = true;
         control.addEventListener('click', () => {
-            control.displaysPause ? this.audio.pause() : this.audio.play();
-            control.displaysPause = !control.displaysPause;
+            control.displaysStop ? this.sound!.stop() : this.sound!.play('beat');
+            control.displaysStop = !control.displaysStop;
         });
         return control;
     }

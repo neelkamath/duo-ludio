@@ -4,7 +4,7 @@ import {ButtonElement} from '@vaadin/vaadin-button/src/vaadin-button';
 import {IronIcon} from '@vaadin/vaadin-icons/vaadin-icons';
 
 /**
- * This web component's HTML name is `audio-control`. It is a play/pause button. Use [[displaysPause]] to change the
+ * This web component's HTML name is `audio-control`. It is a play/stop button. Use [[displaysStop]] to change the
  * button's state.
  *
  * Example:
@@ -12,7 +12,7 @@ import {IronIcon} from '@vaadin/vaadin-icons/vaadin-icons';
  * <audio-control id="control"></audio-control>
  * <script>
  *     const control = document.querySelector('#control');
- *     control.addEventListener('click', () => control.displaysPause = !control.displaysPause);
+ *     control.addEventListener('click', () => control.displaysStop = !control.displaysStop);
  * </script>
  * ```
  */
@@ -26,19 +26,19 @@ export default class AudioControlElement extends HTMLElement {
         super();
         this.attachShadow({mode: 'open'});
         this.ironIcon.slot = 'prefix';
-        this.displaysPause = false;
+        this.displaysStop = false;
     }
 
-    private _displaysPause!: boolean;
+    private _displaysStop!: boolean;
 
-    /** Whether the control shows a pause button instead of a play button */
-    get displaysPause(): boolean {
-        return this._displaysPause;
+    /** Whether the control shows a stop button instead of a play button */
+    get displaysStop(): boolean {
+        return this._displaysStop;
     }
 
-    set displaysPause(value: boolean) {
-        value ? this.play() : this.pause();
-        this._displaysPause = value;
+    set displaysStop(value: boolean) {
+        value ? this.play() : this.stop();
+        this._displaysStop = value;
     }
 
     connectedCallback() {
@@ -49,15 +49,15 @@ export default class AudioControlElement extends HTMLElement {
     }
 
     /** Makes this element a play button */
-    private pause(): void {
+    private stop(): void {
         this.ironIcon.icon = 'vaadin:play';
         this.text.textContent = 'Play';
     }
 
-    /** Makes this element a pause button */
+    /** Makes this element a stop button */
     private play(): void {
-        this.ironIcon.icon = 'vaadin:pause';
-        this.text.textContent = 'Pause';
+        this.ironIcon.icon = 'vaadin:stop';
+        this.text.textContent = 'Stop';
     }
 }
 

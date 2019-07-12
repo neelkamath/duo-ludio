@@ -6,7 +6,7 @@ import getTracksTab from './tabs/content/tracks';
 import * as categories from './storage/categories';
 import './web_components/components';
 import localForage from 'localforage';
-import AudioPlayerElement from './web_components/components/audio_player';
+import {AudioPlayerElement} from './web_components/components/audio_player';
 
 localForage.config({name: 'Duo Ludio', description: "Stores the user's binaural beats collection"});
 
