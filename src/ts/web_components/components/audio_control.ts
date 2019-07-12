@@ -20,7 +20,7 @@ export default class AudioControlElement extends HTMLElement {
     private connectedOnce = false;
     private readonly button: ButtonElement = document.createElement('vaadin-button');
     private readonly ironIcon: IronIcon = document.createElement('iron-icon');
-    private readonly text: Text = document.createTextNode('Play');
+    private readonly text = document.createTextNode('Play');
 
     constructor() {
         super();

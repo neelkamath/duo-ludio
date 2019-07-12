@@ -26,34 +26,46 @@ export interface AudioData {
  * ```
  */
 export class AudioPlayerElement extends HTMLElement {
+    private connectedOnce = false;
     private sound: Howl | null = null;
+    private text = document.createTextNode('No tracks playing');
 
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
     }
 
-    /**
-     * @param name Text to display
-     * @param data Audio to play
-     */
-    play(name: string, data: AudioData): void {
-        while (this.shadowRoot!.firstChild) this.shadowRoot!.removeChild(this.shadowRoot!.firstChild!);
+    connectedCallback() {
+        if (this.connectedOnce) return;
+        this.connectedOnce = true;
+        const control = document.createElement('audio-control') as AudioControlElement;
+        control.addEventListener('click', () => {
+            if (this.sound) {
+                control.displaysStop ? this.sound.stop() : this.sound.play('beat');
+                control.displaysStop = !control.displaysStop;
+            }
+        });
         const item = document.createElement('vaadin-item');
-        item.append(this.getControl(data), document.createTextNode(` ${name}`));
+        item.append(control, this.text);
         this.shadowRoot!.append(item);
     }
 
-    private getControl(data: AudioData): AudioControlElement {
+    /**
+     * @param name Text to display
+     * @param data Audio to play
+     * @param gapless Whether the first and last second of audio should be trimmed to allow for gapless playback
+     */
+    play(name: string, data: AudioData, gapless = true): void {
+        this.text.textContent = ` ${name}`;
         if (this.sound) this.sound.unload();
-        const src = URL.createObjectURL(data.audio);
-        this.sound = new Howl({src, format: data.format, sprite: {beat: [0, data.seconds * 1000, true]}});
-        const control = document.createElement('audio-control') as AudioControlElement;
-        control.addEventListener('click', () => {
-            control.displaysStop ? this.sound!.stop() : this.sound!.play('beat');
-            control.displaysStop = !control.displaysStop;
+        const duration = data.seconds * 1000;
+
+        // We have to use a sprite from howler.js because <HTMLAudioElement>s do not support gapless playback
+        this.sound = new Howl({
+            src: URL.createObjectURL(data.audio),
+            format: data.format,
+            sprite: {beat: [gapless ? 1000 : 0, gapless ? duration - 1000 : duration, true]}
         });
-        return control;
     }
 }
 

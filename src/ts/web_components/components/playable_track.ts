@@ -23,9 +23,7 @@ export default class PlayableTrackElement extends HTMLElement {
     private connectedOnce = false;
     private readonly adder: ButtonElement = document.createElement('vaadin-button');
     private readonly download = document.createElement('progress-indicator') as ProgressIndicatorElement;
-    private readonly offline: Text = document.createTextNode(
-        'The track cannot be downloaded since you are offline.'
-    );
+    private readonly offline = document.createTextNode('The track cannot be downloaded since you are offline.');
 
     constructor() {
         super();
