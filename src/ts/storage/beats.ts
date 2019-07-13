@@ -1,29 +1,29 @@
 /**
  * This is the abstraction layer for dealing with binaural beats. A "track" is a track's filename
- * (e.g., `'Alpha_8_Hz.mp3'`). When a track is downloaded, it is saved to `localForage` with the key as the track
- * (e.g., `'Alpha_8_Hz.mp3'`), and the value as its `Blob`.
+ * (e.g., `'Alpha_8_Hz.aac'`). When a track is downloaded, it is saved to `localForage` with the key as the track
+ * (e.g., `'Alpha_8_Hz.aac'`), and the value as its `Blob`.
  */
 
 // @ts-ignore: Missing module declaration
-import trackUrls from '../../binaural_beats/tracks/*.mp3';
+import trackUrls from '../../binaural_beats/tracks/*.aac';
 import binauralBeats from '../../binaural_beats/data.json';
 import localForage from 'localforage';
 import 'regenerator-runtime/runtime';
 
 /** Metadata on binaural beats for each brainwave */
 export interface BinauralBeats {
-    readonly alpha: WaveData;
-    readonly beta: WaveData;
-    readonly delta: WaveData;
-    readonly gamma: WaveData;
-    readonly theta: WaveData;
+    readonly alpha: Wave;
+    readonly beta: Wave;
+    readonly delta: Wave;
+    readonly gamma: Wave;
+    readonly theta: Wave;
 
     /** Dynamic way of accessing one of the five brainwaves */
-    readonly [wave: string]: WaveData;
+    readonly [wave: string]: Wave;
 }
 
 /** Metadata on a brainwave's binaural beats */
-export interface WaveData {
+export interface Wave {
     readonly minFrequency: number;
     readonly maxFrequency: number;
     readonly pure: ReadonlySet<PureTrack>;
@@ -37,6 +37,8 @@ export interface WaveData {
 export interface Track {
     readonly effects?: ReadonlySet<string>;
     readonly name: string;
+    /** Audio's duration in seconds */
+    readonly duration: number;
 }
 
 /**
@@ -66,7 +68,7 @@ export function getAllBrainwaves(): BinauralBeats {
 }
 
 /** Wave is `'alpha'`, `'beta'`, `'delta'`, `'gamma'`, or `'theta'` */
-export function getBrainwave(wave: string): WaveData {
+export function getBrainwave(wave: string): Wave {
     return getAllBrainwaves()[wave];
 }
 
@@ -164,25 +166,40 @@ export async function saveTrack(track: string, data: Blob): Promise<void> {
     await localForage.setItem(track, data);
 }
 
-/** @returns `track`'s audio */
-export async function getTrack(track: string): Promise<Blob> {
+export async function getAudio(track: string): Promise<Blob> {
     return await localForage.getItem(track);
 }
 
-/** @returns Each track's name, regardless of whether it's been downloaded */
-export function getAllTracks(): string[] {
+/** @returns Duration of `track`'s audio in seconds */
+export function getTrackDuration(track: string): number {
+    return getTrack(track).duration;
+}
+
+// @ts-ignore: Return type doesn't include <undefined>
+export function getTrack(name: string): PureTrack | IsochronicTrack | SolfeggioTrack {
+    for (const track of getTracks()) if (track.name === name) return track;
+}
+
+export function getTracks(): Array<PureTrack | IsochronicTrack | SolfeggioTrack> {
     const tracks = [];
     for (const brainwave of Object.values(getAllBrainwaves())) {
-        for (const track of brainwave.pure) tracks.push(track.name);
-        if (brainwave.isochronic) for (const track of brainwave.isochronic) tracks.push(track.name);
-        if (brainwave.solfeggio) for (const track of brainwave.solfeggio) tracks.push(track.name);
+        for (const track of brainwave.pure) tracks.push(track);
+        if (brainwave.isochronic) for (const track of brainwave.isochronic) tracks.push(track);
+        if (brainwave.solfeggio) for (const track of brainwave.solfeggio) tracks.push(track);
     }
     return tracks;
 }
 
+/** @returns Each track's name, regardless of whether it's been downloaded */
+export function getTrackNames(): string[] {
+    const names = [];
+    for (const track of getTracks()) names.push(track.name);
+    return names;
+}
+
 /** Deletes all downloaded tracks except `tracks` */
 export async function pruneExcept(tracks: string[]): Promise<void> {
-    getAllTracks().filter((track) => !tracks.includes(track)).forEach(async (track) => {
+    getTrackNames().filter((track) => !tracks.includes(track)).forEach(async (track) => {
         await TrackManager.deleteTrack(track);
     });
 }

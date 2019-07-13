@@ -41,7 +41,7 @@ The `dist/` directory will contain the built website.
 
 ## Documentation
 
-The Material Design spec is not to be followed strictly, but as a guideline.
+This app supports the latest version of the desktop and mobile versions of the Edge, Chrome, Safari, and Firefox browsers. The Material Design spec is not to be followed strictly, but as a guideline.
 
 ### TypeScript
 
@@ -49,7 +49,7 @@ Parcel leaks an implementation detail for certain uses of `async`/`await` (see [
 
 ### Binaural Beats
 
-The binaural beats used are from the [v3.0.0](https://github.com/neelkamath/binaural-beats-dataset/releases/tag/v3.0.0) release of the Binaural Beats Dataset. The `src` directory from the dataset is saved as `src/binaural_beats` in this repo.
+The binaural beats used are from the [v4.0.0](https://github.com/neelkamath/binaural-beats-dataset/releases/tag/v4.0.0) release of the Binaural Beats Dataset. The `src` directory from the dataset is saved as `src/binaural_beats` in this repo.
 
 ### Continuous Deployment
 

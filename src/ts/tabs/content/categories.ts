@@ -1,14 +1,20 @@
 // @ts-ignore: Missing module declaration
 import {AccordionElement} from '@vaadin/vaadin-accordion/src/vaadin-accordion';
-import PlayableTrackElement from '../../web_components/components/playable_track';
+import {PlayableTrackElement} from '../../web_components/components/playable_track';
 import * as categories from '../../storage/categories';
 import * as beats from '../../storage/beats';
-import AudioPlayerElement from '../../web_components/components/audio_player';
+import {AudioPlayerElement} from '../../web_components/components/audio_player';
 
-/** The contents of the "Categories" tab */
+/**
+ * The contents of the "Categories" tab
+ * @param player The single audio player to control playback of all tracks
+ */
 export default async function (player: AudioPlayerElement): Promise<HTMLSpanElement> {
     const span = document.createElement('span');
-    span.append(await getCategories(player), document.createElement('br'), getAbout());
+    const accordion = await getCategories(player);
+    span.append(accordion);
+    if (accordion.hasChildNodes()) span.append(document.createElement('br'));
+    span.append(getAbout());
     return span;
 }
 
@@ -34,7 +40,7 @@ function getAbout(): HTMLSpanElement {
     return details;
 }
 
-/** @param player The single audio player which controls playback of all tracks */
+/** @param player The single audio player to control playback of all tracks */
 async function getCategories(player: AudioPlayerElement): AccordionElement {
     const accordion = document.createElement('vaadin-accordion');
     for (const category of await categories.getNames()) {
@@ -55,16 +61,20 @@ async function getCategories(player: AudioPlayerElement): AccordionElement {
 }
 
 /**
- * @param track The track (e.g., `'Alpha_8_Hz.mp3'`) to create into a UI element
- * @param player The single audio player which controls playback of all tracks
+ * @param track The track (e.g., `'Alpha_8_Hz.aac'`) to create into a UI element
+ * @param player The single audio player to control playback of all tracks
  */
 export async function getTrack(track: string, player: AudioPlayerElement): Promise<PlayableTrackElement> {
     const playable = document.createElement('playable-track') as PlayableTrackElement;
-    const name = track.slice(0, track.lastIndexOf('.')).replace(/_/g, ' ');
+    playable.player = player;
+    const parts = track.split('.');
+    const name = parts[0].replace(/_/g, ' ');
     playable.setAttribute('name', name);
+    playable.setAttribute('src', URL.createObjectURL(await beats.getAudio(track)));
+    playable.setAttribute('format', parts[1]);
+    playable.setAttribute('duration', (beats.getTrackDuration(track) * 1000).toString());
     if (beats.trackHasEffects(track)) playable.append(getEffects(track));
     await placeAudio(playable, track);
-    playable.addEventListener('play', async () => player.play(name, await beats.getTrack(track)));
     return playable;
 }
 
@@ -87,7 +97,7 @@ async function placeAudio(playable: PlayableTrackElement, track: string): Promis
 }
 
 /**
- * @param track (e.g., `'Alpha_8_Hz.mp3'`)
+ * @param track (e.g., `'Alpha_8_Hz.aac'`)
  * @return Track's effects, assuming they're present
  */
 function getEffects(track: string): HTMLUListElement {

@@ -16,7 +16,7 @@ export class RenameEvent extends Event {
 
 /**
  * This web component has the HTML name `item-editor`. It contains an item's name which can be edited or deleted. Attach
- * [[getInvalidMessage]] ASAP.
+ * [[getInvalidMessage]] before this element is connected to the DOM.
  *
  * Example:
  * ```
@@ -38,7 +38,7 @@ export class ItemEditorElement extends HTMLElement {
     private readonly renameDialog = document.createElement('confirm-dialog') as ConfirmDialogElement;
     private readonly field: TextFieldElement = document.createElement('vaadin-text-field');
     /** The readonly item name placed next to the buttons */
-    private readonly text: Text = document.createTextNode('');
+    private readonly text = document.createTextNode('');
 
     constructor() {
         super();

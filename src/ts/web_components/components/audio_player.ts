@@ -1,69 +1,57 @@
-// @ts-ignore: Missing module declaration
-import AudioControlElement from './audio_control';
+import {Howl} from 'howler';
 
-/**
- * This web component's HTML name is `audio-player`. It plays a single audio in an infinite loop. This element will
- * display nothing until [[play]] is called.
- *
- * Example:
- * ```
- * <audio-player id="player"></audio-player>
- * <script>
- *     fetch('super_mario.mp3').then(async (response) => {
- *         document.querySelector('#player').play('Super Mario', await response.blob());
- *     });
- * </script>
- * ```
- */
-export default class AudioPlayerElement extends HTMLElement {
-    // A single audio reference is required to prevent playing multiple tracks at the same time.
-    private readonly audio: HTMLAudioElement = document.createElement('audio');
+export interface AudioData {
+    /** Audio URL */
+    src: string;
+    /** File extension (e.g., `'aac'`, `'mp3'`) */
+    format: string;
+    /** The number of milliseconds at which the audio should start playing at */
+    start: number;
+    /** The number of milliseconds at which the audio should stop playing at */
+    end: number;
+    /** Whether audio is to loop infinitely */
+    loop: boolean;
+}
+
+/** Delegating audio playback to this class ensures that only one audio plays at any given time. */
+export class AudioPlayerElement extends HTMLElement {
+    private sound: Howl | null = null;
+    private soundId: number | null = null;
 
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
     }
 
-    /**
-     * @param name Text to display
-     * @param blob Audio to play
-     */
-    play(name: string, blob: Blob): void {
-        while (this.shadowRoot!.firstChild) this.shadowRoot!.removeChild(this.shadowRoot!.firstChild!);
-        const control = this.getControl();
-        this.setUpAudio(control, blob);
-        const item = document.createElement('vaadin-item');
-        item.append(control, document.createTextNode(` ${name}`));
-        this.shadowRoot!.append(item);
-    }
-
-    private setUpAudio(control: AudioControlElement, blob: Blob): void {
-        this.audio.loop = true;
-        this.audio.src = URL.createObjectURL(blob);
-        this.audio.addEventListener('play', () => control.displaysPause = true);
-        this.audio.addEventListener('pause', () => control.displaysPause = false);
-
-        // Manipulate the audio so that it's at least five seconds long so it can be manipulated via native controls
-        this.audio.addEventListener('loadedmetadata', () => {
-            let duration = this.audio.duration;
-            const parts = [blob];
-            while (duration < 5) {
-                parts.push(blob);
-                duration += duration;
-            }
-            this.audio.src = URL.createObjectURL(new Blob(parts));
-            this.audio.play();
-        }, {once: true});
-    }
-
-    private getControl(): AudioControlElement {
-        const control = document.createElement('audio-control') as AudioControlElement;
-        control.displaysPause = true;
-        control.addEventListener('click', () => {
-            control.displaysPause ? this.audio.pause() : this.audio.play();
-            control.displaysPause = !control.displaysPause;
+    /** If an audio is currently being played, it will be stopped. Then, `data` will be played. */
+    play(data: AudioData): void {
+        this.stop();
+        // We have to use a sprite from howler.js because HTML media elements do not support gapless playback
+        this.sound = new Howl({
+            src: data.src,
+            format: data.format,
+            sprite: {beat: [data.start, data.end, data.loop]}
         });
-        return control;
+
+        this.soundId = this.sound.play('beat');
+    }
+
+    /** If an audio is currently being played, it will be stopped. */
+    stop(): void {
+        if (this.sound && this.sound.playing(this.soundId!)) {
+            this.dispatchStop();
+            this.sound.stop();
+        }
+    }
+
+    /**
+     * Dispatches a `stop` `Event`
+     *
+     * Fired when an audio stops playing
+     * @event
+     */
+    private dispatchStop(): void {
+        this.dispatchEvent(new Event('stop'));
     }
 }
 

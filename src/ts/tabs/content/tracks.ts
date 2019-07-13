@@ -64,7 +64,7 @@ function getTab(wave: string, image: string): TabElement {
 }
 
 /** @param data The data from which a UI element is created */
-function getDetails(data: beats.WaveData): WaveDetailsElement {
+function getDetails(data: beats.Wave): WaveDetailsElement {
     const details = document.createElement('wave-details') as WaveDetailsElement;
     details.setAttribute('min', data.minFrequency.toString());
     details.setAttribute('max', data.maxFrequency.toString());
@@ -82,7 +82,7 @@ function getDetails(data: beats.WaveData): WaveDetailsElement {
 enum TrackType {pure = 'pure', isochronic = 'isochronic', solfeggio = 'solfeggio'}
 
 /** @param data The data from which the brainwave's tracks are made into a UI element */
-function getTrackTypes(data: beats.WaveData): HTMLSpanElement {
+function getTrackTypes(data: beats.Wave): HTMLSpanElement {
     const span = document.createElement('span');
     const dialog = document.createElement('dismiss-dialog') as DismissDialogElement;
     dialog.setAttribute('aria-label', 'Add track');
@@ -146,7 +146,7 @@ function getEffects(track: beats.PureTrack | beats.IsochronicTrack | beats.Solfe
 /** A dialog to add a track to a category */
 class CategoryAdder {
     /**
-     * @param track Track to prompt for addition to a category (e.g., `'Alpha_8_Hz.mp3'`)
+     * @param track Track to prompt for addition to a category (e.g., `'Alpha_8_Hz.aac'`)
      * @param dialog is used to render the category adder
      */
     constructor(private readonly track: string, dialog: DismissDialogElement) {

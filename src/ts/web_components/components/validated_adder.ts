@@ -11,7 +11,7 @@ export class AddEvent extends Event {
 
 /**
  * This web component has the HTML name `validated-adder`. It contains a field to add a validatable item. Supply
- * [[ValidatedAdderElement.getInvalidMessage]] ASAP.
+ * [[ValidatedAdderElement.getInvalidMessage]] before this element is connected to the DOM.
  *
  * Example:
  * ```
