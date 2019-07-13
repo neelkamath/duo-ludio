@@ -4,8 +4,8 @@ import {ButtonElement} from '@vaadin/vaadin-button/src/vaadin-button';
 import {IronIcon} from '@vaadin/vaadin-icons/vaadin-icons';
 
 /**
- * This web component's HTML name is `audio-control`. It is a play/stop button. Use [[displaysStop]] to change the
- * button's state.
+ * This web component's HTML name is `audio-control`. It is a play/stop button (play button by default). Use
+ * [[displaysStop]] to change the button's state.
  *
  * Example:
  * ```

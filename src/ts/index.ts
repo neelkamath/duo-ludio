@@ -32,19 +32,23 @@ function getTab(
 
 addEventListener('load', async () => {
     await categories.initialize();
-    const player = document.createElement('audio-player') as AudioPlayerElement;
     const tabs = document.createElement('vaadin-tabs');
     const content = document.createElement('span');
+    const player = document.createElement('audio-player') as AudioPlayerElement;
     const tab = getTab('Categories', content, async (span) => {
         span.append(await getCategoriesTab(player));
     });
     tab.click();
     tabs.append(
         tab,
-        getTab('Tracks', content, (span) => span.append(getTracksTab())),
-        getTab('Edit', content, async (span) => span.append(await getEditTab()))
+        getTab('Tracks', content, (span) => {
+            player.stop();
+            span.append(getTracksTab());
+        }),
+        getTab('Edit', content, async (span) => {
+            player.stop();
+            span.append(await getEditTab());
+        })
     );
-    const div = document.createElement('div');
-    div.append(player);
-    document.body.append(tabs, div, content);
+    document.body.append(tabs, content);
 });

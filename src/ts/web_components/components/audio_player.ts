@@ -1,71 +1,57 @@
-// @ts-ignore: Missing module declaration
-import AudioControlElement from './audio_control';
 import {Howl} from 'howler';
 
 export interface AudioData {
-    audio: Blob,
+    /** Audio URL */
+    src: string;
     /** File extension (e.g., `'aac'`, `'mp3'`) */
-    format: string,
-    /** Duration */
-    seconds: number
+    format: string;
+    /** The number of milliseconds at which the audio should start playing at */
+    start: number;
+    /** The number of milliseconds at which the audio should stop playing at */
+    end: number;
+    /** Whether audio is to loop infinitely */
+    loop: boolean;
 }
 
-/**
- * This web component's HTML name is `audio-player`. It plays a single audio in an infinite loop. This element will
- * display nothing until [[play]] is called.
- *
- * Example:
- * ```
- * <audio-player id="player"></audio-player>
- * <script>
- *     fetch('super_mario.aac').then(async (response) => {
- *         const data = {audio: await response.blob(), format: 'aac', seconds: 5};
- *         document.querySelector('#player').play('Super Mario', data);
- *     });
- * </script>
- * ```
- */
+/** Delegating audio playback to this class ensures that only one audio plays at any given time. */
 export class AudioPlayerElement extends HTMLElement {
-    private connectedOnce = false;
     private sound: Howl | null = null;
-    private text = document.createTextNode('No tracks playing');
+    private soundId: number | null = null;
 
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
     }
 
-    connectedCallback() {
-        if (this.connectedOnce) return;
-        this.connectedOnce = true;
-        const control = document.createElement('audio-control') as AudioControlElement;
-        control.addEventListener('click', () => {
-            if (this.sound) {
-                control.displaysStop ? this.sound.stop() : this.sound.play('beat');
-                control.displaysStop = !control.displaysStop;
-            }
+    /** If an audio is currently being played, it will be stopped. Then, `data` will be played. */
+    play(data: AudioData): void {
+        this.stop();
+        // We have to use a sprite from howler.js because HTML media elements do not support gapless playback
+        this.sound = new Howl({
+            src: data.src,
+            format: data.format,
+            sprite: {beat: [data.start, data.end, data.loop]}
         });
-        const item = document.createElement('vaadin-item');
-        item.append(control, this.text);
-        this.shadowRoot!.append(item);
+
+        this.soundId = this.sound.play('beat');
+    }
+
+    /** If an audio is currently being played, it will be stopped. */
+    stop(): void {
+        if (this.sound && this.sound.playing(this.soundId!)) {
+            this.dispatchStop();
+            this.sound.stop();
+        }
     }
 
     /**
-     * @param name Text to display
-     * @param data Audio to play
-     * @param gapless Whether the first and last second of audio should be trimmed to allow for gapless playback
+     * Dispatches a `stop` `Event`
+     *
+     * Fired when an audio stops playing
+     * @event
      */
-    play(name: string, data: AudioData, gapless = true): void {
-        this.text.textContent = ` ${name}`;
-        if (this.sound) this.sound.unload();
-        const duration = data.seconds * 1000;
-
-        // We have to use a sprite from howler.js because <HTMLAudioElement>s do not support gapless playback
-        this.sound = new Howl({
-            src: URL.createObjectURL(data.audio),
-            format: data.format,
-            sprite: {beat: [gapless ? 1000 : 0, gapless ? duration - 1000 : duration, true]}
-        });
+    private dispatchStop(): void {
+        this.dispatchEvent(new Event('stop'));
     }
 }
 

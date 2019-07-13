@@ -16,7 +16,7 @@ export class RenameEvent extends Event {
 
 /**
  * This web component has the HTML name `item-editor`. It contains an item's name which can be edited or deleted. Attach
- * [[getInvalidMessage]] ASAP.
+ * [[getInvalidMessage]] before this element is connected to the DOM.
  *
  * Example:
  * ```
