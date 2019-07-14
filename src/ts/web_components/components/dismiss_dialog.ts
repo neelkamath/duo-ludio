@@ -8,7 +8,7 @@ import {DialogElement} from '@vaadin/vaadin-dialog/src/vaadin-dialog';
  * Example:
  * ```
  * <ok-dialog id="dialog"></ok-dialog>
- * <input type="button" value="Submit" id="submit">
+ * <label>Submit<input type="button" id="submit"></label>
  * <script>
  *     document.querySelector('#submit').addEventListener('click', () => {
  *         document.querySelector('#dialog').renderHTML('Please enter your <b>name</b>.');

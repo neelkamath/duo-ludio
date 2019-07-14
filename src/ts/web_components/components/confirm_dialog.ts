@@ -11,7 +11,7 @@ import DialogButtonElement from './dialog_button';
  * <confirm-dialog confirm="Delete" dialog-title="Delete?" id="dialog">
  *     This will permanently delete the photo.
  * </confirm-dialog>
- * <input type="button" value="Delete photo" id="delete">
+ * <label>Delete photo<input type="button" id="delete"></label>
  * <script>
  *     document.querySelector('#delete').addEventListener('click', () => {
  *         const dialog = document.querySelector('#dialog');
