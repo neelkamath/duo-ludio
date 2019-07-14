@@ -1,9 +1,9 @@
 // @ts-ignore: Missing module declaration
 import {AccordionElement} from '@vaadin/vaadin-accordion/src/vaadin-accordion';
-import {PlayableTrackElement} from '../../web_components/components/playable_track';
+import PlayableTrackElement from '../../web_components/components/playable_track';
 import * as categories from '../../storage/categories';
 import * as beats from '../../storage/beats';
-import {AudioPlayerElement} from '../../web_components/components/audio_player';
+import AudioPlayerElement from '../../web_components/components/audio_player';
 
 /**
  * The contents of the "Categories" tab
@@ -66,13 +66,19 @@ async function getCategories(player: AudioPlayerElement): AccordionElement {
  */
 export async function getTrack(track: string, player: AudioPlayerElement): Promise<PlayableTrackElement> {
     const playable = document.createElement('playable-track') as PlayableTrackElement;
-    playable.player = player;
     const parts = track.split('.');
     const name = parts[0].replace(/_/g, ' ');
-    playable.setAttribute('name', name);
-    playable.setAttribute('src', URL.createObjectURL(await beats.getAudio(track)));
-    playable.setAttribute('format', parts[1]);
-    playable.setAttribute('duration', (beats.getTrackDuration(track) * 1000).toString());
+    playable.setPlayer(player);
+    // The first and last seconds of the audio are trimmed to allow for gapless playback.
+    playable.setSound({
+        src: URL.createObjectURL(await beats.getAudio(track)),
+        format: parts[1],
+        start: 1000,
+        end: (beats.getTrackDuration(track) * 1000) - 1000,
+        loop: true
+    });
+
+    playable.name = name;
     if (beats.trackHasEffects(track)) playable.append(getEffects(track));
     await placeAudio(playable, track);
     return playable;

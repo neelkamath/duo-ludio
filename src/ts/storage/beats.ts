@@ -175,9 +175,10 @@ export function getTrackDuration(track: string): number {
     return getTrack(track).duration;
 }
 
-// @ts-ignore: Return type doesn't include <undefined>
+/** An `Error` will be thrown if there is no track named `name` */
 export function getTrack(name: string): PureTrack | IsochronicTrack | SolfeggioTrack {
     for (const track of getTracks()) if (track.name === name) return track;
+    throw new Error(`There is no track named ${name}`)
 }
 
 export function getTracks(): Array<PureTrack | IsochronicTrack | SolfeggioTrack> {

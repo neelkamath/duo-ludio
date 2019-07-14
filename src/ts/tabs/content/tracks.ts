@@ -10,8 +10,9 @@ import {AddEvent, CategoryAdderElement} from '../../web_components/components/ca
 import * as categories from '../../storage/categories';
 import WaveDetailsElement from '../../web_components/components/wave_details';
 import DismissDialogElement from '../../web_components/components/dismiss_dialog';
-import TrackDataElement from '../../web_components/components/track_data';
+import {TrackDataElement} from '../../web_components/components/track_data';
 import * as beats from '../../storage/beats';
+import TabIconElement from '../../web_components/components/tab_icon';
 
 /** @returns The 'Tracks' tab's content */
 export default function (): HTMLSpanElement {
@@ -56,9 +57,9 @@ function getTabs(content: HTMLDivElement): TabElement[] {
 function getTab(wave: string, image: string): TabElement {
     const title = wave[0].toUpperCase() + wave.slice(1);
     const tab = document.createElement('vaadin-tab');
-    const icon = document.createElement('tab-icon');
-    icon.setAttribute('alt', title);
-    icon.setAttribute('src', image);
+    const icon = document.createElement('tab-icon') as TabIconElement;
+    icon.alt = title;
+    icon.src = image;
     tab.append(icon, document.createTextNode(title));
     return tab;
 }
@@ -66,9 +67,9 @@ function getTab(wave: string, image: string): TabElement {
 /** @param data The data from which a UI element is created */
 function getDetails(data: beats.Wave): WaveDetailsElement {
     const details = document.createElement('wave-details') as WaveDetailsElement;
-    details.setAttribute('min', data.minFrequency.toString());
-    details.setAttribute('max', data.maxFrequency.toString());
-    details.setAttribute('explanation', data.explanation);
+    details.min = data.minFrequency;
+    details.max = data.maxFrequency;
+    details.explanation = data.explanation;
     const benefits = [...data.benefits].reduce((benefits, benefit) => {
         const li = document.createElement('li');
         li.innerHTML = benefit;
@@ -79,8 +80,6 @@ function getDetails(data: beats.Wave): WaveDetailsElement {
     return details;
 }
 
-enum TrackType {pure = 'pure', isochronic = 'isochronic', solfeggio = 'solfeggio'}
-
 /** @param data The data from which the brainwave's tracks are made into a UI element */
 function getTrackTypes(data: beats.Wave): HTMLSpanElement {
     const span = document.createElement('span');
@@ -88,9 +87,9 @@ function getTrackTypes(data: beats.Wave): HTMLSpanElement {
     dialog.setAttribute('aria-label', 'Add track');
     span.append(dialog);
     const accordion = document.createElement('vaadin-accordion');
-    accordion.append(getTracks(data.pure, TrackType.pure, dialog));
-    if (data.isochronic) accordion.append(getTracks(data.isochronic, TrackType.isochronic, dialog));
-    if (data.solfeggio) accordion.append(getTracks(data.solfeggio, TrackType.solfeggio, dialog));
+    accordion.append(getTracks(data.pure, 'Pure', dialog));
+    if (data.isochronic) accordion.append(getTracks(data.isochronic, 'Isochronic', dialog));
+    if (data.solfeggio) accordion.append(getTracks(data.solfeggio, 'Solfeggio', dialog));
     span.append(accordion);
     return span;
 }
@@ -98,15 +97,15 @@ function getTrackTypes(data: beats.Wave): HTMLSpanElement {
 /** `dialog` is used to prompt the addition of a track to a category */
 function getTracks(
     data: ReadonlySet<beats.PureTrack> | ReadonlySet<beats.IsochronicTrack> | ReadonlySet<beats.SolfeggioTrack>,
-    type: TrackType,
+    type: 'Pure' | 'Isochronic' | 'Solfeggio',
     dialog: DismissDialogElement
 ): AccordionPanelElement {
     const panel = document.createElement('vaadin-accordion-panel');
     const h1 = document.createElement('h1');
     h1.slot = 'summary';
-    h1.textContent = type[0].toUpperCase() + type.slice(1);
+    h1.textContent = type;
     const tracks = [...data].reduce((tracks, track) => {
-        tracks.append(getTrack(track, type, dialog));
+        tracks.append(getTrack(track, dialog));
         return tracks;
     }, document.createElement('span'));
     panel.append(h1, tracks);
@@ -116,18 +115,15 @@ function getTracks(
 /** `dialog` is used to prompt the addition of `track` to a category */
 function getTrack(
     track: beats.PureTrack | beats.IsochronicTrack | beats.SolfeggioTrack,
-    type: TrackType,
     dialog: DismissDialogElement
 ): TrackDataElement {
     const data = document.createElement('track-data') as TrackDataElement;
-    data.setAttribute('track-type', type);
-    if ([TrackType.pure, TrackType.isochronic].includes(type)) {
-        track = track as beats.PureTrack | beats.IsochronicTrack;
-        data.setAttribute('hz', track.frequency.toString());
-    } else if (type === TrackType.solfeggio) {
-        track = track as beats.SolfeggioTrack;
-        data.setAttribute('binaural-hz', track.binauralBeatFrequency.toString());
-        data.setAttribute('solfeggio-hz', track.solfeggioFrequency.toString());
+    if ('solfeggioFrequency' in track) {
+        data.setTrack(
+            {binauralBeatFrequency: track.binauralBeatFrequency, solfeggioFrequency: track.solfeggioFrequency}
+        );
+    } else {
+        data.setTrack({frequency: track.frequency});
     }
     if (track.effects) data.append(getEffects(track));
     data.addEventListener('add', () => new CategoryAdder(track.name, dialog));
@@ -195,7 +191,7 @@ class CategoryAdder {
      */
     private async getCategory(category: string): Promise<CheckboxElement> {
         const checkbox = document.createElement('vaadin-checkbox') as CheckboxElement;
-        if (await categories.hasTrack(category, this.track)) checkbox.setAttribute('checked', 'checked');
+        if (await categories.hasTrack(category, this.track)) checkbox.checked = true;
         checkbox.textContent = category;
         checkbox.addEventListener('change', async () => {
             if (checkbox.checked) {

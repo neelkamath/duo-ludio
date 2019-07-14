@@ -15,8 +15,8 @@ export class RenameEvent extends Event {
 }
 
 /**
- * This web component has the HTML name `item-editor`. It contains an item's name which can be edited or deleted. Attach
- * [[getInvalidMessage]] before this element is connected to the DOM.
+ * This web component has the HTML name `item-editor`. It contains an item's name which can be edited or deleted. Assign
+ * [[getInvalidMessage]] before the user interacts with this element.
  *
  * Example:
  * ```
@@ -32,41 +32,53 @@ export class RenameEvent extends Event {
  */
 export class ItemEditorElement extends HTMLElement {
     getInvalidMessage!: InvalidityMessenger;
-    private connectedOnce = false;
     private readonly deleteDialog = document.createElement('confirm-dialog') as ConfirmDialogElement;
     private readonly errorDialog = document.createElement('dismiss-dialog') as DismissDialogElement;
     private readonly renameDialog = document.createElement('confirm-dialog') as ConfirmDialogElement;
     private readonly field: TextFieldElement = document.createElement('vaadin-text-field');
-    /** The readonly item name placed next to the buttons */
-    private readonly text = document.createTextNode('');
+    /** The item name placed next to the buttons */
+    private readonly itemElement = document.createTextNode('');
 
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
+        this.field.label = 'Rename';
     }
 
-    private get item(): string {
+    static get observedAttributes() {
+        return ['item'];
+    }
+
+    get item(): string {
         return this.getAttribute('item')!;
     }
 
-    private set item(value: string) {
+    set item(value: string) {
         this.setAttribute('item', value);
-        this.text.textContent = this.item;
+        this.updateItem();
+    }
+
+    // @ts-ignore: Variable declared but never read
+    attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+        if (name === 'item') this.updateItem();
     }
 
     connectedCallback() {
-        if (this.connectedOnce) return;
-        this.connectedOnce = true;
+        if (!this.isConnected) return;
         this.setUpDeleteDialog();
         this.setUpRenameDialog();
-        this.setUpField();
-        this.text.textContent = this.item;
+        this.field.value = this.item;
         this.shadowRoot!.append(this.deleteDialog, this.errorDialog, this.renameDialog, this.getItem());
+    }
+
+    disconnectedCallback() {
+        for (const child of this.shadowRoot!.childNodes) this.shadowRoot!.removeChild(child);
     }
 
     private getItem(): ItemElement {
         const item = document.createElement('vaadin-item');
-        item.append(this.getDeleteButton(), this.getEditButton(), this.text);
+        this.updateItem();
+        item.append(this.getDeleteButton(), this.getEditButton(), this.itemElement);
         return item;
     }
 
@@ -132,23 +144,22 @@ export class ItemEditorElement extends HTMLElement {
         }
     }
 
-    private setUpField(): void {
-        this.field.label = 'Rename';
-        this.field.value = this.item;
-    }
-
     private setUpRenameDialog(): void {
         this.renameDialog.setAttribute('aria-label', `Rename ${this.item}`);
-        this.renameDialog.setAttribute('confirm', 'Rename');
-        this.renameDialog.setAttribute('no-confirm-close', 'no-confirm-close');
+        this.renameDialog.confirm = 'Rename';
+        this.renameDialog.noCloseOnConfirm = true;
         this.renameDialog.append(this.field);
     }
 
     private setUpDeleteDialog(): void {
         this.deleteDialog.setAttribute('aria-label', 'Edit item');
-        this.deleteDialog.setAttribute('cancel', 'No');
-        this.deleteDialog.setAttribute('confirm', 'Delete');
+        this.deleteDialog.cancel = 'No';
+        this.deleteDialog.confirm = 'Delete';
         this.deleteDialog.textContent = `Delete ${this.item}?`;
+    }
+
+    private updateItem(): void {
+        this.itemElement.textContent = this.item;
     }
 }
 

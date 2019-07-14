@@ -10,12 +10,12 @@ export class AddEvent extends Event {
 }
 
 /**
- * This web component has the HTML name `validated-adder`. It contains a field to add a validatable item. Supply
- * [[ValidatedAdderElement.getInvalidMessage]] before this element is connected to the DOM.
+ * This web component has the HTML name `validated-adder`. It contains a field to add a validatable item. Assign
+ * [[getInvalidMessage]] before the users interacts with this element.
  *
  * Example:
  * ```
- * <validated-adder id="new-category" aria-label="Invalid category name"></validated-adder>
+ * <validated-adder aria-label="Invalid category name" id="new-category"></validated-adder>
  * <script>
  *     const adder = document.querySelector('#new-category');
  *     adder.getInvalidMessage = (name) => name === '' ? 'Please enter a name' : null;
@@ -27,7 +27,6 @@ export class AddEvent extends Event {
  */
 export class ValidatedAdderElement extends HTMLElement {
     getInvalidMessage!: InvalidityMessenger;
-    private connectedOnce = false;
     private readonly dialog = document.createElement('dismiss-dialog') as DismissDialogElement;
 
     constructor() {
@@ -36,12 +35,15 @@ export class ValidatedAdderElement extends HTMLElement {
     }
 
     connectedCallback() {
-        if (this.connectedOnce) return;
-        this.connectedOnce = true;
+        if (!this.isConnected) return;
         if (this.hasAttribute('aria-label')) {
             this.dialog.setAttribute('aria-label', this.getAttribute('aria-label')!);
         }
         this.shadowRoot!.append(this.dialog, this.getItem());
+    }
+
+    disconnectedCallback() {
+        for (const child of this.shadowRoot!.childNodes) this.shadowRoot!.removeChild(child);
     }
 
     /**

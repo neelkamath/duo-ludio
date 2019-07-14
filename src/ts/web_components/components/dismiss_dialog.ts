@@ -2,13 +2,13 @@
 import {DialogElement} from '@vaadin/vaadin-dialog/src/vaadin-dialog';
 
 /**
- * This web component has the HTML name `dismiss-dialog`. It is for dialogs requiring no buttons. Use
- * [[render]] or [[renderHTML]] to render the dialog.
+ * This web component has the HTML name `dismiss-dialog`. It is for dialogs requiring no buttons. Use [[render]] or
+ * [[renderHTML]] to render the dialog.
  *
  * Example:
  * ```
  * <ok-dialog id="dialog"></ok-dialog>
- * <vaadin-button id="submit">Submit</vaadin-button>
+ * <label>Submit<input type="button" id="submit"></label>
  * <script>
  *     document.querySelector('#submit').addEventListener('click', () => {
  *         document.querySelector('#dialog').renderHTML('Please enter your <b>name</b>.');
@@ -18,7 +18,6 @@ import {DialogElement} from '@vaadin/vaadin-dialog/src/vaadin-dialog';
  * @attribute `aria-label` (optional) ARIA label (e.g., `Invalid category name`)
  */
 export default class DismissDialogElement extends HTMLElement {
-    private connectedOnce = false;
     private readonly dialog: DialogElement = document.createElement('vaadin-dialog');
 
     constructor() {
@@ -27,12 +26,15 @@ export default class DismissDialogElement extends HTMLElement {
     }
 
     connectedCallback() {
-        if (this.connectedOnce) return;
-        this.connectedOnce = true;
+        if (!this.isConnected) return;
         if (this.hasAttribute('aria-label')) {
             this.dialog.ariaLabel = this.getAttribute('aria-label');
         }
         this.shadowRoot!.append(this.dialog);
+    }
+
+    disconnectedCallback() {
+        for (const child of this.shadowRoot!.childNodes) this.shadowRoot!.removeChild(child);
     }
 
     renderHTML(html: string): void {
