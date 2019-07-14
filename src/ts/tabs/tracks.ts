@@ -6,13 +6,13 @@ import {VerticalLayoutElement} from '@vaadin/vaadin-ordered-layout/src/vaadin-ve
 import {TabElement} from '@vaadin/vaadin-tabs/src/vaadin-tab';
 // @ts-ignore: Missing module declaration
 import {AccordionPanelElement} from '@vaadin/vaadin-accordion/src/vaadin-accordion-panel';
-import {AddEvent, CategoryAdderElement} from '../../web_components/components/category_adder';
-import * as categories from '../../storage/categories';
-import WaveDetailsElement from '../../web_components/components/wave_details';
-import DismissDialogElement from '../../web_components/components/dismiss_dialog';
-import {TrackDataElement} from '../../web_components/components/track_data';
-import * as beats from '../../storage/beats';
-import TabIconElement from '../../web_components/components/tab_icon';
+import {AddEvent, CategoryAdderElement} from '../web_components/components/category_adder';
+import * as categories from '../storage/categories';
+import WaveDetailsElement from '../web_components/components/wave_details';
+import DismissDialogElement from '../web_components/components/dismiss_dialog';
+import {TrackDataElement} from '../web_components/components/track_data';
+import * as beats from '../storage/beats';
+import TabIconElement from '../web_components/components/tab_icon';
 
 /** @returns The 'Tracks' tab's content */
 export default function (): HTMLSpanElement {

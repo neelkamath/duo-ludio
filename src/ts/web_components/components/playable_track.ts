@@ -25,9 +25,8 @@ import AudioData from '../audio_data';
 export default class PlayableTrackElement extends HTMLElement {
     private player!: AudioPlayerElement;
     private sound!: AudioData;
-    private nameElement: HTMLHeadingElement = document.createElement('h2');
-    /** `null` if there are no effects to display */
-    private effects: TitledItemElement | null = null;
+    private readonly nameElement: HTMLHeadingElement = document.createElement('h2');
+    private effects = document.createElement('titled-item') as TitledItemElement;
     private readonly control = document.createElement('audio-control') as AudioControlElement;
     private readonly download = document.createElement('progress-indicator') as ProgressIndicatorElement;
     private readonly offline = document.createTextNode('The track cannot be downloaded since you are offline.');
@@ -35,6 +34,7 @@ export default class PlayableTrackElement extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
+        this.effects.title = 'Effects';
         this.download.text = 'Downloading...';
     }
 
@@ -48,7 +48,6 @@ export default class PlayableTrackElement extends HTMLElement {
 
     set name(value: string) {
         this.setAttribute('name', value);
-        this.updateName();
     }
 
     // @ts-ignore: Variable declared but never read
@@ -70,7 +69,7 @@ export default class PlayableTrackElement extends HTMLElement {
 
     connectedCallback() {
         if (!this.isConnected) return;
-        this.setUpEffects();
+        this.effects.append(...this.childNodes);
         this.setUpAudio();
         this.updateName();
         if (this.effects) this.shadowRoot!.prepend(this.effects);
@@ -78,7 +77,7 @@ export default class PlayableTrackElement extends HTMLElement {
     }
 
     disconnectedCallback() {
-        for (const child of this.shadowRoot!.childNodes) this.shadowRoot!.removeChild(child);
+        for (const child of this.shadowRoot!.childNodes) child.remove();
     }
 
     private updateName(): void {
@@ -112,18 +111,10 @@ export default class PlayableTrackElement extends HTMLElement {
         this.replaceAudioContent(this.offline);
     }
 
-    private setUpEffects(): void {
-        if (!this.effects && this.childNodes.length > 0) {
-            this.effects = document.createElement('titled-item') as TitledItemElement;
-            this.effects.title = 'Effects';
-            this.effects.append(...this.childNodes);
-        }
-    }
-
     private replaceAudioContent(child: ChildNode): void {
-        if (this.hasChild(this.control)) this.shadowRoot!.removeChild(this.control);
-        if (this.hasChild(this.download)) this.shadowRoot!.removeChild(this.download);
-        if (this.hasChild(this.offline)) this.shadowRoot!.removeChild(this.offline);
+        if (this.hasChild(this.control)) this.control.remove();
+        if (this.hasChild(this.download)) this.download.remove();
+        if (this.hasChild(this.offline)) this.offline.remove();
         this.shadowRoot!.append(child);
     }
 

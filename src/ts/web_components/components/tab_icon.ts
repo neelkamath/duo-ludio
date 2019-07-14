@@ -23,7 +23,6 @@ export default class TabIconElement extends HTMLElement {
 
     set alt(value: string) {
         this.setAttribute('alt', value);
-        this.updateAlt();
     }
 
     get src(): string {
@@ -32,7 +31,6 @@ export default class TabIconElement extends HTMLElement {
 
     set src(value: string) {
         this.setAttribute('src', value);
-        this.updateSrc();
     }
 
     // @ts-ignore: Variable declared but never read
@@ -55,7 +53,7 @@ export default class TabIconElement extends HTMLElement {
     }
 
     disconnectedCallback() {
-        for (const child of this.shadowRoot!.childNodes) this.shadowRoot!.removeChild(child);
+        for (const child of this.shadowRoot!.childNodes) child.remove();
     }
 
     private updateAlt(): void {

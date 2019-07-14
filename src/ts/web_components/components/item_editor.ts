@@ -55,7 +55,6 @@ export class ItemEditorElement extends HTMLElement {
 
     set item(value: string) {
         this.setAttribute('item', value);
-        this.updateItem();
     }
 
     // @ts-ignore: Variable declared but never read
@@ -72,7 +71,7 @@ export class ItemEditorElement extends HTMLElement {
     }
 
     disconnectedCallback() {
-        for (const child of this.shadowRoot!.childNodes) this.shadowRoot!.removeChild(child);
+        for (const child of this.shadowRoot!.childNodes) child.remove();
     }
 
     private getItem(): ItemElement {

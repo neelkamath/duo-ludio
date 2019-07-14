@@ -21,21 +21,30 @@ export class AddEvent extends Event {
  ```
  */
 export class ItemAdderElement extends HTMLElement {
+    private readonly field = document.createElement('vaadin-text-field') as TextFieldElement;
+    private readonly button = document.createElement('vaadin-button') as ButtonElement;
+
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
+        this.field.label = 'Item name';
+        this.field.placeholder = 'Mindless HW';
+        this.button.ariaLabel = 'Add item';
+        this.button.theme = 'icon';
+        this.button.innerHTML = '<iron-icon icon="vaadin:plus"></iron-icon>';
     }
 
     connectedCallback() {
         if (!this.isConnected) return;
-        const field = document.createElement('vaadin-text-field') as TextFieldElement;
-        field.label = 'Item name';
-        field.placeholder = 'Mindless HW';
-        this.shadowRoot!.append(field, this.getButton(field));
+        this.button.addEventListener('click', () => {
+            this.dispatchAdd(this.field.value);
+            this.field.value = '';
+        });
+        this.shadowRoot!.append(this.field, this.button);
     }
 
     disconnectedCallback() {
-        for (const child of this.shadowRoot!.childNodes) this.shadowRoot!.removeChild(child);
+        for (const child of this.shadowRoot!.childNodes) child.remove();
     }
 
     /**
@@ -47,18 +56,6 @@ export class ItemAdderElement extends HTMLElement {
      */
     private dispatchAdd(data: string): void {
         this.dispatchEvent(new AddEvent(data));
-    }
-
-    private getButton(field: TextFieldElement): ButtonElement {
-        const button = document.createElement('vaadin-button') as ButtonElement;
-        button.ariaLabel = 'Add item';
-        button.theme = 'icon';
-        button.innerHTML = '<iron-icon icon="vaadin:plus"></iron-icon>';
-        button.addEventListener('click', () => {
-            this.dispatchAdd(field.value);
-            field.value = '';
-        });
-        return button;
     }
 }
 

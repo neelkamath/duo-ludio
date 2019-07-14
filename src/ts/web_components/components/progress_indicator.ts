@@ -11,10 +11,12 @@ import {ProgressBarElement} from '@vaadin/vaadin-progress-bar/src/vaadin-progres
  */
 export default class ProgressIndicatorElement extends HTMLElement {
     private readonly item: ItemElement = document.createElement('vaadin-item');
+    private readonly progress = document.createElement('vaadin-progress-bar') as ProgressBarElement;
 
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
+        this.progress.indeterminate = true;
     }
 
     static get observedAttributes() {
@@ -27,7 +29,6 @@ export default class ProgressIndicatorElement extends HTMLElement {
 
     set text(value: string) {
         this.setAttribute('text', value);
-        this.updateText();
     }
 
     // @ts-ignore: Variable declared but not used
@@ -38,18 +39,11 @@ export default class ProgressIndicatorElement extends HTMLElement {
     connectedCallback() {
         if (!this.isConnected) return;
         this.updateText();
-        const progress = document.createElement('vaadin-progress-bar') as ProgressBarElement;
-        progress.indeterminate = true;
-        this.shadowRoot!.append(
-            document.createElement('br'),
-            this.item,
-            progress,
-            document.createElement('br')
-        );
+        this.shadowRoot!.append(this.item, this.progress);
     }
 
     disconnectedCallback() {
-        for (const child of this.shadowRoot!.childNodes) this.shadowRoot!.removeChild(child);
+        for (const child of this.shadowRoot!.childNodes) child.remove();
     }
 
     private updateText(): void {

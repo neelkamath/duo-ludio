@@ -1,3 +1,5 @@
+// @ts-ignore: Missing module declaration
+import {DetailsElement} from '@vaadin/vaadin-details/src/vaadin-details';
 import TitledItemElement from './titled_item';
 
 /**
@@ -24,13 +26,17 @@ import TitledItemElement from './titled_item';
 export default class WaveDetailsElement extends HTMLElement {
     private readonly frequency = document.createElement('titled-item') as TitledItemElement;
     private readonly explanationElement = document.createElement('titled-item') as TitledItemElement;
-    private benefits: TitledItemElement | null = null;
+    private readonly details: DetailsElement = document.createElement('vaadin-details');
+    private readonly benefits = document.createElement('titled-item') as TitledItemElement;
 
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
         this.frequency.title = 'Frequency Range';
         this.explanationElement.title = 'Explanation';
+        this.details.style.margin = '1em 0';
+        this.details.append(WaveDetailsElement.getSummary(), this.frequency, this.explanationElement, this.benefits);
+        this.benefits.title = 'Benefits';
     }
 
     static get observedAttributes() {
@@ -43,7 +49,6 @@ export default class WaveDetailsElement extends HTMLElement {
 
     set min(value: number) {
         this.setAttribute('min', value.toString());
-        this.updateFrequency();
     }
 
     get max(): number {
@@ -52,7 +57,6 @@ export default class WaveDetailsElement extends HTMLElement {
 
     set max(value: number) {
         this.setAttribute('max', value.toString());
-        this.updateFrequency();
     }
 
     get explanation(): string {
@@ -61,7 +65,6 @@ export default class WaveDetailsElement extends HTMLElement {
 
     set explanation(value: string) {
         this.setAttribute('explanation', value);
-        this.updateExplanation();
     }
 
     // @ts-ignore: Variable declared but never read
@@ -85,17 +88,14 @@ export default class WaveDetailsElement extends HTMLElement {
 
     connectedCallback() {
         if (!this.isConnected) return;
-        this.setUpBenefits();
+        this.benefits.append(...this.childNodes);
         this.updateFrequency();
         this.updateExplanation();
-        const details = document.createElement('vaadin-details');
-        details.style.margin = '1em 0';
-        details.append(WaveDetailsElement.getSummary(), this.frequency, this.explanationElement, this.benefits!);
-        this.shadowRoot!.append(details);
+        this.shadowRoot!.append(this.details);
     }
 
     disconnectedCallback() {
-        for (const child of this.shadowRoot!.childNodes) this.shadowRoot!.removeChild(child);
+        for (const child of this.shadowRoot!.childNodes) child.remove();
     }
 
     /** Updates element to reflect the `min` and `max` attributes */
@@ -105,14 +105,6 @@ export default class WaveDetailsElement extends HTMLElement {
 
     private updateExplanation(): void {
         this.explanationElement.textContent = this.explanation;
-    }
-
-    private setUpBenefits(): void {
-        if (!this.benefits) {
-            this.benefits = document.createElement('titled-item') as TitledItemElement;
-            this.benefits.title = 'Benefits';
-            this.benefits.append(...this.childNodes);
-        }
     }
 }
 

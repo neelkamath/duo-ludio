@@ -1,9 +1,9 @@
 // @ts-ignore: Missing module declaration
 import {AccordionElement} from '@vaadin/vaadin-accordion/src/vaadin-accordion';
-import PlayableTrackElement from '../../web_components/components/playable_track';
-import * as categories from '../../storage/categories';
-import * as beats from '../../storage/beats';
-import AudioPlayerElement from '../../web_components/components/audio_player';
+import PlayableTrackElement from '../web_components/components/playable_track';
+import * as categories from '../storage/categories';
+import * as beats from '../storage/beats';
+import AudioPlayerElement from '../web_components/components/audio_player';
 
 /**
  * The contents of the "Categories" tab
@@ -69,37 +69,52 @@ export async function getTrack(track: string, player: AudioPlayerElement): Promi
     const parts = track.split('.');
     const name = parts[0].replace(/_/g, ' ');
     playable.setPlayer(player);
+    playable.name = name;
+    if (beats.trackHasEffects(track)) playable.append(getEffects(track));
+    await placeAudio(playable, track, parts[1]);
+    return playable;
+}
+
+/**
+ * Deals with `playable`'s audio player, including when it the network goes offline/online
+ * @param playable Element's audio to set
+ * @param track Track to set
+ * @param format `track`'s format (e.g., `'aac'`)
+ */
+async function placeAudio(playable: PlayableTrackElement, track: string, format: string): Promise<void> {
+    if (await beats.isDownloaded(track)) {
+        place(playable, track, format);
+    } else {
+        const displayDownloader = () => playable.displayDownloader();
+        const displayOffline = () => playable.displayOffline();
+        navigator.onLine ? displayDownloader() : displayOffline();
+        addEventListener('online', displayDownloader);
+        addEventListener('offline', displayOffline);
+        beats.awaitDownload(track, () => {
+            removeEventListener('online', displayDownloader);
+            removeEventListener('offline', displayOffline);
+            place(playable, track, format);
+        });
+    }
+}
+
+/**
+ * Sets a `PlayableTrackElement`'s audio
+ * @param playable Element's audio to set
+ * @param track Track to set
+ * @param format `track`'s format (e.g., `'aac'`)
+ */
+async function place(playable: PlayableTrackElement, track: string, format: string): Promise<void> {
     // The first and last seconds of the audio are trimmed to allow for gapless playback.
     playable.setSound({
         src: URL.createObjectURL(await beats.getAudio(track)),
-        format: parts[1],
+        format: format,
         start: 1000,
         end: (beats.getTrackDuration(track) * 1000) - 1000,
         loop: true
     });
 
-    playable.name = name;
-    if (beats.trackHasEffects(track)) playable.append(getEffects(track));
-    await placeAudio(playable, track);
-    return playable;
-}
-
-/** Deals with `playable`'s audio player, including when it the network goes off/on  */
-async function placeAudio(playable: PlayableTrackElement, track: string): Promise<void> {
-    if (await beats.isDownloaded(track)) {
-        playable.displayControl();
-    } else {
-        navigator.onLine ? playable.displayDownloader() : playable.displayOffline();
-        const displayDownloader = () => playable.displayDownloader();
-        addEventListener('online', displayDownloader);
-        const displayOffline = () => playable.displayOffline();
-        addEventListener('offline', displayOffline);
-        beats.awaitDownload(track).then(() => {
-            removeEventListener('online', displayDownloader);
-            removeEventListener('offline', displayOffline);
-            playable.displayControl();
-        });
-    }
+    playable.displayControl();
 }
 
 /**

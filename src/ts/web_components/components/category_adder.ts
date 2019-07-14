@@ -1,4 +1,4 @@
-import getInvalidMessenger from '../../tabs/message';
+import getInvalidMessenger from '../../message';
 import * as categories from '../../storage/categories';
 import * as validatedAdder from './validated_adder';
 
@@ -21,26 +21,27 @@ export class AddEvent extends Event {
  * ```
  */
 export class CategoryAdderElement extends HTMLElement {
+    private readonly adder = document.createElement('validated-adder') as validatedAdder.ValidatedAdderElement;
+
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
+        this.adder.setAttribute('aria-label', 'Invalid category name');
+        this.adder.getInvalidMessage = getInvalidMessenger();
     }
 
     connectedCallback() {
         if (!this.isConnected) return;
-        const adder = document.createElement('validated-adder') as validatedAdder.ValidatedAdderElement;
-        adder.setAttribute('aria-label', 'Invalid category name');
-        adder.getInvalidMessage = getInvalidMessenger();
-        adder.addEventListener('add', async (event) => {
+        this.adder.addEventListener('add', async (event) => {
             const {data} = (event as validatedAdder.AddEvent);
             await categories.create(data);
             this.dispatchAdd(data);
         });
-        this.shadowRoot!.append(adder);
+        this.shadowRoot!.append(this.adder);
     }
 
     disconnectedCallback() {
-        for (const child of this.shadowRoot!.childNodes) this.shadowRoot!.removeChild(child);
+        for (const child of this.shadowRoot!.childNodes) child.remove();
     }
 
     /**

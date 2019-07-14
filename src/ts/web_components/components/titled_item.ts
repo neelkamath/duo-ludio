@@ -1,3 +1,6 @@
+// @ts-ignore: Missing module declaration
+import {ItemElement} from '@vaadin/vaadin-item/src/vaadin-item';
+
 /**
  * This web component has the HTML name `titled-item`. It contains a title, and a body. Place the item's HTML in between
  * this element's HTML tags.
@@ -7,11 +10,15 @@
  */
 export default class TitledItemElement extends HTMLElement {
     private readonly titleElement = document.createElement('strong');
-    private body: HTMLDivElement | null = null;
+    private readonly body: HTMLDivElement = document.createElement('div');
+    private readonly item: ItemElement = document.createElement('vaadin-item');
 
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
+        const titleDiv = document.createElement('div');
+        titleDiv.append(this.titleElement);
+        this.item.append(titleDiv, this.body);
     }
 
     static get observedAttributes() {
@@ -24,7 +31,6 @@ export default class TitledItemElement extends HTMLElement {
 
     set title(value: string) {
         this.setAttribute('title', value);
-        this.updateTitle();
     }
 
     // @ts-ignore: Variable declared but never read
@@ -34,24 +40,13 @@ export default class TitledItemElement extends HTMLElement {
 
     connectedCallback() {
         if (!this.isConnected) return;
-        this.setUpBody();
+        if (!this.body.hasChildNodes()) this.body.append(...this.childNodes);
         this.updateTitle();
-        const item = document.createElement('vaadin-item');
-        const titleDiv = document.createElement('div');
-        titleDiv.append(this.titleElement);
-        item.append(titleDiv, this.body!);
-        this.shadowRoot!.append(item);
+        this.shadowRoot!.append(this.item);
     }
 
     disconnectedCallback() {
-        for (const child of this.shadowRoot!.childNodes) this.shadowRoot!.removeChild(child);
-    }
-
-    private setUpBody(): void {
-        if (!this.body) {
-            this.body = document.createElement('div');
-            this.body.append(...this.childNodes);
-        }
+        for (const child of this.shadowRoot!.childNodes) child.remove();
     }
 
     private updateTitle(): void {
