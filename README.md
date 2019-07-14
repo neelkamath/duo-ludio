@@ -41,7 +41,7 @@ The `dist/` directory will contain the built website.
 
 ## Documentation
 
-This app supports the latest version of the desktop and mobile versions of the Edge, Chrome, Safari, and Firefox browsers. The Material Design spec is not to be followed strictly, but as a guideline.
+The Material Design spec is not to be followed strictly, but as a guideline.
 
 ### TypeScript
 
