@@ -57,7 +57,9 @@ Continuous delivery has been setup using [Netlify](https://www.netlify.com), whi
 
 ### Favicon
 
-[favicon.io](https://favicon.io/favicon-generator/) is used to generate the favicon. When styling the favicon on their site, follow [Vaadin's Material Design specs](https://cdn.vaadin.com/vaadin-material-styles/1.2.0/demo/index.html). This means using the Roboto font family, `#6200ee` text color, and `#fff` background color. After downloading the favicon set from their site, save `apple-touch-icon.png` as `src/favicon.png`.
+[favicon.io](https://favicon.io/favicon-generator/) is used to generate the favicon. When styling the favicon on their site, follow [Vaadin's Material Design specs](https://cdn.vaadin.com/vaadin-material-styles/1.2.0/demo/index.html). This means setting up as shown below.
+
+![Favicon Setup](favicon_setup.png)
 
 ### Storage
 
