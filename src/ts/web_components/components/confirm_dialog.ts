@@ -8,8 +8,10 @@ import DialogButtonElement from './dialog_button';
  *
  * Example:
  * ```
- * <confirm-dialog confirm="Delete" id="dialog" title="Delete?">This will permanently delete the photo.</confirm-dialog>
- * <vaadin-button id="delete">Delete photo</vaadin-button>
+ * <confirm-dialog confirm="Delete" dialog-title="Delete?" id="dialog">
+ *     This will permanently delete the photo.
+ * </confirm-dialog>
+ * <input type="button" value="Delete photo" id="delete">
  * <script>
  *     document.querySelector('#delete').addEventListener('click', () => {
  *         const dialog = document.querySelector('#dialog');
@@ -20,21 +22,83 @@ import DialogButtonElement from './dialog_button';
  * ```
  *
  * @attribute `aria-label` (optional, default: `Confirm`) ARIA label (e.g., `Confirm deleting category Meditation`)
- * @attribute `title` (optional) Title (e.g., `Delete?`)
+ * @attribute `dialog-title` (optional) Title (e.g., `Delete?`)
  * @attribute `cancel` (optional, default: `Cancel`) Cancel button text (e.g., `No`)
  * @attribute `confirm` (optional, default: `Confirm`) Confirm button text (e.g., `Delete`)
- * @attribute `no-confirm-close` (optional) If this boolean attribute is present, this dialog will not automatically
- * close when the confirm button is clicked. You should instead manually close it using [[close]].
+ * @attribute `no-close-on-confirm` (optional) This boolean attribute indicates whether this dialog will not
+ * automatically close when the confirm button is clicked. You should instead close it manually using [[close]].
  */
 export default class ConfirmDialogElement extends HTMLElement {
-    private connectedOnce = false;
     private renderedOnce = false;
-    private content!: NodeListOf<ChildNode>;
     private readonly dialog: DialogElement = document.createElement('vaadin-dialog');
+    private readonly titleElement: HTMLDivElement = document.createElement('div');
+    private readonly cancelElement = document.createElement('dialog-button') as DialogButtonElement;
+    private readonly confirmElement = document.createElement('dialog-button') as DialogButtonElement;
 
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
+    }
+
+    static get observedAttributes() {
+        return ['dialog-title', 'cancel', 'confirm'];
+    }
+
+    get dialogTitle(): string | null {
+        return this.getAttribute('dialog-title');
+    }
+
+    set dialogTitle(value: string | null) {
+        if (value) {
+            this.setAttribute('dialog-title', value);
+        } else {
+            this.removeAttribute('dialog-title');
+        }
+        this.updateTitle();
+    }
+
+    get cancel(): string {
+        return this.getAttribute('cancel') || 'Cancel';
+    }
+
+    set cancel(value: string) {
+        this.setAttribute('cancel', value);
+        this.updateCancel();
+    }
+
+    get confirm(): string {
+        return this.getAttribute('confirm') || 'Confirm';
+    }
+
+    set confirm(value: string) {
+        this.setAttribute('confirm', value);
+        this.updateConfirm();
+    }
+
+    get noCloseOnConfirm(): boolean {
+        return this.hasAttribute('no-close-on-confirm');
+    }
+
+    set noCloseOnConfirm(value: boolean) {
+        if (value) {
+            this.setAttribute('no-close-on-confirm', '')
+        } else {
+            this.removeAttribute('no-close-on-confirm')
+        }
+    }
+
+    // @ts-ignore: Variable declared but never read
+    attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+        switch (name) {
+            case 'dialog-title':
+                this.updateTitle();
+                break;
+            case 'cancel':
+                this.updateCancel();
+                break;
+            case 'confirm':
+                this.updateConfirm();
+        }
     }
 
     render(): void {
@@ -46,53 +110,51 @@ export default class ConfirmDialogElement extends HTMLElement {
     }
 
     connectedCallback() {
-        if (this.connectedOnce) return;
-        this.content = this.childNodes;
-        this.connectedOnce = true;
+        if (!this.isConnected) return;
+        this.updateTitle();
+        this.setUpCancel();
+        this.setUpConfirm();
         this.dialog.noCloseOnEsc = true;
         this.dialog.noCloseOnOutsideClick = true;
-        let label = 'Confirm';
-        if (this.hasAttribute('aria-label')) label = this.getAttribute('aria-label')!;
-        this.dialog.ariaLabel = label;
+        this.dialog.ariaLabel = this.getAttribute('aria-label') || 'Confirm';
         this.setUpRenderer();
         this.shadowRoot!.append(this.dialog);
+    }
+
+    disconnectedCallback() {
+        for (const child of this.shadowRoot!.childNodes) this.shadowRoot!.removeChild(child);
+    }
+
+    private updateTitle(): void {
+        if (this.title) {
+            const strong = document.createElement('strong');
+            strong.textContent = this.dialogTitle;
+            this.titleElement.append(strong, document.createElement('br'));
+        } else {
+            for (const child of this.titleElement.childNodes) this.titleElement.removeChild(child);
+        }
     }
 
     private setUpRenderer(): void {
         this.dialog.renderer = (root: HTMLElement) => {
             if (this.renderedOnce) return;
             this.renderedOnce = true;
-            if (this.hasAttribute('title')) {
-                root.append(this.getTitle());
-                root.append(document.createElement('br'));
-            }
-            if (this.content.length > 0) {
+            root.append(this.titleElement);
+            if (this.childNodes.length > 0) {
                 const div = document.createElement('div');
-                div.append(...this.content);
+                div.append(...this.childNodes);
                 root.append(div);
             }
-            root.append(this.getConfirm(), this.getCancel());
+            root.append(this.confirmElement, this.cancelElement);
         };
     }
 
-    private getTitle(): HTMLDivElement {
-        const div = document.createElement('div');
-        const strong = document.createElement('strong');
-        strong.textContent = this.getAttribute('title');
-        div.append(strong);
-        return div;
-    }
-
-    private getConfirm(): DialogButtonElement {
-        const button = document.createElement('dialog-button') as DialogButtonElement;
-        let content = 'Confirm';
-        if (this.hasAttribute('confirm')) content = this.getAttribute('confirm')!;
-        button.textContent = content;
-        button.addEventListener('click', () => {
-            if (!this.hasAttribute('no-confirm-close')) this.close();
+    private setUpConfirm(): void {
+        this.updateConfirm();
+        this.confirmElement.addEventListener('click', () => {
+            if (!this.noCloseOnConfirm) this.close();
             this.dispatchConfirm();
         });
-        return button;
     }
 
     /**
@@ -105,13 +167,17 @@ export default class ConfirmDialogElement extends HTMLElement {
         this.dispatchEvent(new Event('confirm'));
     }
 
-    private getCancel(): DialogButtonElement {
-        const button = document.createElement('dialog-button') as DialogButtonElement;
-        let cancel = 'Cancel';
-        if (this.hasAttribute('cancel')) cancel = this.getAttribute('cancel')!;
-        button.textContent = cancel;
-        button.addEventListener('click', () => this.close());
-        return button;
+    private setUpCancel(): void {
+        this.updateCancel();
+        this.cancelElement.addEventListener('click', () => this.close());
+    }
+
+    private updateCancel(): void {
+        this.cancelElement.text = this.cancel;
+    }
+
+    private updateConfirm(): void {
+        this.confirmElement.text = this.confirm;
     }
 }
 

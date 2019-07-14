@@ -6,25 +6,56 @@
  * @attribute `title` (required) Title (e.g., `Effects`)
  */
 export default class TitledItemElement extends HTMLElement {
-    private connectedOnce = false;
+    private readonly titleElement = document.createElement('strong');
+    private body: HTMLDivElement | null = null;
 
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
     }
 
+    static get observedAttributes() {
+        return ['title'];
+    }
+
+    get title(): string {
+        return this.getAttribute('title')!;
+    }
+
+    set title(value: string) {
+        this.setAttribute('title', value);
+        this.updateTitle();
+    }
+
+    // @ts-ignore: Variable declared but never read
+    attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+        if (name === 'title') this.updateTitle();
+    }
+
     connectedCallback() {
-        if (this.connectedOnce) return;
-        this.connectedOnce = true;
+        if (!this.isConnected) return;
+        this.setUpBody();
+        this.updateTitle();
         const item = document.createElement('vaadin-item');
         const titleDiv = document.createElement('div');
-        const strong = document.createElement('strong');
-        strong.textContent = this.getAttribute('title');
-        titleDiv.append(strong);
-        const bodyDiv = document.createElement('div');
-        bodyDiv.append(...this.childNodes);
-        item.append(titleDiv, bodyDiv);
+        titleDiv.append(this.titleElement);
+        item.append(titleDiv, this.body!);
         this.shadowRoot!.append(item);
+    }
+
+    disconnectedCallback() {
+        for (const child of this.shadowRoot!.childNodes) this.shadowRoot!.removeChild(child);
+    }
+
+    private setUpBody(): void {
+        if (!this.body) {
+            this.body = document.createElement('div');
+            this.body.append(...this.childNodes);
+        }
+    }
+
+    private updateTitle(): void {
+        this.titleElement.textContent = this.title;
     }
 }
 

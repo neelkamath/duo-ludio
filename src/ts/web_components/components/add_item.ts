@@ -17,27 +17,25 @@ export class AddEvent extends Event {
  * Example:
  * ```
  * <add-item id="new-item"></add-item>
- * <script>
- *     const adder = document.querySelector('#new-item');
- *     adder.addEventListener('add', ({data}) => console.log(data.trim()));
- * </script>
+ * <script>document.querySelector('#new-item').addEventListener('add', ({data}) => console.log(data.trim()));</script>
  ```
  */
 export class ItemAdderElement extends HTMLElement {
-    private connectedOnce = false;
-
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
     }
 
     connectedCallback() {
-        if (this.connectedOnce) return;
-        this.connectedOnce = true;
+        if (!this.isConnected) return;
         const field = document.createElement('vaadin-text-field') as TextFieldElement;
         field.label = 'Item name';
         field.placeholder = 'Mindless HW';
         this.shadowRoot!.append(field, this.getButton(field));
+    }
+
+    disconnectedCallback() {
+        for (const child of this.shadowRoot!.childNodes) this.shadowRoot!.removeChild(child);
     }
 
     /**

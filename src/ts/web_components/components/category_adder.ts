@@ -21,16 +21,13 @@ export class AddEvent extends Event {
  * ```
  */
 export class CategoryAdderElement extends HTMLElement {
-    private connectedOnce = false;
-
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
     }
 
     connectedCallback() {
-        if (this.connectedOnce) return;
-        this.connectedOnce = true;
+        if (!this.isConnected) return;
         const adder = document.createElement('validated-adder') as validatedAdder.ValidatedAdderElement;
         adder.setAttribute('aria-label', 'Invalid category name');
         adder.getInvalidMessage = getInvalidMessenger();
@@ -40,6 +37,10 @@ export class CategoryAdderElement extends HTMLElement {
             this.dispatchAdd(data);
         });
         this.shadowRoot!.append(adder);
+    }
+
+    disconnectedCallback() {
+        for (const child of this.shadowRoot!.childNodes) this.shadowRoot!.removeChild(child);
     }
 
     /**

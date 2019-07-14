@@ -17,7 +17,7 @@ export default async function (): Promise<HTMLSpanElement> {
 /** @param category The category to create an editor for */
 function getEditor(category: string): ItemEditorElement {
     const editor = document.createElement('item-editor') as ItemEditorElement;
-    editor.setAttribute('item', category);
+    editor.item = category;
     editor.getInvalidMessage = getInvalidMessenger();
     let name = category;
     editor.addEventListener('rename', async (event) => {

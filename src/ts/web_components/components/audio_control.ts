@@ -4,20 +4,20 @@ import {ButtonElement} from '@vaadin/vaadin-button/src/vaadin-button';
 import {IronIcon} from '@vaadin/vaadin-icons/vaadin-icons';
 
 /**
- * This web component's HTML name is `audio-control`. It is a play/stop button (play button by default). Use
- * [[displaysStop]] to change the button's state.
+ * This web component's HTML name is `audio-control`. It is a play/stop button (play button by default). Use [[stop]] to
+ * change the button's state.
  *
  * Example:
  * ```
- * <audio-control id="control"></audio-control>
+ * <audio-control id="control" displays-stop></audio-control>
  * <script>
  *     const control = document.querySelector('#control');
- *     control.addEventListener('click', () => control.displaysStop = !control.displaysStop);
+ *     control.addEventListener('click', () => control.stop = !control.stop);
  * </script>
  * ```
+ * @attribute stop This boolean attribute indicates whether the button is stop button or a play button
  */
 export default class AudioControlElement extends HTMLElement {
-    private connectedOnce = false;
     private readonly button: ButtonElement = document.createElement('vaadin-button');
     private readonly ironIcon: IronIcon = document.createElement('iron-icon');
     private readonly text = document.createTextNode('Play');
@@ -26,38 +26,50 @@ export default class AudioControlElement extends HTMLElement {
         super();
         this.attachShadow({mode: 'open'});
         this.ironIcon.slot = 'prefix';
-        this.displaysStop = false;
     }
 
-    private _displaysStop!: boolean;
+    static get observedAttributes() {
+        return ['stop'];
+    }
 
     /** Whether the control shows a stop button instead of a play button */
-    get displaysStop(): boolean {
-        return this._displaysStop;
+    get stop(): boolean {
+        return this.hasAttribute('stop');
     }
 
-    set displaysStop(value: boolean) {
-        value ? this.play() : this.stop();
-        this._displaysStop = value;
+    set stop(value: boolean) {
+        if (value) {
+            this.setAttribute('stop', '');
+        } else {
+            this.removeAttribute('stop');
+        }
+        this.updateStop();
+    }
+
+    // @ts-ignore: Variable declared but never read
+    attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+        if (name === 'stop') this.updateStop();
     }
 
     connectedCallback() {
-        if (this.connectedOnce) return;
-        this.connectedOnce = true;
+        if (!this.isConnected) return;
+        this.updateStop();
         this.button.append(this.ironIcon, this.text);
         this.shadowRoot!.append(this.button);
     }
 
-    /** Makes this element a play button */
-    private stop(): void {
-        this.ironIcon.icon = 'vaadin:play';
-        this.text.textContent = 'Play';
+    disconnectedCallback() {
+        for (const child of this.shadowRoot!.childNodes) this.shadowRoot!.removeChild(child);
     }
 
-    /** Makes this element a stop button */
-    private play(): void {
-        this.ironIcon.icon = 'vaadin:stop';
-        this.text.textContent = 'Stop';
+    private updateStop(): void {
+        if (this.stop) {
+            this.ironIcon.icon = 'vaadin:stop';
+            this.text.textContent = 'Stop';
+        } else {
+            this.ironIcon.icon = 'vaadin:play';
+            this.text.textContent = 'Play';
+        }
     }
 }
 

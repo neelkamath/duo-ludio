@@ -1,34 +1,33 @@
 import ProgressIndicatorElement from './progress_indicator';
 import TitledItemElement from './titled_item';
 import AudioControlElement from './audio_control';
-import {AudioPlayerElement} from './audio_player';
+import AudioPlayerElement from './audio_player';
+import AudioData from '../audio_data';
 
 /**
  * This web component's HTML name is `playable-track`. It contains a track's name, effects, and audio player. Place the
  * effects HTML in between this element's HTML tags. You must call [[displayDownloader]], [[displayControl]], or
- * [[displayOffline]] at least once. The audio will play in a gapless infinite loop by trimming the first and last
- * second of the audio. It will not be available via system controls since it does not make use of an HTML media
- * element. Assign [[player]] before this element is connected to the DOM.
+ * [[displayOffline]] at least once. It will not be available via system controls since it does not make use of an HTML
+ * media element. Call [[setPlayer]] and [[setSound]] before this element is connected to the DOM.
  *
  * Example:
  * ```
- * <playable-track id="track" name="Alpha 8 Hz" src="Alpha_8_Hz.aac" format="aac" duration="5000">
- *     <ul><li>Focusing</li></ul>
- * </playable-track>
+ * <playable-track id="track" name="Alpha 8 Hz"><ul><li>Focusing</li></ul></playable-track>
  * <script>
  *     const track = document.querySelector('#track');
- *     track.player
+ *     track.setPlayer(document.createElement('audio-player'));
+ *     track.setSound({src: 'Alpha_8_Hz.aac', format: 'aac', start: 1000, end: 4000, loop: true});
  *     track.displayControl();
  * </script>
  * ```
- * @attribute name (required) Track name (e.g., `'Alpha 10 Hz Isochronic Pulses'`)
- * @attribute src (required) Audio URL
- * @attribute format (required) Audio's file extension (e.g., `mp3`, `aac`)
- * @attribute duration (required) Audio's duration in milliseconds
+ * @attribute name (required) Track name (e.g., `Alpha 10 Hz Isochronic Pulses`)
  */
-export class PlayableTrackElement extends HTMLElement {
-    player = document.createElement('audio-player') as AudioPlayerElement;
-    private connectedOnce = false;
+export default class PlayableTrackElement extends HTMLElement {
+    private player!: AudioPlayerElement;
+    private sound!: AudioData;
+    private nameElement: HTMLHeadingElement = document.createElement('h2');
+    /** `null` if there are no effects to display */
+    private effects: TitledItemElement | null = null;
     private readonly control = document.createElement('audio-control') as AudioControlElement;
     private readonly download = document.createElement('progress-indicator') as ProgressIndicatorElement;
     private readonly offline = document.createTextNode('The track cannot be downloaded since you are offline.');
@@ -36,17 +35,54 @@ export class PlayableTrackElement extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
-        this.download.textContent = 'Downloading...';
+        this.download.text = 'Downloading...';
+    }
+
+    static get observedAttributes() {
+        return ['name'];
+    }
+
+    get name(): string {
+        return this.getAttribute('name')!;
+    }
+
+    set name(value: string) {
+        this.setAttribute('name', value);
+        this.updateName();
+    }
+
+    // @ts-ignore: Variable declared but never read
+    attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+        if (name === 'name') this.updateName();
+    }
+
+    /** Calling this more than once will throw an `Error` */
+    setPlayer(player: AudioPlayerElement): void {
+        if (this.player) throw new Error('Audio player already set');
+        this.player = player;
+    }
+
+    /** Calling this more than once will throw an `Error` */
+    setSound(sound: AudioData): void {
+        if (this.sound) throw new Error('Sound already set');
+        this.sound = sound;
     }
 
     connectedCallback() {
-        if (this.connectedOnce) return;
-        this.connectedOnce = true;
+        if (!this.isConnected) return;
+        this.setUpEffects();
         this.setUpAudio();
-        if (this.childNodes.length > 0) this.shadowRoot!.prepend(this.getEffects());
-        const h2 = document.createElement('h2');
-        h2.textContent = this.getAttribute('name');
-        this.shadowRoot!.prepend(h2);
+        this.updateName();
+        if (this.effects) this.shadowRoot!.prepend(this.effects);
+        this.shadowRoot!.prepend(this.nameElement);
+    }
+
+    disconnectedCallback() {
+        for (const child of this.shadowRoot!.childNodes) this.shadowRoot!.removeChild(child);
+    }
+
+    private updateName(): void {
+        this.nameElement.textContent = this.name;
     }
 
     /** Displays the audio control */
@@ -60,26 +96,15 @@ export class PlayableTrackElement extends HTMLElement {
     }
 
     private setUpAudio(): void {
-        let selfSent = false;
         this.control.addEventListener('click', () => {
-            selfSent = true;
-            if (this.control.displaysStop) {
-                this.player.stop()
+            if (this.control.stop) {
+                this.player.stop();
             } else {
-                this.player.play({
-                    src: this.getAttribute('src')!,
-                    format: this.getAttribute('format')!,
-                    start: 1000,
-                    end: parseFloat(this.getAttribute('duration')!) - 1000,
-                    loop: true
-                });
+                this.player.play(this.sound);
+                this.control.stop = true;
             }
-            this.control.displaysStop = !this.control.displaysStop;
-            selfSent = false;
         });
-        this.player.addEventListener('stop', () => {
-            if (!selfSent) this.control.displaysStop = false;
-        });
+        this.player.addEventListener('stop', () => this.control.stop = false);
     }
 
     /** Displays that the track cannot be currently downloaded */
@@ -87,12 +112,12 @@ export class PlayableTrackElement extends HTMLElement {
         this.replaceAudioContent(this.offline);
     }
 
-    /** @returns Effects, assuming they're present */
-    private getEffects(): TitledItemElement {
-        const item = document.createElement('titled-item') as TitledItemElement;
-        item.title = 'Effects';
-        item.append(...this.childNodes);
-        return item;
+    private setUpEffects(): void {
+        if (!this.effects && this.childNodes.length > 0) {
+            this.effects = document.createElement('titled-item') as TitledItemElement;
+            this.effects.title = 'Effects';
+            this.effects.append(...this.childNodes);
+        }
     }
 
     private replaceAudioContent(child: ChildNode): void {
