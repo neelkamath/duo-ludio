@@ -1,7 +1,7 @@
 import getInvalidMessenger from '../message';
-import * as categories from '../../storage/categories';
-import {ItemEditorElement, RenameEvent} from '../../web_components/components/item_editor';
-import {AddEvent} from '../../web_components/components/category_adder';
+import * as categories from '../storage/categories';
+import {ItemEditorElement, RenameEvent} from '../web_components/components/item_editor';
+import {AddEvent} from '../web_components/components/category_adder';
 
 /** @returns The contents of the "Edit" tab */
 export default async function (): Promise<HTMLSpanElement> {

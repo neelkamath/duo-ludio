@@ -29,7 +29,6 @@ import DialogButtonElement from './dialog_button';
  * automatically close when the confirm button is clicked. You should instead close it manually using [[close]].
  */
 export default class ConfirmDialogElement extends HTMLElement {
-    private renderedOnce = false;
     private readonly dialog: DialogElement = document.createElement('vaadin-dialog');
     private readonly titleElement: HTMLDivElement = document.createElement('div');
     private readonly cancelElement = document.createElement('dialog-button') as DialogButtonElement;
@@ -38,6 +37,10 @@ export default class ConfirmDialogElement extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
+    }
+
+    disconnectedCallback() {
+        for (const child of this.shadowRoot!.childNodes) child.remove();
     }
 
     static get observedAttributes() {
@@ -54,7 +57,6 @@ export default class ConfirmDialogElement extends HTMLElement {
         } else {
             this.removeAttribute('dialog-title');
         }
-        this.updateTitle();
     }
 
     get cancel(): string {
@@ -63,7 +65,6 @@ export default class ConfirmDialogElement extends HTMLElement {
 
     set cancel(value: string) {
         this.setAttribute('cancel', value);
-        this.updateCancel();
     }
 
     get confirm(): string {
@@ -72,7 +73,6 @@ export default class ConfirmDialogElement extends HTMLElement {
 
     set confirm(value: string) {
         this.setAttribute('confirm', value);
-        this.updateConfirm();
     }
 
     get noCloseOnConfirm(): boolean {
@@ -121,24 +121,19 @@ export default class ConfirmDialogElement extends HTMLElement {
         this.shadowRoot!.append(this.dialog);
     }
 
-    disconnectedCallback() {
-        for (const child of this.shadowRoot!.childNodes) this.shadowRoot!.removeChild(child);
-    }
-
     private updateTitle(): void {
         if (this.title) {
             const strong = document.createElement('strong');
             strong.textContent = this.dialogTitle;
             this.titleElement.append(strong, document.createElement('br'));
         } else {
-            for (const child of this.titleElement.childNodes) this.titleElement.removeChild(child);
+            for (const child of this.titleElement.childNodes) child.remove();
         }
     }
 
     private setUpRenderer(): void {
         this.dialog.renderer = (root: HTMLElement) => {
-            if (this.renderedOnce) return;
-            this.renderedOnce = true;
+            if (root.hasChildNodes()) return;
             root.append(this.titleElement);
             if (this.childNodes.length > 0) {
                 const div = document.createElement('div');

@@ -10,9 +10,13 @@ import localForage from 'localforage';
 /** This is the item "categories" in persistent storage. The keys are category names, and the values are its tracks. */
 export type Categories = Map<string, Set<string>>;
 
-/** Initializes storage if necessary */
+/**
+ * This will initialize persistent storage if required. It will also start downloading every track the user saved if it
+ * hasn't already been. This function will return before all the tracks have finished downloading.
+ */
 export async function initialize(): Promise<void> {
     if (await getCategories() === null) await setCategories(new Map());
+    beats.TrackManager.downloadAll([...await getAllTracks()]);
 }
 
 export async function getCategories(): Promise<Categories> {
@@ -100,7 +104,7 @@ export async function getAllTracks(): Promise<Set<string>> {
 /**
  * This will download every track in `categories`, and delete every other downloaded track. This function will return
  * before all the tracks have finished downloading.
- * @param categories Categories to overwrite all existing categories
+ * @param categories The categories which will overwrite every existing category
  */
 export async function setCategories(categories: Categories): Promise<void> {
     await localForage.setItem('categories', categories);

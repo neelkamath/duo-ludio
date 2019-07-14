@@ -30,7 +30,6 @@ export default class DialogButtonElement extends HTMLElement {
 
     set text(value: string) {
         this.setAttribute('text', value);
-        this.updateText();
     }
 
     // @ts-ignore: Variable declared but not used
@@ -47,7 +46,7 @@ export default class DialogButtonElement extends HTMLElement {
     }
 
     disconnectedCallback() {
-        for (const child of this.shadowRoot!.childNodes) this.shadowRoot!.removeChild(child);
+        for (const child of this.shadowRoot!.childNodes) child.remove();
     }
 
     private updateText(): void {

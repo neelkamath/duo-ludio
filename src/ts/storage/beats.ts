@@ -113,10 +113,10 @@ export abstract class TrackManager {
      * returns before finishing the download.
      */
     static async download(track: string): Promise<void> {
+        const name = track.slice(0, track.lastIndexOf('.'));
+        const controller = new AbortController();
+        TrackManager.downloading.set(track, () => controller.abort());
         try {
-            const name = track.slice(0, track.lastIndexOf('.'));
-            const controller = new AbortController();
-            TrackManager.downloading.set(track, () => controller.abort());
             const response = await fetch(trackUrls[name], {signal: controller.signal});
             await saveTrack(track, await response.blob());
             TrackManager.downloading.delete(track);
@@ -151,10 +151,17 @@ export abstract class TrackManager {
     }
 }
 
-/** @returns After `track` has finished downloading */
-export async function awaitDownload(track: string): Promise<void> {
-    while (!await isDownloaded(track)) {
-    }
+/**
+ * @param track The track to check the download status for
+ * @param callback Called after `track` has finished downloading
+ */
+export async function awaitDownload(track: string, callback: () => void): Promise<void> {
+    const id = setInterval(async () => {
+        if (await isDownloaded(track)) {
+            clearInterval(id);
+            callback();
+        }
+    }, 1000);
 }
 
 /**

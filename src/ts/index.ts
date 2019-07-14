@@ -1,8 +1,8 @@
 // @ts-ignore: Missing module declaration
 import {TabElement} from '@vaadin/vaadin-tabs/src/vaadin-tab';
-import getCategoriesTab from './tabs/content/categories';
-import getEditTab from './tabs/content/edit';
-import getTracksTab from './tabs/content/tracks';
+import getCategoriesTab from './tabs/categories';
+import getEditTab from './tabs/edit';
+import getTracksTab from './tabs/tracks';
 import * as categories from './storage/categories';
 import './web_components/components';
 import localForage from 'localforage';

@@ -1,5 +1,7 @@
 // @ts-ignore: Missing module declaration
 import {ButtonElement} from '@vaadin/vaadin-button/src/vaadin-button';
+// @ts-ignore: Missing module declaration
+import {VerticalLayoutElement} from '@vaadin/vaadin-ordered-layout/src/vaadin-vertical-layout';
 import TitledItemElement from './titled_item';
 
 export interface SingleFrequencyTrack {
@@ -33,12 +35,13 @@ export interface SolfeggioTrack {
  */
 export class TrackDataElement extends HTMLElement {
     private track!: PureTrack | IsochronicTrack | SolfeggioTrack;
-    /** `null` if there are no effects to display */
-    private effects: TitledItemElement | null = null;
+    private readonly effects = document.createElement('titled-item') as TitledItemElement;
+    private readonly layout: VerticalLayoutElement = document.createElement('vaadin-vertical-layout');
 
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
+        this.effects.title = 'Effects';
     }
 
     /** Calling this more than once will throw an `Error` */
@@ -57,16 +60,15 @@ export class TrackDataElement extends HTMLElement {
 
     connectedCallback() {
         if (!this.isConnected) return;
-        this.setUpEffects();
-        const layout = document.createElement('vaadin-vertical-layout');
-        layout.append(TrackDataElement.getDiv(this.getFrequency()));
-        if (this.effects) layout.append(TrackDataElement.getDiv(this.effects));
-        layout.append(TrackDataElement.getDiv(this.getButton()));
-        this.shadowRoot!.append(layout);
+        this.effects.append(...this.childNodes);
+        this.layout.append(TrackDataElement.getDiv(this.getFrequency()));
+        if (this.effects) this.layout.append(TrackDataElement.getDiv(this.effects));
+        this.layout.append(TrackDataElement.getDiv(this.getButton()));
+        this.shadowRoot!.append(this.layout);
     }
 
     disconnectedCallback() {
-        for (const child of this.shadowRoot!.childNodes) this.shadowRoot!.removeChild(child);
+        for (const child of this.shadowRoot!.childNodes) child.remove();
     }
 
     /**
@@ -84,14 +86,6 @@ export class TrackDataElement extends HTMLElement {
         button.innerHTML = '<iron-icon icon="vaadin:plus" slot="prefix"></iron-icon> Add to category';
         button.addEventListener('click', () => this.dispatchAdd());
         return button;
-    }
-
-    private setUpEffects(): void {
-        if (!this.effects && this.childNodes.length > 0) {
-            this.effects = document.createElement('titled-item') as TitledItemElement;
-            this.effects.title = 'Effects';
-            this.effects.append(...this.childNodes);
-        }
     }
 
     private getFrequency(): HTMLHeadingElement {

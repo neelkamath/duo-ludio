@@ -43,7 +43,7 @@ export class ValidatedAdderElement extends HTMLElement {
     }
 
     disconnectedCallback() {
-        for (const child of this.shadowRoot!.childNodes) this.shadowRoot!.removeChild(child);
+        for (const child of this.shadowRoot!.childNodes) child.remove();
     }
 
     /**
