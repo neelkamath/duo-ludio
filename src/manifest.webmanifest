@@ -22,18 +22,6 @@
   ],
   "lang": "en-US",
   "name": "Duo Ludio",
-  "prefer_related_applications": false,
-  "related_applications": [
-    {
-      "platform": "play",
-      "url": "https://play.google.com/store/apps/details?id=net.luizmello.brainwaves",
-      "id": "net.luizmello.brainwaves"
-    },
-    {
-      "platform": "itunes",
-      "url": "https://apps.apple.com/us/app/binaural-%CE%B2/id838752522#?platform=iphone"
-    }
-  ],
   "scope": "/",
   "screenshots": [
     {

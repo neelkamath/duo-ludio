@@ -1,5 +1,7 @@
 // @ts-ignore: Missing module declaration
 import {TabElement} from '@vaadin/vaadin-tabs/src/vaadin-tab';
+// @ts-ignore: Missing module declaration
+import {ButtonElement} from '@vaadin/vaadin-button/src/vaadin-button';
 import getCategoriesTab from './tabs/categories';
 import getEditTab from './tabs/edit';
 import getTracksTab from './tabs/tracks';
@@ -30,14 +32,12 @@ function getTab(
     return tab;
 }
 
-/** @returns `HTMLDivElement` containing a button to install the PWA, with its CSS display set to `none` */
-function createInstaller(): HTMLDivElement {
-    const div = document.createElement('div');
-    div.style.display = 'none';
+/** @returns Button to install the PWA, with its CSS display set to `none` */
+function createInstaller(): ButtonElement {
     const button = document.createElement('vaadin-button');
-    button.innerHTML = '<iron-icon icon="vaadin:plus" slot="prefix"></iron-icon> Install';
-    div.append(button);
-    return div;
+    button.style.display = 'none';
+    button.innerHTML = '<iron-icon icon="vaadin:home" slot="prefix"></iron-icon> Install';
+    return button;
 }
 
 async function initUI(): Promise<void> {
