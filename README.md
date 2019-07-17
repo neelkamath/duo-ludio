@@ -1,4 +1,4 @@
-<p align="center"><img alt="Favicon" src="src/favicon.png"></p>
+<p align="center"><img alt="Favicon" src="src/icons/apple-touch-icon.png"></p>
 
 # Duo Ludio
 
@@ -22,7 +22,14 @@ The name Duo Ludio is Latin for "Two Player" ("Two" for binaural beats).
 ### Development
 
 1. `npm run dev`
-1. Open `src/index.html` in your browser.
+1. Open `http://localhost:1234` in your browser.
+
+Since this is a PWA, it uses a service worker to precache files. Since we use Parcel to bundle the files, we have to dynamically precache the files since the filenames are always changing. But Parcel does'nt support the service worker generator (Workbox). So, during development, although the web app will work normally when not testing precaching, a workaround must be made when testing the service worker. The workaround is:
+1. Build the files to precache (`npm run dev`).
+1. Stop the server after the files have been built in order to run another command (`Ctrl+C`/`control+C`).
+1. Update the service worker with the new files (`npm run sw`).
+1. Run the development server again to test on (`npm run dev`).
+1. Repeat the above steps whenever you have new files to precache.
 
 ### Production
 
@@ -41,7 +48,11 @@ The `dist/` directory will contain the built website.
 
 ## Documentation
 
-The Material Design spec is not to be followed strictly, but as a guideline.
+### Styling
+
+The Material Design spec is not to be followed strictly, but as a guideline. Theming for things such as favicons are taken from [Vaadin's Material Design specs](https://cdn.vaadin.com/vaadin-material-styles/1.2.0/demo/index.html).
+
+The background color is `#fff`, and the theme color is `#6200ee` (both CSS colors).
 
 ### TypeScript
 
@@ -53,28 +64,36 @@ The binaural beats used are from the [v4.0.0](https://github.com/neelkamath/bina
 
 ### Continuous Deployment
 
-Continuous delivery has been setup using [Netlify](https://www.netlify.com), which automatically deploys all commits to the `master` branch.
+Continuous delivery has been setup using [Netlify](https://www.netlify.com) to automatically update the production web app whenever there's a new commit to the `master` branch.
 
 ### Favicon
 
-[favicon.io](https://favicon.io/favicon-generator/) is used to generate the favicon. When styling the favicon on their site, follow [Vaadin's Material Design specs](https://cdn.vaadin.com/vaadin-material-styles/1.2.0/demo/index.html). This means setting up as shown below.
+[favicon.io](https://favicon.io/favicon-generator/) is used to generate the favicon. Generate it as shown below.
 
 ![Favicon Setup](favicon_setup.png)
 
 ### Storage
 
-`localForage` is used to persist data. To access metadata on binaural beats (which are stored in `src/binaural_beats/data.json`), use the abstraction layer `src/ts/storage/beats.ts`. The abstraction layer for the `categories` item is `src/ts/storage/categories.ts`.
+`localForage` is used to persist data.
+ 
+#### `categories`
 
-Each track is downloaded a `localForage` item of the same name. For example, `Alpha_8_Hz.mp3`'s `Blob` is saved to the `Alpha_8_Hz.mp3` item.
+The abstraction layer for the `categories` item is `src/ts/storage/categories.ts`. 
 
 The `categories` item contains the user's binaural beats collection. Each key is the name of a category. Each value is an `array` of `string`s denoting the names of tracks. Track names correspond to tracks in the directory `src/binaural_beats/tracks/`. An example is shown below.
 ```json
 {
   "Meditation": [
-    "Theta_6_Hz_Isochronic_Pulses.mp3"
+    "Theta_6_Hz_Isochronic_Pulses.aac"
   ]
 }
 ```
+
+#### Binaural Beats
+
+To access metadata on binaural beats (which are stored in `src/binaural_beats/data.json`), use the abstraction layer `src/ts/storage/beats.ts`.
+
+Each track is downloaded a `localForage` item of the same name. For example, `Alpha_8_Hz.aac`'s `Blob` is saved to the `Alpha_8_Hz.aac` item.
 
 ### Web Components
 
@@ -97,7 +116,6 @@ TypeDoc does'nt allow you to use the `event` in places such as constructors. A w
 
 - Description: [How to Create a Product Vision by Joel Spolsky](https://www.joelonsoftware.com/2002/05/09/product-vision/)
 - Favicon: [favicon.io](https://favicon.io/favicon-generator/)
-- [Website Boilerplate](https://github.com/neelkamath/website-boilerplate)
 - [Binaural Beats Dataset](https://github.com/neelkamath/binaural-beats-dataset)
 
 ## License

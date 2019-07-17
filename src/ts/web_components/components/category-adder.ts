@@ -1,6 +1,6 @@
 import getInvalidMessenger from '../../message';
 import * as categories from '../../storage/categories';
-import * as validatedAdder from './validated_adder';
+import * as validatedAdder from './validated-adder';
 
 /** An `add` event */
 export class AddEvent extends Event {

@@ -1,9 +1,9 @@
 // @ts-ignore: Missing module declaration
 import {AccordionElement} from '@vaadin/vaadin-accordion/src/vaadin-accordion';
-import PlayableTrackElement from '../web_components/components/playable_track';
+import PlayableTrackElement from '../web_components/components/playable-track';
 import * as categories from '../storage/categories';
 import * as beats from '../storage/beats';
-import AudioPlayerElement from '../web_components/components/audio_player';
+import AudioPlayerElement from '../web_components/components/audio-player';
 
 /**
  * The contents of the "Categories" tab

@@ -1,5 +1,5 @@
 import * as categories from './storage/categories';
-import {InvalidityMessenger} from './web_components/invalid_message';
+import {InvalidityMessenger} from './web_components/invalid-message';
 
 export default function (): InvalidityMessenger {
     return async (name: string): Promise<string | null> => {

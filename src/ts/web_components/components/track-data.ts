@@ -2,7 +2,7 @@
 import {ButtonElement} from '@vaadin/vaadin-button/src/vaadin-button';
 // @ts-ignore: Missing module declaration
 import {VerticalLayoutElement} from '@vaadin/vaadin-ordered-layout/src/vaadin-vertical-layout';
-import TitledItemElement from './titled_item';
+import TitledItemElement from './titled-item';
 
 export interface SingleFrequencyTrack {
     /** Frequency in Hz */
@@ -44,18 +44,18 @@ export class TrackDataElement extends HTMLElement {
         this.effects.title = 'Effects';
     }
 
-    /** Calling this more than once will throw an `Error` */
-    setTrack(track: PureTrack | IsochronicTrack | SolfeggioTrack): void {
-        if (this.track) throw new Error('Track already set');
-        this.track = track;
-    }
-
     /** @returns A `vaadin-vertical-layout` block containing `child` */
     private static getDiv(child: HTMLElement): HTMLDivElement {
         const div = document.createElement('div');
         div.className = 'block';
         div.append(child);
         return div;
+    }
+
+    /** Calling this more than once will throw an `Error` */
+    setTrack(track: PureTrack | IsochronicTrack | SolfeggioTrack): void {
+        if (this.track) throw new Error('Track already set');
+        this.track = track;
     }
 
     connectedCallback() {

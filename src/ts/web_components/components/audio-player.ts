@@ -1,5 +1,5 @@
 import {Howl} from 'howler';
-import AudioData from '../audio_data';
+import AudioData from '../audio-data';
 
 /**
  * This web component's HTML name is `audio-player`. Delegating audio playback to this class ensures that only one audio

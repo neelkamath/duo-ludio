@@ -4,9 +4,9 @@ import {ButtonElement} from '@vaadin/vaadin-button/src/vaadin-button';
 import {ItemElement} from '@vaadin/vaadin-item/src/vaadin-item';
 // @ts-ignore: Missing module declaration
 import {TextFieldElement} from '@vaadin/vaadin-text-field/src/vaadin-text-field';
-import ConfirmDialogElement from './confirm_dialog';
-import DismissDialogElement from './dismiss_dialog';
-import {InvalidityMessenger} from '../invalid_message';
+import ConfirmDialogElement from './confirm-dialog';
+import DismissDialogElement from './dismiss-dialog';
+import {InvalidityMessenger} from '../invalid-message';
 
 export class RenameEvent extends Event {
     constructor(readonly oldName: string, readonly newName: string) {
