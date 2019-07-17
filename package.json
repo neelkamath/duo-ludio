@@ -5,8 +5,8 @@
   },
   "scripts": {
     "sw": "workbox generateSW workbox-config.js",
-    "dev": "parcel src/index.html",
-    "build": "parcel build src/index.html && npm run sw",
+    "dev": "npm run sw && parcel src/index.html",
+    "build": "npm run sw && parcel build src/index.html && npm run sw",
     "doc": "typedoc --out docs --listInvalidSymbolLinks --name 'Duo Ludio'",
     "test": "tsc --noEmit && npm run doc"
   },
