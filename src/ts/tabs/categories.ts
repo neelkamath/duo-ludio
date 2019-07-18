@@ -106,13 +106,9 @@ async function placeAudio(playable: PlayableTrackElement, track: string, format:
  */
 async function place(playable: PlayableTrackElement, track: string, format: string): Promise<void> {
     // The first and last seconds of the audio are trimmed to allow for gapless playback.
-    playable.setSound({
-        src: URL.createObjectURL(await beats.getAudio(track)),
-        format: format,
-        start: 1000,
-        end: (beats.getTrackDuration(track) * 1000) - 1000,
-        loop: true
-    });
+    playable.setSound(
+        {src: URL.createObjectURL(await beats.getAudio(track)), format, duration: beats.getTrackDuration(track)}
+    );
 
     playable.displayControl();
 }

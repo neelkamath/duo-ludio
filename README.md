@@ -16,7 +16,6 @@ The name Duo Ludio is Latin for "Two Player" ("Two" for binaural beats).
     - HTTPS: `git clone https://github.com/neelkamath/duo-ludio.git`
 1. `cd duo-ludio`
 1. `npm i`
-1. Generate service worker: `npm sw`
 
 ## Usage
 
