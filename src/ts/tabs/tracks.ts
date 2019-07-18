@@ -27,14 +27,14 @@ export default function (): HTMLSpanElement {
 
 /**
  * @param content Where the tab's content is placed
- * @returns Tabs for every brainwave
+ * @returns A tab for every brainwave
  */
 function getTabs(content: HTMLDivElement): TabElement[] {
     return ['alpha', 'beta', 'delta', 'gamma', 'theta'].reduce((tabs, wave) => {
         const tab = document.createElement('vaadin-tab');
         tab.append(document.createTextNode(wave));
         tab.addEventListener('click', () => {
-            for (const child of content.childNodes) child.remove();
+            while (content.firstChild) content.removeChild(content.firstChild);
             const data = beats.getBrainwave(wave);
             content.append(getDetails(data), getTrackTypes(data));
         });

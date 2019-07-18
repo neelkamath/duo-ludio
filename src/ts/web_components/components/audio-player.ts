@@ -32,7 +32,7 @@ export default class AudioPlayerElement extends HTMLElement {
     play(data: AudioData): void {
         this.stop();
         if (data.duration > 60 * 1000) { // Don't use sprites for long tracks as it wouldn't be performant otherwise.
-            this.sound = new Howl({src: data.src, format: data.format, loop: true});
+            this.sound = new Howl({src: data.src, format: data.format, loop: true, html5: true});
             this.soundId = this.sound.play();
         } else {
             // We have to use a sprite from howler.js because HTML media elements do not support gapless playback.
