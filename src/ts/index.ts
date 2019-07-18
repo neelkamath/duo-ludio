@@ -32,7 +32,11 @@ function getTab(
     return tab;
 }
 
-/** @returns Button to install the PWA, with its CSS display set to `none` */
+/**
+ * Certain browsers, such as Chrome on Mac, do not have a native install button for PWAs. Hence, one must be manually
+ * created and shown.
+ * @returns Button to install the PWA, with its CSS `display` set to `none`
+ */
 function createInstaller(): ButtonElement {
     const button = document.createElement('vaadin-button');
     button.style.display = 'none';
@@ -79,9 +83,8 @@ addEventListener('beforeinstallprompt', async (event) => {
     // @ts-ignore: <userChoice> doesn't exist on <Event>
     const result = await event.userChoice;
     console.info('User decided to', result.outcome === 'accepted' ? 'install' : 'not install');
-    installer.remove();
 });
 addEventListener('appinstalled', () => {
     console.info('PWA installed');
-    installer.remove(); // If the app was installed via the browser's native button, then it wouldn't have been removed.
+    installer.remove();
 });
