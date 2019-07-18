@@ -81,4 +81,7 @@ addEventListener('beforeinstallprompt', async (event) => {
     console.info('User decided to', result.outcome === 'accepted' ? 'install' : 'not install');
     installer.remove();
 });
-addEventListener('appinstalled', () => console.info('PWA installed'));
+addEventListener('appinstalled', () => {
+    console.info('PWA installed');
+    installer.remove(); // If the app was installed via the browser's native button, then it wouldn't have been removed.
+});

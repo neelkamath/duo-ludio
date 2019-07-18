@@ -16,6 +16,7 @@ The name Duo Ludio is Latin for "Two Player" ("Two" for binaural beats).
     - HTTPS: `git clone https://github.com/neelkamath/duo-ludio.git`
 1. `cd duo-ludio`
 1. `npm i`
+1. Generate service worker: `npm run sw`
 
 ## Usage
 
@@ -33,7 +34,8 @@ Since this is a PWA, it uses a service worker to precache files. Since we use Pa
 
 ### Production
 
-`npm run build`
+1. Build files: `npm run build`
+1. Update service worker: `npm run sw`
 
 The `dist/` directory will contain the built website.
 
