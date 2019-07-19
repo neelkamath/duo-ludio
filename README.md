@@ -22,20 +22,24 @@ The name Duo Ludio is Latin for "Two Player" ("Two" for binaural beats).
 
 ### Development
 
-1. `npm run dev`
-1. Open `http://localhost:1234` in your browser.
+`npm run dev`
 
-Since this is a PWA, it uses a service worker to precache files. Since we use Parcel to bundle the files, we have to dynamically precache the files since the filenames are always changing. But Parcel does'nt support the service worker generator (Workbox). So, during development, although the web app will work normally when not testing precaching, a workaround must be made when testing the service worker. The workaround is:
-1. Build the files to precache (`npm run dev`).
-1. Stop the server after the files have been built in order to run another command (`Ctrl+C`/`control+C`).
-1. Update the service worker with the new files (`npm run sw`).
-1. Run the development server again to test on (`npm run dev`).
-1. Repeat the above steps whenever you have new files to precache.
+Open `http://localhost:1234` in your browser.
+
+#### Testing Precaching
+
+Run the following each time you have new files to test for precaching.
+1. Build: `npm run dev`
+1. After the files have been built, stop the server to run another command: `Ctrl+C`/`command+C`
+1. Update service worker: `npm run sw`
+1. Update build with updated service worker: `npm run dev`
+1. Open `http://localhost:1234` in your browser.
 
 ### Production
 
-1. Build files: `npm run build`
+1. Build: `npm run build`
 1. Update service worker: `npm run sw`
+1. Update build with updated service worker: `npm run build`
 
 The `dist/` directory will contain the built website.
 
