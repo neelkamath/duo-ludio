@@ -1,6 +1,6 @@
 // @ts-ignore: Missing module declaration
 import {DetailsElement} from '@vaadin/vaadin-details/src/vaadin-details';
-import TitledItemElement from './titled_item';
+import TitledItemElement from './titled-item';
 
 /**
  * This web component's HTML name is `wave-details`. It contains an expandable item describing a wave (e.g., alpha
@@ -67,6 +67,13 @@ export default class WaveDetailsElement extends HTMLElement {
         this.setAttribute('explanation', value);
     }
 
+    private static getSummary(): HTMLDivElement {
+        const div = document.createElement('div');
+        div.slot = 'summary';
+        div.innerHTML = '<h1>Details</h1>';
+        return div;
+    }
+
     // @ts-ignore: Variable declared but never read
     attributeChangedCallback(name: string, oldValue: string, newValue: string) {
         switch (name) {
@@ -77,13 +84,6 @@ export default class WaveDetailsElement extends HTMLElement {
             case 'explanation':
                 this.updateExplanation();
         }
-    }
-
-    private static getSummary(): HTMLDivElement {
-        const div = document.createElement('div');
-        div.slot = 'summary';
-        div.innerHTML = '<h1>Details</h1>';
-        return div;
     }
 
     connectedCallback() {

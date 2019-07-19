@@ -1,6 +1,6 @@
 // @ts-ignore: Missing module declaration
 import {DialogElement} from '@vaadin/vaadin-dialog/src/vaadin-dialog';
-import DialogButtonElement from './dialog_button';
+import DialogButtonElement from './dialog-button';
 
 /**
  * This web component has the HTML name `confirm-dialog`. It was created because Vaadin's confirm dialog wasn't free.
@@ -37,10 +37,6 @@ export default class ConfirmDialogElement extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({mode: 'open'});
-    }
-
-    disconnectedCallback() {
-        for (const child of this.shadowRoot!.childNodes) child.remove();
     }
 
     static get observedAttributes() {
@@ -85,6 +81,10 @@ export default class ConfirmDialogElement extends HTMLElement {
         } else {
             this.removeAttribute('no-close-on-confirm')
         }
+    }
+
+    disconnectedCallback() {
+        for (const child of this.shadowRoot!.childNodes) child.remove();
     }
 
     // @ts-ignore: Variable declared but never read

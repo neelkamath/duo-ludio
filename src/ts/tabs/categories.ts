@@ -1,9 +1,9 @@
 // @ts-ignore: Missing module declaration
 import {AccordionElement} from '@vaadin/vaadin-accordion/src/vaadin-accordion';
-import PlayableTrackElement from '../web_components/components/playable_track';
+import PlayableTrackElement from '../web_components/components/playable-track';
 import * as categories from '../storage/categories';
 import * as beats from '../storage/beats';
-import AudioPlayerElement from '../web_components/components/audio_player';
+import AudioPlayerElement from '../web_components/components/audio-player';
 
 /**
  * The contents of the "Categories" tab
@@ -66,12 +66,11 @@ async function getCategories(player: AudioPlayerElement): AccordionElement {
  */
 export async function getTrack(track: string, player: AudioPlayerElement): Promise<PlayableTrackElement> {
     const playable = document.createElement('playable-track') as PlayableTrackElement;
-    const parts = track.split('.');
-    const name = parts[0].replace(/_/g, ' ');
     playable.setPlayer(player);
-    playable.name = name;
+    playable.name = track.slice(0, track.indexOf('.')).replace(/_/g, ' ');
     if (beats.trackHasEffects(track)) playable.append(getEffects(track));
-    await placeAudio(playable, track, parts[1]);
+    const parts = track.split('.');
+    await placeAudio(playable, track, parts[parts.length - 1]);
     return playable;
 }
 
@@ -106,13 +105,9 @@ async function placeAudio(playable: PlayableTrackElement, track: string, format:
  */
 async function place(playable: PlayableTrackElement, track: string, format: string): Promise<void> {
     // The first and last seconds of the audio are trimmed to allow for gapless playback.
-    playable.setSound({
-        src: URL.createObjectURL(await beats.getAudio(track)),
-        format: format,
-        start: 1000,
-        end: (beats.getTrackDuration(track) * 1000) - 1000,
-        loop: true
-    });
+    playable.setSound(
+        {src: URL.createObjectURL(await beats.getAudio(track)), format, duration: beats.getTrack(track).duration * 1000}
+    );
 
     playable.displayControl();
 }

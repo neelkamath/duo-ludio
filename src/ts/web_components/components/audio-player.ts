@@ -1,5 +1,5 @@
 import {Howl} from 'howler';
-import AudioData from '../audio_data';
+import AudioData from '../audio-data';
 
 /**
  * This web component's HTML name is `audio-player`. Delegating audio playback to this class ensures that only one audio
@@ -24,17 +24,25 @@ export default class AudioPlayerElement extends HTMLElement {
         this.attachShadow({mode: 'open'});
     }
 
-    /** If an audio is currently being played, it will be stopped. Then, `data` will be played. */
+    /**
+     * If an audio is currently being played, it will be stopped. Then, `data` will be played in an infinite loop. If
+     * the audio is less than a minute in duration, its first and last seconds will be trimmed to allow for gapless
+     * playback.
+     */
     play(data: AudioData): void {
         this.stop();
-        // We have to use a sprite from howler.js because HTML media elements do not support gapless playback
-        this.sound = new Howl({
-            src: data.src,
-            format: data.format,
-            sprite: {beat: [data.start, data.end, data.loop]}
-        });
-
-        this.soundId = this.sound.play('beat');
+        if (data.duration > 60 * 1000) { // Don't use sprites for long tracks as it wouldn't be performant otherwise.
+            this.sound = new Howl({src: data.src, format: data.format, loop: true, html5: true});
+            this.soundId = this.sound.play();
+        } else {
+            // We have to use a sprite from howler.js because HTML media elements do not support gapless playback.
+            this.sound = new Howl({
+                src: data.src,
+                format: data.format,
+                sprite: {beat: [1000, data.duration - 1000, true]}
+            });
+            this.soundId = this.sound.play('beat');
+        }
     }
 
     /** If an audio is currently being played, it will be stopped. */

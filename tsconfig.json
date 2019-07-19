@@ -16,6 +16,6 @@
     "allowJs": true
   },
   "include": [
-    "./src/**/*"
+    "./src/ts/**/*"
   ]
 }

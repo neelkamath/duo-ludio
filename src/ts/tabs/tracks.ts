@@ -6,13 +6,12 @@ import {VerticalLayoutElement} from '@vaadin/vaadin-ordered-layout/src/vaadin-ve
 import {TabElement} from '@vaadin/vaadin-tabs/src/vaadin-tab';
 // @ts-ignore: Missing module declaration
 import {AccordionPanelElement} from '@vaadin/vaadin-accordion/src/vaadin-accordion-panel';
-import {AddEvent, CategoryAdderElement} from '../web_components/components/category_adder';
+import {AddEvent, CategoryAdderElement} from '../web_components/components/category-adder';
 import * as categories from '../storage/categories';
-import WaveDetailsElement from '../web_components/components/wave_details';
-import DismissDialogElement from '../web_components/components/dismiss_dialog';
-import {TrackDataElement} from '../web_components/components/track_data';
+import WaveDetailsElement from '../web_components/components/wave-details';
+import DismissDialogElement from '../web_components/components/dismiss-dialog';
+import {TrackDataElement} from '../web_components/components/track-data';
 import * as beats from '../storage/beats';
-import TabIconElement from '../web_components/components/tab_icon';
 
 /** @returns The 'Tracks' tab's content */
 export default function (): HTMLSpanElement {
@@ -28,40 +27,20 @@ export default function (): HTMLSpanElement {
 
 /**
  * @param content Where the tab's content is placed
- * @returns Tabs for every brainwave
+ * @returns A tab for every brainwave
  */
 function getTabs(content: HTMLDivElement): TabElement[] {
-    const waves = {
-        alpha: 'https://bit.ly/2wTc8tv',
-        beta: 'https://bit.ly/2F7YAyU',
-        delta: 'https://bit.ly/2WJ83az',
-        gamma: 'https://bit.ly/2WGfzOP',
-        theta: 'https://bit.ly/2WFjrPV'
-    };
-    return Object.entries(waves).reduce((tabs, [wave, image]) => {
-        const tab = getTab(wave, image);
+    return ['alpha', 'beta', 'delta', 'gamma', 'theta'].reduce((tabs, wave) => {
+        const tab = document.createElement('vaadin-tab');
+        tab.append(document.createTextNode(wave));
         tab.addEventListener('click', () => {
-            content.innerHTML = '';
+            while (content.firstChild) content.removeChild(content.firstChild);
             const data = beats.getBrainwave(wave);
             content.append(getDetails(data), getTrackTypes(data));
         });
         tabs.push(tab);
         return tabs;
     }, new Array<TabElement>());
-}
-
-/**
- * @param wave The brainwave whose tab is to be created
- * @param image The tab's icon (`HTMLImageElement.src`)
- */
-function getTab(wave: string, image: string): TabElement {
-    const title = wave[0].toUpperCase() + wave.slice(1);
-    const tab = document.createElement('vaadin-tab');
-    const icon = document.createElement('tab-icon') as TabIconElement;
-    icon.alt = title;
-    icon.src = image;
-    tab.append(icon, document.createTextNode(title));
-    return tab;
 }
 
 /** @param data The data from which a UI element is created */

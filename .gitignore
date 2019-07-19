@@ -3,3 +3,6 @@ node_modules/
 .cache/
 dist/
 docs/
+
+# Service worker
+sw.js

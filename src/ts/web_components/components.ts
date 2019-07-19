@@ -1,20 +1,19 @@
 /** Importing this file creates the necessary side effects to allow using any web component used in this project */
 
-import './components/category_adder';
-import './components/add_item';
-import './components/audio_control';
-import './components/audio_player';
-import './components/item_editor';
-import './components/playable_track';
-import './components/progress_indicator';
-import './components/confirm_dialog';
-import './components/dialog_button';
-import './components/dismiss_dialog';
-import './components/tab_icon';
-import './components/titled_item';
-import './components/track_data';
-import './components/validated_adder';
-import './components/wave_details';
+import './components/category-adder';
+import './components/add-item';
+import './components/audio-control';
+import './components/audio-player';
+import './components/item-editor';
+import './components/playable-track';
+import './components/progress-indicator';
+import './components/confirm-dialog';
+import './components/dialog-button';
+import './components/dismiss-dialog';
+import './components/titled-item';
+import './components/track-data';
+import './components/validated-adder';
+import './components/wave-details';
 import '@vaadin/vaadin-checkbox/theme/material/vaadin-checkbox';
 import '@vaadin/vaadin-text-field/theme/material/vaadin-text-field';
 import '@vaadin/vaadin-accordion/theme/material/vaadin-accordion';

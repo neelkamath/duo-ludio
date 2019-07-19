@@ -1,8 +1,8 @@
-import ProgressIndicatorElement from './progress_indicator';
-import TitledItemElement from './titled_item';
-import AudioControlElement from './audio_control';
-import AudioPlayerElement from './audio_player';
-import AudioData from '../audio_data';
+import ProgressIndicatorElement from './progress-indicator';
+import TitledItemElement from './titled-item';
+import AudioControlElement from './audio-control';
+import AudioPlayerElement from './audio-player';
+import AudioData from '../audio-data';
 
 /**
  * This web component's HTML name is `playable-track`. It contains a track's name, effects, and audio player. Place the
@@ -80,10 +80,6 @@ export default class PlayableTrackElement extends HTMLElement {
         for (const child of this.shadowRoot!.childNodes) child.remove();
     }
 
-    private updateName(): void {
-        this.nameElement.textContent = this.name;
-    }
-
     /** Displays the audio control */
     displayControl(): void {
         this.replaceAudioContent(this.control);
@@ -92,6 +88,15 @@ export default class PlayableTrackElement extends HTMLElement {
     /** Displays the progress bar for downloading audio */
     displayDownloader(): void {
         this.replaceAudioContent(this.download);
+    }
+
+    /** Displays that the track cannot be currently downloaded */
+    displayOffline(): void {
+        this.replaceAudioContent(this.offline);
+    }
+
+    private updateName(): void {
+        this.nameElement.textContent = this.name;
     }
 
     private setUpAudio(): void {
@@ -104,11 +109,6 @@ export default class PlayableTrackElement extends HTMLElement {
             }
         });
         this.player.addEventListener('stop', () => this.control.stop = false);
-    }
-
-    /** Displays that the track cannot be currently downloaded */
-    displayOffline(): void {
-        this.replaceAudioContent(this.offline);
     }
 
     private replaceAudioContent(child: ChildNode): void {

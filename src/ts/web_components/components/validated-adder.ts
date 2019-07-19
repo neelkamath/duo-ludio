@@ -1,6 +1,6 @@
-import DismissDialogElement from './dismiss_dialog';
-import * as itemAdder from './add_item';
-import {InvalidityMessenger} from '../invalid_message';
+import DismissDialogElement from './dismiss-dialog';
+import * as itemAdder from './add-item';
+import {InvalidityMessenger} from '../invalid-message';
 
 /** An `add` event */
 export class AddEvent extends Event {

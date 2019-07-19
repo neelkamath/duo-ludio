@@ -113,9 +113,9 @@ export abstract class TrackManager {
      * returns before finishing the download.
      */
     static async download(track: string): Promise<void> {
-        const name = track.slice(0, track.lastIndexOf('.'));
         const controller = new AbortController();
         TrackManager.downloading.set(track, () => controller.abort());
+        const name = track.slice(0, track.indexOf('.'));
         try {
             const response = await fetch(trackUrls[name], {signal: controller.signal});
             await saveTrack(track, await response.blob());
@@ -175,11 +175,6 @@ export async function saveTrack(track: string, data: Blob): Promise<void> {
 
 export async function getAudio(track: string): Promise<Blob> {
     return await localForage.getItem(track);
-}
-
-/** @returns Duration of `track`'s audio in seconds */
-export function getTrackDuration(track: string): number {
-    return getTrack(track).duration;
 }
 
 /** An `Error` will be thrown if there is no track named `name` */
