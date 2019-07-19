@@ -121,7 +121,7 @@ function getEffects(track: beats.PureTrack | beats.IsochronicTrack | beats.Solfe
 /** A dialog to add a track to a category */
 class CategoryAdder {
     /**
-     * @param track Track to prompt for addition to a category (e.g., `'Alpha_8_Hz.aac'`)
+     * @param track Track to prompt for addition to a category (e.g., `'Alpha_8_Hz.mp3'`)
      * @param dialog is used to render the category adder
      */
     constructor(private readonly track: string, dialog: DismissDialogElement) {

@@ -61,7 +61,7 @@ async function getCategories(player: AudioPlayerElement): AccordionElement {
 }
 
 /**
- * @param track The track (e.g., `'Alpha_8_Hz.aac'`) to create into a UI element
+ * @param track The track (e.g., `'Alpha_8_Hz.mp3'`) to create into a UI element
  * @param player The single audio player to control playback of all tracks
  */
 export async function getTrack(track: string, player: AudioPlayerElement): Promise<PlayableTrackElement> {
@@ -113,7 +113,7 @@ async function place(playable: PlayableTrackElement, track: string, format: stri
 }
 
 /**
- * @param track (e.g., `'Alpha_8_Hz.aac'`)
+ * @param track (e.g., `'Alpha_8_Hz.mp3'`)
  * @return Track's effects, assuming they're present
  */
 function getEffects(track: string): HTMLUListElement {

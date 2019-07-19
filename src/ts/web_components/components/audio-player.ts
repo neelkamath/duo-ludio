@@ -10,7 +10,7 @@ import AudioData from '../audio-data';
  * <audio-player id="player"></audio-player>
  * <script>
  *     document.querySelector('#player').play(
- *         {src: 'Alpha_8_Hz.aac', format: 'aac', start: 1000, end: 4000, loop: true}
+ *         {src: 'Alpha_8_Hz.mp3', format: 'aac', start: 1000, end: 4000, loop: true}
  *     );
  * </script>
  * ```
