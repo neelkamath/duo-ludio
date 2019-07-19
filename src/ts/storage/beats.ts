@@ -115,9 +115,9 @@ export abstract class TrackManager {
     static async download(track: string): Promise<void> {
         const controller = new AbortController();
         TrackManager.downloading.set(track, () => controller.abort());
-        const name = track.slice(0, track.indexOf('.'));
+        const url = trackUrls[track.slice(0, track.lastIndexOf('.'))];
         try {
-            const response = await fetch(trackUrls[name], {signal: controller.signal});
+            const response = await fetch(url, {signal: controller.signal});
             await saveTrack(track, await response.blob());
             TrackManager.downloading.delete(track);
         } catch (error) {

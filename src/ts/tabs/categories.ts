@@ -67,7 +67,7 @@ async function getCategories(player: AudioPlayerElement): AccordionElement {
 export async function getTrack(track: string, player: AudioPlayerElement): Promise<PlayableTrackElement> {
     const playable = document.createElement('playable-track') as PlayableTrackElement;
     playable.setPlayer(player);
-    playable.name = track.slice(0, track.indexOf('.')).replace(/_/g, ' ');
+    playable.name = `${track.slice(0, track.indexOf('Hz'))}Hz`.replace(/_/g, ' ');
     if (beats.trackHasEffects(track)) playable.append(getEffects(track));
     const parts = track.split('.');
     await placeAudio(playable, track, parts[parts.length - 1]);
