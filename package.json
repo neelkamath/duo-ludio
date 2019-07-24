@@ -1,8 +1,4 @@
 {
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/neelkamath/duo-ludio.git"
-  },
   "scripts": {
     "sw": "workbox generateSW workbox-config.js",
     "dev": "parcel src/index.html",
@@ -10,7 +6,6 @@
     "doc": "typedoc --out docs --listInvalidSymbolLinks --name 'Duo Ludio'",
     "test": "tsc --noEmit && npm run doc"
   },
-  "license": "MIT",
   "devDependencies": {
     "@types/howler": "^2.1.1",
     "parcel-bundler": "^1.12.3",
@@ -32,5 +27,6 @@
     "@vaadin/vaadin-text-field": "^2.4.7",
     "howler": "^2.1.2",
     "localforage": "^1.7.3"
-  }
+  },
+  "private": true
 }

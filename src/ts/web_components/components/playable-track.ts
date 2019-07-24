@@ -16,7 +16,7 @@ import AudioData from '../audio-data';
  * <script>
  *     const track = document.querySelector('#track');
  *     track.setPlayer(document.createElement('audio-player'));
- *     track.setSound({src: 'Alpha_8_Hz.aac', format: 'aac', start: 1000, end: 4000, loop: true});
+ *     track.setSound({src: 'Alpha_8_Hz.mp3', format: 'aac', start: 1000, end: 4000, loop: true});
  *     track.displayControl();
  * </script>
  * ```

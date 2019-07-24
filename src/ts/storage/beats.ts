@@ -1,11 +1,11 @@
 /**
  * This is the abstraction layer for dealing with binaural beats. A "track" is a track's filename
- * (e.g., `'Alpha_8_Hz.aac'`). When a track is downloaded, it is saved to `localForage` with the key as the track
- * (e.g., `'Alpha_8_Hz.aac'`), and the value as its `Blob`.
+ * (e.g., `'Alpha_8_Hz.mp3'`). When a track is downloaded, it is saved to `localForage` with the key as the track
+ * (e.g., `'Alpha_8_Hz.mp3'`), and the value as its `Blob`.
  */
 
 // @ts-ignore: Missing module declaration
-import trackUrls from '../../binaural_beats/tracks/*.aac';
+import trackUrls from '../../binaural_beats/tracks/*.mp3';
 import binauralBeats from '../../binaural_beats/data.json';
 import localForage from 'localforage';
 import 'regenerator-runtime/runtime';
@@ -115,9 +115,9 @@ export abstract class TrackManager {
     static async download(track: string): Promise<void> {
         const controller = new AbortController();
         TrackManager.downloading.set(track, () => controller.abort());
-        const name = track.slice(0, track.indexOf('.'));
+        const url = trackUrls[track.slice(0, track.lastIndexOf('.'))];
         try {
-            const response = await fetch(trackUrls[name], {signal: controller.signal});
+            const response = await fetch(url, {signal: controller.signal});
             await saveTrack(track, await response.blob());
             TrackManager.downloading.delete(track);
         } catch (error) {

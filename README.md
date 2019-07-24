@@ -50,7 +50,7 @@ The `dist/` directory will contain the built website.
 
 ## Testing
 
-`npm run test`
+`npm t`
 
 ## Documentation
 
@@ -64,9 +64,24 @@ The background color is `#fff`, and the theme color is `#6200ee` (both CSS color
 
 Parcel leaks an implementation detail for certain uses of `async`/`await` (see [this issue](https://github.com/parcel-bundler/parcel/issues/1762#issuecomment-504389468)). As a workaround, the statement `import 'regenerator-runtime/runtime';` is included in certain files.
 
+All web components are imported in `src/ts/web_components/components.ts`.
+
+When using TypeDoc to document web components, use the custom `@attribute` field to document the element's attributes.
+
+Mandatory attribute documentation example:
+```
+@attribute `aria-label` (required) ARIA label (e.g., `Confirm deleting category Meditation`)
+```
+Optional attribute documentation example:
+```
+@attribute `aria-label` (optional, default: `Confirm`) ARIA label (e.g., `Confirm deleting category Meditation`)
+```
+
+TypeDoc does'nt allow you to use the `event` in places such as constructors. A workaround is to document `Event`s by creating and documenting `private` methods which dispatch them.
+
 ### Binaural Beats
 
-The binaural beats used are from the [v4.0.0](https://github.com/neelkamath/binaural-beats-dataset/releases/tag/v4.0.0) release of the Binaural Beats Dataset. The `src` directory from the dataset is saved as `src/binaural_beats` in this repo.
+The binaural beats used are from the [v6.0.2](https://github.com/neelkamath/binaural-beats-dataset/releases/tag/v6.0.2) release of the Binaural Beats Dataset. The `src` directory from the dataset is saved as `src/binaural_beats` in this repo.
 
 ### Continuous Deployment
 
@@ -99,24 +114,7 @@ The `categories` item contains the user's binaural beats collection. Each key is
 
 To access metadata on binaural beats (which are stored in `src/binaural_beats/data.json`), use the abstraction layer `src/ts/storage/beats.ts`.
 
-Each track is downloaded a `localForage` item of the same name. For example, `Alpha_8_Hz.aac`'s `Blob` is saved to the `Alpha_8_Hz.aac` item.
-
-### Web Components
-
-All web components are imported in `src/ts/web_components/components.ts`.
-
-When using TypeDoc to document web components, use the custom `@attribute` field to document the element's attributes.
-
-Mandatory attribute documentation example:
-```
-@attribute `aria-label` (required) ARIA label (e.g., `Confirm deleting category Meditation`)
-```
-Optional attribute documentation example:
-```
-@attribute `aria-label` (optional, default: `Confirm`) ARIA label (e.g., `Confirm deleting category Meditation`)
-```
-
-TypeDoc does'nt allow you to use the `event` in places such as constructors. A workaround is to document `Event`s by creating and documenting `private` methods which dispatch them.
+Each track is downloaded a `localForage` item of the same name. For example, `Alpha_8_Hz.mp3`'s `Blob` is saved to the `Alpha_8_Hz.mp3` item.
 
 ## Credits
 
