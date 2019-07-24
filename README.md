@@ -50,7 +50,7 @@ The `dist/` directory will contain the built website.
 
 ## Testing
 
-`npm run test`
+`npm t`
 
 ## Documentation
 
@@ -81,7 +81,7 @@ TypeDoc does'nt allow you to use the `event` in places such as constructors. A w
 
 ### Binaural Beats
 
-The binaural beats used are from the [v6.0.0](https://github.com/neelkamath/binaural-beats-dataset/releases/tag/v6.0.0) release of the Binaural Beats Dataset. The `src` directory from the dataset is saved as `src/binaural_beats` in this repo.
+The binaural beats used are from the [v6.0.2](https://github.com/neelkamath/binaural-beats-dataset/releases/tag/v6.0.2) release of the Binaural Beats Dataset. The `src` directory from the dataset is saved as `src/binaural_beats` in this repo.
 
 ### Continuous Deployment
 
