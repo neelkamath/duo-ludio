@@ -8,7 +8,7 @@ For a person who needs help concentrating, Duo Ludio is a web app that provides 
 
 The name Duo Ludio is Latin for "Two Player" ("Two" for binaural beats).
 
-![Android](android.gif)
+![Demo](demo.gif)
 
 ## Installation
 
